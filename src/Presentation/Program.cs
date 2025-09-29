@@ -33,3 +33,37 @@ public class Program
         app.Run();
     }
 }
+
+/*  Tham khảo set-up
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services
+    .AddRazorPages()
+    .AddRazorPagesOptions(o =>  // bảo vệ Student pages
+        o.Conventions.AuthorizeAreaFolder("Student", "/"))
+    .Services
+    .AddControllersWithViews()
+    .AddRazorRuntimeCompilation();
+
+builder.Services.AddServerSideBlazor();
+builder.Services.AddSignalR();
+
+// custom DI
+builder.Services.AddPresentation();   // nằm trong Extensions
+
+var app = builder.Build();
+
+app.UseStaticFiles();
+app.UseRouting();
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+app.MapDefaultControllerRoute();      // root controllers
+app.MapRazorPages();
+app.MapBlazorHub();                   // Blazor SignalR
+app.MapHub<NotificationHub>("/hubs/notify");
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+app.Run();
+*/
