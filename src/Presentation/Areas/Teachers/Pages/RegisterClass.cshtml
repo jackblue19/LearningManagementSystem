@@ -1,0 +1,156 @@
+@page
+@model Presentation.Areas.Teachers.Pages.RegisterClassModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Register learner";
+}
+
+<div class="space-y-10">
+    <header class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div class="space-y-2">
+            <p class="text-xs font-semibold uppercase tracking-wide text-brand-600">Teacher workspace</p>
+            <h1 class="text-3xl font-semibold text-slate-900">Register learner</h1>
+            <p class="max-w-2xl text-sm text-slate-600">Seat a learner into an upcoming class and share onboarding notes with the assigned instructor.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+            <a asp-area="Teachers" asp-page="/ManageClass" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600">
+                Back to classes
+            </a>
+            <a asp-area="Teachers" asp-page="/Schedule" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700">
+                Plan schedule
+            </a>
+        </div>
+    </header>
+
+    @if (TempData["Success"] is string successMessage)
+    {
+        <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">@successMessage</div>
+    }
+
+    <div class="grid gap-6 xl:grid-cols-3">
+        <div class="xl:col-span-2 space-y-6">
+            <div class="rounded-3xl border border-slate-200 bg-white shadow-sm">
+                <form method="post" class="space-y-6 px-6 py-6">
+                    <div>
+                        <h2 class="text-lg font-semibold text-slate-900">Learner details</h2>
+                        <p class="text-sm text-slate-500">Select the class, learner, and start date. Seating updates propagate to attendance automatically.</p>
+                    </div>
+
+                    <div asp-validation-summary="ModelOnly" class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700" role="alert"></div>
+
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div>
+                            <label asp-for="Input.ClassId" class="block text-sm font-semibold text-slate-800"></label>
+                            <select asp-for="Input.ClassId" asp-items="Model.ClassOptions" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100">
+                                <option value="">Select a class</option>
+                            </select>
+                            <span asp-validation-for="Input.ClassId" class="mt-1 block text-xs text-rose-600"></span>
+                        </div>
+                        <div>
+                            <label asp-for="Input.StudentId" class="block text-sm font-semibold text-slate-800"></label>
+                            <select asp-for="Input.StudentId" asp-items="Model.StudentOptions" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100">
+                                <option value="">Select learner</option>
+                            </select>
+                            <span asp-validation-for="Input.StudentId" class="mt-1 block text-xs text-rose-600"></span>
+                        </div>
+                        <div>
+                            <label asp-for="Input.StartDate" class="block text-sm font-semibold text-slate-800"></label>
+                            <input asp-for="Input.StartDate" type="date" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100" />
+                            <span asp-validation-for="Input.StartDate" class="mt-1 block text-xs text-rose-600"></span>
+                        </div>
+                        <div>
+                            <label asp-for="Input.Seats" class="block text-sm font-semibold text-slate-800"></label>
+                            <input asp-for="Input.Seats" type="number" min="1" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100" />
+                            <span asp-validation-for="Input.Seats" class="mt-1 block text-xs text-rose-600"></span>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label asp-for="Input.Notes" class="block text-sm font-semibold text-slate-800"></label>
+                            <textarea asp-for="Input.Notes" rows="3" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100" placeholder="Add context for the instructor"></textarea>
+                            <span asp-validation-for="Input.Notes" class="mt-1 block text-xs text-rose-600"></span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <p class="text-xs text-slate-500">Need a new cohort? <a asp-area="Teachers" asp-page="/CreateClass" class="font-semibold text-brand-600 hover:text-brand-700">Create a class</a>.</p>
+                        <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                            <span>Register learner</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            @if (Model.Receipt is not null)
+            {
+                <div class="rounded-3xl border border-emerald-200 bg-emerald-50 px-6 py-6">
+                    <h2 class="text-lg font-semibold text-emerald-800">Registration queued</h2>
+                    <p class="mt-1 text-sm text-emerald-700">Confirmation has been sent to the learner and instructor.</p>
+                    <dl class="mt-4 grid gap-3 text-sm">
+                        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                            <dt class="font-semibold text-emerald-900">Learner</dt>
+                            <dd>@Model.Receipt.Student</dd>
+                        </div>
+                        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                            <dt class="font-semibold text-emerald-900">Class</dt>
+                            <dd>@Model.Receipt.ClassName</dd>
+                        </div>
+                        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                            <dt class="font-semibold text-emerald-900">Start date</dt>
+                            <dd>@Model.Receipt.StartDate.ToString("dddd, MMM d")</dd>
+                        </div>
+                        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                            <dt class="font-semibold text-emerald-900">Seats reserved</dt>
+                            <dd>@Model.Receipt.SeatsReserved</dd>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(Model.Receipt.Notes))
+                        {
+                            <div class="flex flex-col gap-1">
+                                <dt class="font-semibold text-emerald-900">Notes</dt>
+                                <dd class="text-emerald-700">@Model.Receipt.Notes</dd>
+                            </div>
+                        }
+                    </dl>
+                </div>
+            }
+        </div>
+
+        <aside class="space-y-6">
+            <div class="rounded-3xl border border-slate-200 bg-white shadow-sm">
+                <div class="border-b border-slate-100 px-6 py-4">
+                    <h2 class="text-lg font-semibold text-slate-900">Recent registrations</h2>
+                    <p class="text-sm text-slate-500">Latest learner enrolments and queue movements.</p>
+                </div>
+                <ul class="divide-y divide-slate-100">
+                    @foreach (var registration in Model.RecentRegistrations.OrderByDescending(r => r.RequestedOn))
+                    {
+                        <li class="px-6 py-4">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-900">@registration.Student</p>
+                                    <p class="text-xs text-slate-500">@registration.ClassName</p>
+                                    <p class="mt-1 text-xs text-slate-400">@registration.RequestedOn.ToLocalTime().ToString("MMM d, h:mm tt")</p>
+                                </div>
+                                <span class="rounded-full px-2.5 py-1 text-xs font-semibold @registration.StatusBadge">@registration.Status</span>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <div class="rounded-3xl border border-slate-200 bg-slate-50 px-6 py-6 text-sm text-slate-600">
+                <h3 class="text-base font-semibold text-slate-900">Tips</h3>
+                <ul class="mt-3 space-y-2">
+                    <li>Schedule auto-reminders go out 24h before the first session.</li>
+                    <li>Waitlisted learners stay in queue until capacity drops below 90%.</li>
+                    <li>Registration notes appear inside the class attendance board.</li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="~/Views/Shared/_ValidationScriptsPartial.cshtml" />
+}

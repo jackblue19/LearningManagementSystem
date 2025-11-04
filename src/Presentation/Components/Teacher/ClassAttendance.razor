@@ -1,0 +1,234 @@
+@namespace Presentation.Components.Teacher
+@using Application.Interfaces.Services
+@using Application.DTOs
+@using System.Linq
+@inject ITeacherService TeacherService
+
+<section class="rounded-3xl border border-slate-200 bg-white shadow-sm">
+    <div class="flex flex-col gap-4 border-b border-slate-100 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h2 class="text-lg font-semibold text-slate-900">Attendance board</h2>
+            <p class="text-sm text-slate-500">Mark which cohorts have been taken through today’s lesson plan.</p>
+        </div>
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div class="relative">
+                <input type="search" placeholder="Search class"
+                    class="w-52 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                    @bind-value="FilterText" @bind-value:event="oninput" />
+                <svg class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                    <path d="M11 5a6 6 0 1 1-3.84 10.56l-2.6 2.6" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+            </div>
+            <button type="button"
+                class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700"
+                @onclick="RefreshAsync" disabled="@isLoading">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                    aria-hidden="true">
+                    <path
+                        d="M4 4v5h.582m15.356 2a7.5 7.5 0 0 0-13.195-4.5M20 20v-5h-.581m-15.357-2a7.5 7.5 0 0 0 13.196 4.5"
+                        stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span>Sync data</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="px-6 py-5">
+        @if (isLoading)
+        {
+            <div class="flex items-center justify-center py-8 text-slate-500">
+                <svg class="h-6 w-6 animate-spin text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.5" aria-hidden="true">
+                    <path d="M12 3a9 9 0 1 1-9 9" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span class="ml-3 text-sm font-medium">Loading classes…</span>
+            </div>
+        }
+        else
+        {
+            var filtered = Filtered.ToList();
+
+            if (!filtered.Any())
+            {
+                <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-8 text-center">
+                    <p class="text-sm font-semibold text-slate-900">No classes to display</p>
+                    <p class="mt-1 text-xs text-slate-500">Adjust your search or create a new class to begin tracking
+                        attendance.</p>
+                </div>
+            }
+            else
+            {
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-slate-100 text-left text-sm">
+                        <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                            <tr>
+                                <th class="px-4 py-3">Class</th>
+                                <th class="px-4 py-3">Subject</th>
+                                <th class="px-4 py-3">Instructor</th>
+                                <th class="px-4 py-3">Timeline</th>
+                                <th class="px-4 py-3 text-center">Attendance</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-700">
+                            @foreach (var c in filtered)
+                            {
+                                var isPresent = present.Contains(c.ClassId);
+                                <tr class="transition hover:bg-slate-50/70">
+                                    <td class="px-4 py-4">
+                                        <div class="font-semibold text-slate-900">@c.ClassName</div>
+                                        <div class="text-xs text-slate-500">ID: @c.ClassId</div>
+                                    </td>
+                                    <td class="px-4 py-4">@c.SubjectId</td>
+                                    <td class="px-4 py-4">@c.TeacherId</td>
+                                    <td class="px-4 py-4">
+                                        <div class="text-sm text-slate-700">@(c.StartDate?.ToString("MMM dd") ?? "TBD") -
+                                            @(c.EndDate?.ToString("MMM dd") ?? "TBD")</div>
+                                        <div class="text-xs text-slate-500">@c.ScheduleDesc</div>
+                                    </td>
+                                    <td class="px-4 py-4 text-center">
+                                        <button type="button"
+                                            class="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold transition @(isPresent ? "border-emerald-400 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-600 hover:border-brand-300 hover:text-brand-700")"
+                                            @onclick="() => ToggleAttendance(c.ClassId)">
+                                            <span>@(isPresent ? "Marked" : "Mark present")</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            <div class="mt-4 flex flex-wrap items-center gap-3">
+                <button type="button"
+                    class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                    @onclick="SaveAttendance" disabled="@(!present.Any() || isLoading)">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                        aria-hidden="true">
+                        <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <span>Save attendance</span>
+                </button>
+                <button type="button"
+                    class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700"
+                    @onclick="ClearSelection" disabled="@(!present.Any() || isLoading)">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                        aria-hidden="true">
+                        <path d="M6 18 18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <span>Clear</span>
+                </button>
+                <span class="text-xs text-slate-500">@present.Count marked for today</span>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(statusMessage))
+            {
+                <div
+                    class="mt-4 rounded-xl border px-4 py-3 text-sm @(statusIsError ? "border-rose-200 bg-rose-50 text-rose-700" : "border-emerald-200 bg-emerald-50 text-emerald-700")">
+                    @statusMessage
+                </div>
+            }
+        }
+    </div>
+</section>
+
+@code {
+    private List<ClassDto> classes = new();
+    private bool isLoading = true;
+    private string FilterText { get; set; } = string.Empty;
+    private readonly HashSet<Guid> present = new();
+    private string? statusMessage;
+    private bool statusIsError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadClassesAsync();
+    }
+
+    private IEnumerable<ClassDto> Filtered => string.IsNullOrWhiteSpace(FilterText)
+    ? classes
+    : classes.Where(c => c.ClassName != null && c.ClassName.Contains(FilterText, StringComparison.OrdinalIgnoreCase));
+
+    private void ToggleAttendance(Guid id)
+    {
+        if (!present.Add(id))
+        {
+            present.Remove(id);
+        }
+    }
+
+    private void ClearSelection()
+    {
+        present.Clear();
+        statusMessage = null;
+    }
+
+    private async Task RefreshAsync()
+    {
+        await LoadClassesAsync();
+        present.Clear();
+        statusMessage = null;
+    }
+
+    private async Task LoadClassesAsync()
+    {
+        try
+        {
+            isLoading = true;
+            statusMessage = null;
+            var all = await TeacherService.GetClassesAsync();
+            classes = all?.ToList() ?? new List<ClassDto>();
+        }
+        catch (Exception ex)
+        {
+            statusIsError = true;
+            statusMessage = $"Unable to load classes right now ({ex.Message}).";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    // Persist attendance records via Application layer service.
+    private async Task SaveAttendance()
+    {
+        if (!present.Any())
+        {
+            statusIsError = true;
+            statusMessage = "Select at least one class before saving.";
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            statusIsError = false;
+
+            foreach (var classId in present.ToList())
+            {
+                var attendanceDto = new AttendanceDto
+                {
+                    ScheduleId = 0,
+                    StudentId = Guid.Empty,
+                    StudentStatus = "Present"
+                };
+
+                await TeacherService.CreateAttendanceAsync(attendanceDto);
+            }
+
+            statusMessage = $"Attendance saved for {present.Count} class(es).";
+            present.Clear();
+        }
+        catch (Exception ex)
+        {
+            statusIsError = true;
+            statusMessage = $"Could not save attendance ({ex.Message}).";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

@@ -1,0 +1,6 @@
+@page
+@{
+    // Simple redirect helper so links like /Auth/Login?area=Shared or /Auth/Login work.
+    // Redirects to the area-based Razor Page we created under /Shared/Auth/Login.
+    Response.Redirect("/Shared/Auth/Login", permanent: false);
+}

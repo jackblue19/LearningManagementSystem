@@ -1,0 +1,177 @@
+@page
+@model Presentation.Areas.Teachers.Pages.ScheduleModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Schedule sessions";
+}
+
+<div class="space-y-10">
+    <header class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div class="space-y-2">
+            <p class="text-xs font-semibold uppercase tracking-wide text-brand-600">Teacher workspace</p>
+            <h1 class="text-3xl font-semibold text-slate-900">Schedule sessions</h1>
+            <p class="max-w-2xl text-sm text-slate-600">Coordinate time, delivery mode, and focus for each class session to keep learners aligned.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+            <a asp-area="Teachers" asp-page="/ManageClass" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600">
+                Back to classes
+            </a>
+            <a asp-area="Teachers" asp-page="/CreateClass" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700">
+                Create class
+            </a>
+            <a asp-area="Teachers" asp-page="/RegisterClass" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700">
+                Register learner
+            </a>
+        </div>
+    </header>
+
+    @if (TempData["Success"] is string successMessage)
+    {
+        <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">@successMessage</div>
+    }
+
+    <div class="grid gap-6 xl:grid-cols-3">
+        <div class="xl:col-span-2 space-y-6">
+            <div class="rounded-3xl border border-slate-200 bg-white shadow-sm">
+                <form method="post" class="space-y-6 px-6 py-6">
+                    <div>
+                        <h2 class="text-lg font-semibold text-slate-900">Plan a new session</h2>
+                        <p class="text-sm text-slate-500">Choose the class, timing, and delivery format. Invites can be sent automatically.</p>
+                    </div>
+
+                    <div asp-validation-summary="ModelOnly" class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700" role="alert"></div>
+
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div>
+                            <label asp-for="Input.ClassCode" class="block text-sm font-semibold text-slate-800"></label>
+                            <select asp-for="Input.ClassCode" asp-items="Model.ClassOptions" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100">
+                                <option value="">Select class</option>
+                            </select>
+                            <span asp-validation-for="Input.ClassCode" class="mt-1 block text-xs text-rose-600"></span>
+                        </div>
+                        <div>
+                            <label asp-for="Input.Date" class="block text-sm font-semibold text-slate-800"></label>
+                            <input asp-for="Input.Date" type="date" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100" />
+                            <span asp-validation-for="Input.Date" class="mt-1 block text-xs text-rose-600"></span>
+                        </div>
+                        <div>
+                            <label asp-for="Input.StartTime" class="block text-sm font-semibold text-slate-800"></label>
+                            <input asp-for="Input.StartTime" type="time" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100" />
+                            <span asp-validation-for="Input.StartTime" class="mt-1 block text-xs text-rose-600"></span>
+                        </div>
+                        <div>
+                            <label asp-for="Input.EndTime" class="block text-sm font-semibold text-slate-800"></label>
+                            <input asp-for="Input.EndTime" type="time" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100" />
+                            <span asp-validation-for="Input.EndTime" class="mt-1 block text-xs text-rose-600"></span>
+                        </div>
+                        <div>
+                            <label asp-for="Input.DeliveryMode" class="block text-sm font-semibold text-slate-800"></label>
+                            <select asp-for="Input.DeliveryMode" asp-items="Model.DeliveryModes" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"></select>
+                            <span asp-validation-for="Input.DeliveryMode" class="mt-1 block text-xs text-rose-600"></span>
+                        </div>
+                        <div>
+                            <label asp-for="Input.Room" class="block text-sm font-semibold text-slate-800"></label>
+                            <input asp-for="Input.Room" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100" placeholder="Innovation Lab 2B" />
+                            <span asp-validation-for="Input.Room" class="mt-1 block text-xs text-rose-600"></span>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label asp-for="Input.Focus" class="block text-sm font-semibold text-slate-800"></label>
+                            <textarea asp-for="Input.Focus" rows="3" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100" placeholder="Outline the learning goals"></textarea>
+                            <span asp-validation-for="Input.Focus" class="mt-1 block text-xs text-rose-600"></span>
+                        </div>
+                        <div class="md:col-span-2 flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-2">
+                            <input asp-for="Input.SendInvites" class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
+                            <label asp-for="Input.SendInvites" class="text-sm text-slate-700">Send calendar invites to learners and instructors</label>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <p class="text-xs text-slate-500">Need to adjust rooms? <a asp-area="CentreManagement" asp-page="/Dashboard" class="font-semibold text-brand-600 hover:text-brand-700">Coordinate with centre ops</a>.</p>
+                        <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                            <span>Schedule session</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            @if (Model.Confirmation is not null)
+            {
+                <div class="rounded-3xl border border-brand-200 bg-brand-50 px-6 py-6 text-sm text-brand-700">
+                    <h2 class="text-lg font-semibold text-brand-800">Session confirmed</h2>
+                    <p class="mt-1">@Model.Confirmation.ClassName scheduled for @Model.Confirmation.Start.ToString("MMM d, h:mm tt").</p>
+                    <dl class="mt-4 grid gap-3">
+                        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                            <dt class="font-semibold text-brand-900">Window</dt>
+                            <dd>@Model.Confirmation.Start.ToString("MMM d, h:mm tt") to @Model.Confirmation.End.ToString("h:mm tt")</dd>
+                        </div>
+                        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                            <dt class="font-semibold text-brand-900">Room</dt>
+                            <dd>@Model.Confirmation.Room</dd>
+                        </div>
+                        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                            <dt class="font-semibold text-brand-900">Delivery</dt>
+                            <dd>@Model.Confirmation.DeliveryMode</dd>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <dt class="font-semibold text-brand-900">Focus</dt>
+                            <dd>@Model.Confirmation.Focus</dd>
+                        </div>
+                        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                            <dt class="font-semibold text-brand-900">Invites</dt>
+                            <dd>@(Model.Confirmation.SendInvites ? "Sent to attendees" : "Not sent")</dd>
+                        </div>
+                    </dl>
+                </div>
+            }
+        </div>
+
+        <aside class="space-y-6">
+            <div class="rounded-3xl border border-slate-200 bg-white shadow-sm">
+                <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-slate-900">Upcoming sessions</h2>
+                        <p class="text-sm text-slate-500">Sorted by start time for the coming week.</p>
+                    </div>
+                    <a asp-area="Teachers" asp-page="/ManageClass" class="text-xs font-semibold text-brand-600 hover:text-brand-700">View all</a>
+                </div>
+                <ul class="divide-y divide-slate-100">
+                    @foreach (var entry in Model.ScheduleEntries.OrderBy(e => e.Start))
+                    {
+                        <li class="px-6 py-4">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="flex gap-4">
+                                    <div class="flex h-12 w-12 flex-col items-center justify-center rounded-xl bg-slate-50 text-sm font-semibold text-brand-600">
+                                        <span>@entry.Start.ToString("dd")</span>
+                                        <span class="text-xs uppercase tracking-wide text-slate-500">@entry.Start.ToString("MMM")</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-slate-900">@entry.ClassName</p>
+                                        <p class="text-xs text-slate-500">@entry.Focus</p>
+                                        <p class="mt-2 text-xs text-slate-500">@entry.Start.ToString("h:mm tt") to @entry.End.ToString("h:mm tt") - @entry.Room</p>
+                                    </div>
+                                </div>
+                                <span class="rounded-full px-2.5 py-1 text-xs font-semibold @entry.DeliveryBadge">@entry.DeliveryMode</span>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <div class="rounded-3xl border border-slate-200 bg-slate-50 px-6 py-6 text-sm text-slate-600">
+                <h3 class="text-base font-semibold text-slate-900">Working with calendars</h3>
+                <ul class="mt-3 space-y-2">
+                    <li>Calendar sync pushes updates to Microsoft Teams and Google Calendar users.</li>
+                    <li>Flag schedule conflicts by opening the centre availability dashboard.</li>
+                    <li>Invite guests such as mentors by adding them to the notes field above.</li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="~/Views/Shared/_ValidationScriptsPartial.cshtml" />
+}

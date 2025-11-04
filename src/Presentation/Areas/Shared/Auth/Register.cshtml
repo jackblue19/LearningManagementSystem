@@ -1,4 +1,35 @@
 ﻿@page
 @model Presentation.RazorPages.Auth.RegisterModel
 @{
+    Layout = "_Layout";
+    ViewData["Title"] = "Register";
 }
+
+<div class="max-w-md mx-auto">
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-2xl font-semibold mb-4">Register</h2>
+
+        <form method="post" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Username</label>
+                <input name="Username" class="mt-1 block w-full rounded border-gray-200" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Role</label>
+                <select name="Role" class="mt-1 block w-full rounded border-gray-200">
+                    <option value="">Select role</option>
+                    <option value="Student">Student</option>
+                    <option value="Teacher">Teacher</option>
+                    <option value="Admin">Admin</option>
+                    <option value="CentreManagement">CentreManagement</option>
+                </select>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Register & Sign in</button>
+                <a class="text-sm text-gray-600" asp-area="Shared" asp-page="/Auth/Login">Sign in</a>
+            </div>
+        </form>
+    </div>
+</div>

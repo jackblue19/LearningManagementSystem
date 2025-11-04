@@ -1,0 +1,24 @@
+@using System
+@model IEnumerable<Presentation.ViewModels.Admin.AttendanceRecordViewModel>
+
+<section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="flex items-center justify-between">
+        <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Attendance trend</h3>
+        <a href="#" class="text-xs font-medium text-brand-600 hover:text-brand-700">View report</a>
+    </div>
+    <ul class="mt-4 space-y-3">
+        @foreach (var record in Model)
+        {
+            var attendanceRate = record.PresentCount + record.AbsentCount == 0
+                ? 0
+                : (int)Math.Round(record.PresentCount * 100m / (record.PresentCount + record.AbsentCount));
+            <li class="flex items-center justify-between rounded-xl border border-slate-100 px-4 py-3">
+                <div>
+                    <p class="text-sm font-medium text-slate-900">@record.ClassName</p>
+                    <p class="text-xs text-slate-500">@record.Date.ToString("MMM dd") • @attendanceRate% present</p>
+                </div>
+                <span class="text-sm font-semibold text-slate-900">@record.PresentCount/@(record.PresentCount + record.AbsentCount)</span>
+            </li>
+        }
+    </ul>
+</section>

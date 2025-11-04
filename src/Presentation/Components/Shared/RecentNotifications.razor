@@ -1,0 +1,38 @@
+@namespace Presentation.Components.Shared
+@using Infrastructure.Data
+
+<div class="bg-white p-4 rounded-lg shadow">
+    <div class="flex items-center justify-between mb-3">
+        <div class="text-sm font-medium text-gray-700">Recent Notifications</div>
+        <div class="text-xs text-gray-400">Live</div>
+    </div>
+
+    @if (notifications == null || !notifications.Any())
+    {
+        <div class="text-sm text-gray-500">No notifications</div>
+    }
+    else
+    {
+        <ul class="space-y-2">
+            @foreach (var n in notifications.Take(6))
+            {
+                <li class="p-2 rounded hover:bg-gray-50">
+                    <div class="text-sm font-semibold text-gray-800">@(!string.IsNullOrWhiteSpace(n.NotiType) ? n.NotiType :
+                                        "Notification")</div>
+                    <div class="text-xs text-gray-500">@n.Content</div>
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+@code {
+    // Lightweight demo model binding to Infrastructure.Data.Notification if available.
+    private List<Infrastructure.Data.Notification> notifications = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // For now load nothing (demo). If you want real data, inject an Application service.
+        await Task.CompletedTask;
+    }
+}

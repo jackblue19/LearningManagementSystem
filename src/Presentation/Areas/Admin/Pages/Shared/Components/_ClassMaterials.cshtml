@@ -1,0 +1,20 @@
+@model IEnumerable<Presentation.ViewModels.Admin.ClassMaterialViewModel>
+
+<section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="flex items-center justify-between">
+        <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Class materials</h3>
+        <a href="#" class="text-xs font-medium text-brand-600 hover:text-brand-700">Upload</a>
+    </div>
+    <ul class="mt-4 divide-y divide-slate-100">
+        @foreach (var material in Model)
+        {
+            <li class="flex items-center justify-between py-3">
+                <div>
+                    <p class="text-sm font-semibold text-slate-900">@material.Title</p>
+                    <p class="text-xs text-slate-500">@material.Format • @material.Owner</p>
+                </div>
+                <span class="text-xs text-slate-400">Updated @material.UpdatedAt.ToString("MMM dd")</span>
+            </li>
+        }
+    </ul>
+</section>

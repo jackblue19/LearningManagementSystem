@@ -1,4 +1,8 @@
 ﻿@page
-@model Presentation.RazorPages.Auth.LoginModel
 @{
+    // Legacy misplaced file: redirect to the proper area Razor Page path under /Shared/Auth/
+    var queryString = HttpContext?.Request?.QueryString.HasValue == true
+        ? HttpContext.Request.QueryString.Value
+        : string.Empty;
+    Response.Redirect($"/Shared/Auth/Login{queryString}", permanent: false);
 }

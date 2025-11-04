@@ -1,0 +1,67 @@
+@namespace Presentation.Components.Teacher
+@using Application.Interfaces.Services
+@using Application.DTOs
+@inject ITeacherService TeacherService
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="bg-white p-4 rounded-lg shadow flex flex-col">
+        <div class="text-sm text-gray-500">Total Classes</div>
+        <div class="mt-2 text-3xl font-bold text-gray-800">@classesCount</div>
+        <div class="text-xs text-gray-400 mt-2">All active classes in the center</div>
+    </div>
+
+    <div class="bg-white p-4 rounded-lg shadow flex flex-col">
+        <div class="text-sm text-gray-500">Upcoming This Week</div>
+        <div class="mt-2 text-3xl font-bold text-gray-800">@upcomingThisWeek</div>
+        <div class="text-xs text-gray-400 mt-2">Classes starting within 7 days</div>
+    </div>
+
+    <div class="bg-white p-4 rounded-lg shadow flex flex-col">
+        <div class="text-sm text-gray-500">Attendance Records</div>
+        <div class="mt-2 text-3xl font-bold text-gray-800">@attendanceCount</div>
+        <div class="text-xs text-gray-400 mt-2">Total attendance entries recorded</div>
+    </div>
+
+    <div class="bg-white p-4 rounded-lg shadow flex flex-col">
+        <div class="text-sm text-gray-500">Avg Attendance / Class</div>
+        <div class="mt-2 text-3xl font-bold text-gray-800">@avgAttendancePerClass</div>
+        <div class="text-xs text-gray-400 mt-2">Rough average (attendance / class)</div>
+    </div>
+</div>
+
+@code {
+    private int classesCount = 0;
+    private int upcomingThisWeek = 0;
+    private int attendanceCount = 0;
+    private string avgAttendancePerClass = "-";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var classes = (await TeacherService.GetClassesAsync())?.ToList() ?? new List<ClassDto>();
+            classesCount = classes.Count;
+
+            var now = DateTime.UtcNow;
+            var weekAhead = now.AddDays(7);
+            upcomingThisWeek = classes.Count(c => c.StartDate.HasValue && c.StartDate.Value >= now && c.StartDate.Value <= weekAhead);
+
+            var attendances = (await TeacherService.GetAttendancesAsync())?.ToList() ?? new List<AttendanceDto>();
+            attendanceCount = attendances.Count;
+
+            if (classesCount > 0)
+            {
+                var avg = (double)attendanceCount / Math.Max(1, classesCount);
+                avgAttendancePerClass = avg.ToString("0.0");
+            }
+            else
+            {
+                avgAttendancePerClass = "0.0";
+            }
+        }
+        catch
+        {
+            // keep defaults on error
+        }
+    }
+}

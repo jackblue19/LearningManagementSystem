@@ -1,0 +1,98 @@
+@page
+@model Presentation.Areas.Shared.Pages.Auth.RegisterModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Create an account";
+    ViewData["LayoutVariant"] = "standalone";
+    var hasForm = HttpContext?.Request?.HasFormContentType == true;
+    var usernameValue = hasForm ? HttpContext!.Request.Form["Username"].ToString() : string.Empty;
+    var roleValue = hasForm ? HttpContext!.Request.Form["Role"].ToString() : string.Empty;
+}
+
+<section
+    class="grid w-full max-w-5xl gap-10 rounded-3xl bg-white/90 p-8 shadow-2xl ring-1 ring-slate-200 backdrop-blur-sm transition sm:p-12 lg:grid-cols-[1.05fr_1fr]">
+    <div class="flex flex-col justify-between gap-8">
+        <div class="space-y-5">
+            <span
+                class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-600">New
+                workspace</span>
+            <h1 class="text-3xl font-semibold text-slate-900 sm:text-4xl">Set up your LMS access</h1>
+            <p class="text-base leading-relaxed text-slate-600">Create a profile to collaborate with your cohort, manage
+                curriculum, or administer your learning center. You can add additional roles after onboarding.</p>
+        </div>
+        <ul class="grid gap-4 rounded-2xl border border-slate-200 bg-slate-50/70 p-5 text-sm text-slate-600">
+            <li class="flex items-start gap-3">
+                <svg class="mt-1 h-4 w-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.5" aria-hidden="true">
+                    <path d="m6 12 3 3 9-9" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span><strong class="text-slate-900">Role-based permissions</strong> keep student, instructor, and
+                    management workflows separated.</span>
+            </li>
+            <li class="flex items-start gap-3">
+                <svg class="mt-1 h-4 w-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.5" aria-hidden="true">
+                    <path d="m6 12 3 3 9-9" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span><strong class="text-slate-900">Audit trails</strong> help you review activity and support
+                    compliance requirements.</span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="flex flex-col justify-center">
+        <div class="rounded-2xl border border-slate-200 bg-white/70 p-8 shadow-sm backdrop-blur">
+            <h2 class="text-2xl font-semibold text-slate-900">Create your access</h2>
+            <p class="mt-2 text-sm text-slate-500">Already collaborating with us? <a
+                    class="font-semibold text-brand-600 hover:text-brand-700" asp-area="Shared"
+                    asp-page="/Auth/Login">Sign in instead</a>.</p>
+
+            <form method="post" asp-antiforgery="true" class="mt-8 space-y-6">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All"
+                        class="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+                    </div>
+                }
+
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-slate-800" for="username">Username</label>
+                    <input id="username" name="Username" value="@usernameValue" autocomplete="username"
+                        class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                        placeholder="e.g. dev.dash or campus ID" />
+                    <p class="text-xs text-slate-500">Use letters, numbers, or approved identifiers. This becomes your
+                        login credential.</p>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-slate-800" for="role">Primary role</label>
+                    <select id="role" name="Role"
+                        class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100">
+                        <option value="">Select role</option>
+                        <option value="Student" selected="@(roleValue == "Student" ? "selected" : null)">Student
+                        </option>
+                        <option value="Teacher" selected="@(roleValue == "Teacher" ? "selected" : null)">Teacher
+                        </option>
+                        <option value="Admin" selected="@(roleValue == "Admin" ? "selected" : null)">Admin</option>
+                        <option value="CentreManagement"
+                            selected="@(roleValue == "CentreManagement" ? "selected" : null)">Centre management</option>
+                    </select>
+                    <p class="text-xs text-slate-500">We tailor onboarding tips and dashboards to this selection.</p>
+                </div>
+
+                <button type="submit"
+                    class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                        aria-hidden="true">
+                        <path d="M5 12h14" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path d="m12 5 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <span>Register & sign in</span>
+                </button>
+
+                <p class="text-xs leading-relaxed text-slate-500">By continuing you agree to our acceptable use
+                    guidelines and acknowledge that access may be monitored for security compliance.</p>
+            </form>
+        </div>
+    </div>
+</section>

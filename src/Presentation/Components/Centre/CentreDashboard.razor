@@ -1,0 +1,82 @@
+@namespace Presentation.Components.Centre
+@using Application.Interfaces.Services
+@using Application.DTOs
+@inject ICentreService CentreService
+
+<h3>Centre Management Dashboard</h3>
+
+@if (isLoading)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+}
+else
+{
+    <div class="row mb-3">
+        <div class="col-sm-4">
+            <div class="card text-center p-2">
+                <div class="card-body">
+                    <h6 class="card-title">Centers</h6>
+                    <p class="card-text display-6">@centersCount</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card text-center p-2">
+                <div class="card-body">
+                    <h6 class="card-title">Classes</h6>
+                    <p class="card-text display-6">@classesCount</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h5>Recent Classes</h5>
+    <table class="table table-sm table-striped">
+        <thead>
+            <tr>
+                <th>Class</th>
+                <th>Center</th>
+                <th>Start</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in recent)
+            {
+                <tr>
+                    <td>@c.ClassName</td>
+                    <td>@c.CenterId</td>
+                    <td>@(c.StartDate?.ToString("yyyy-MM-dd") ?? "-")</td>
+                    <td>@(c.ClassStatus ?? "-")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private bool isLoading = true;
+    private int centersCount = 0;
+    private int classesCount = 0;
+    private List<ClassDto> recent = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isLoading = true;
+            var allCenters = (await CentreService.GetCentersAsync()).ToList();
+            centersCount = allCenters.Count;
+
+            var allClasses = (await CentreService.GetClassesAsync()).ToList();
+            classesCount = allClasses.Count;
+            recent = allClasses.OrderByDescending(c => c.CreatedAt).Take(10).ToList();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

@@ -1,0 +1,35 @@
+@namespace Presentation.Components.Shared
+
+<div class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-lg shadow-lg">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+            <div class="text-sm uppercase opacity-80 tracking-wide">Welcome back</div>
+            <div class="mt-2 text-3xl sm:text-4xl font-extrabold">Your dashboard at a glance</div>
+            <p class="mt-2 text-sm opacity-90 max-w-xl">Quick access to the things that matter — classes, attendance and
+                announcements. Use the quick actions on the right to perform common tasks fast.</p>
+
+            <div class="mt-4 flex flex-wrap gap-3">
+                <button
+                    class="px-4 py-2 bg-white text-indigo-700 rounded-md font-medium shadow-sm hover:opacity-95 transition">Create
+                    Class</button>
+                <button
+                    class="px-4 py-2 bg-white/20 border border-white/30 text-white rounded-md font-medium hover:bg-white/25 transition">Schedule</button>
+                <button
+                    class="px-4 py-2 bg-white/10 text-white rounded-md font-medium hover:bg-white/20 transition">Announcements</button>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-6 ml-auto">
+            <div class="text-center">
+                <div class="text-sm opacity-80">Today</div>
+                <div class="text-2xl font-bold">@DateTime.UtcNow.ToString("MMM d")</div>
+            </div>
+
+            <div class="hidden sm:block bg-white/10 p-3 rounded">
+                <div class="text-xs text-white/80">Next class</div>
+                <div class="text-sm font-semibold mt-1">No upcoming class</div>
+                <div class="text-xs text-white/70 mt-1">Add schedule to see upcoming items</div>
+            </div>
+        </div>
+    </div>
+</div>

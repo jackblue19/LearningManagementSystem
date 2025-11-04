@@ -1,0 +1,94 @@
+@page
+@model Presentation.RazorPages.Auth.LoginModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Sign in";
+    ViewData["LayoutVariant"] = "standalone";
+    var hasForm = HttpContext?.Request?.HasFormContentType == true;
+    var usernameValue = hasForm ? HttpContext!.Request.Form["Username"].ToString() : string.Empty;
+    var roleValue = hasForm ? HttpContext!.Request.Form["Role"].ToString() : string.Empty;
+}
+
+<section
+    class="grid w-full max-w-5xl gap-10 rounded-3xl bg-white/90 p-8 shadow-2xl ring-1 ring-slate-200 backdrop-blur-sm transition sm:p-12 lg:grid-cols-[1.1fr_1fr]">
+    <div class="flex flex-col justify-between gap-8">
+        <div class="space-y-5">
+            <span
+                class="inline-flex items-center gap-2 rounded-full bg-brand-50 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-brand-600">Secure
+                access</span>
+            <h1 class="text-3xl font-semibold text-slate-900 sm:text-4xl">Welcome back to the LMS platform</h1>
+            <p class="text-base leading-relaxed text-slate-600">Sign in with your assigned role to pick up where you
+                left off. Activity, tasks, and announcements stay synchronized across web and mobile.</p>
+        </div>
+        <dl
+            class="grid gap-4 rounded-2xl border border-slate-200 bg-slate-50/70 p-5 text-sm text-slate-600 sm:grid-cols-2">
+            <div>
+                <dt class="font-medium text-slate-900">Unified dashboards</dt>
+                <dd class="mt-1 leading-relaxed">Switch between student, teacher, and admin insights without losing
+                    context.</dd>
+            </div>
+            <div>
+                <dt class="font-medium text-slate-900">24/7 availability</dt>
+                <dd class="mt-1 leading-relaxed">Optimized latency and resilient sessions keep your work uninterrupted.
+                </dd>
+            </div>
+        </dl>
+    </div>
+
+    <div class="flex flex-col justify-center">
+        <div class="rounded-2xl border border-slate-200 bg-white/70 p-8 shadow-sm backdrop-blur">
+            <h2 class="text-2xl font-semibold text-slate-900">Sign in</h2>
+            <p class="mt-2 text-sm text-slate-500">Use your LMS credentials. Need a profile? <a
+                    class="font-semibold text-brand-600 hover:text-brand-700" asp-area="Shared"
+                    asp-page="/Auth/Register">Create one</a>.</p>
+
+            <form method="post" asp-antiforgery="true" class="mt-8 space-y-6">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All"
+                        class="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+                    </div>
+                }
+
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-slate-800" for="username">Username</label>
+                    <input id="username" name="Username" value="@usernameValue" autocomplete="username"
+                        class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                        placeholder="e.g. alicia.martin" />
+                    <p class="text-xs text-slate-500">Your username is unique to your campus or organization.</p>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-slate-800" for="role">Role</label>
+                    <select id="role" name="Role"
+                        class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100">
+                        <option value="">Select role</option>
+                        <option value="Student" selected="@(roleValue == "Student" ? "selected" : null)">Student
+                        </option>
+                        <option value="Teacher" selected="@(roleValue == "Teacher" ? "selected" : null)">Teacher
+                        </option>
+                        <option value="Admin" selected="@(roleValue == "Admin" ? "selected" : null)">Admin</option>
+                        <option value="CentreManagement"
+                            selected="@(roleValue == "CentreManagement" ? "selected" : null)">Centre management</option>
+                    </select>
+                    <p class="text-xs text-slate-500">Select the workspace you are authorized to access.</p>
+                </div>
+
+                <button type="submit"
+                    class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                        aria-hidden="true">
+                        <path d="m7 12 3 3 7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <span>Continue</span>
+                </button>
+
+                <div class="flex items-center justify-between text-xs text-slate-500">
+                    <span>Having trouble? Contact support</span>
+                    <a class="font-medium text-brand-600 hover:text-brand-700" href="mailto:support@example.com">Email
+                        us</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>

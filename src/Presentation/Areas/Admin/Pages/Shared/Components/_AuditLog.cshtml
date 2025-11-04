@@ -1,0 +1,22 @@
+@model IEnumerable<Presentation.ViewModels.Admin.AuditLogEntryViewModel>
+
+<section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="flex items-center justify-between">
+        <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Audit trail</h3>
+        <a href="#" class="text-xs font-medium text-brand-600 hover:text-brand-700">Export</a>
+    </div>
+    <ul class="mt-4 space-y-3">
+        @foreach (var entry in Model)
+        {
+            <li class="rounded-xl border border-slate-100 px-4 py-3">
+                <div class="flex items-center justify-between text-sm text-slate-600">
+                    <span class="font-semibold text-slate-900">@entry.Actor</span>
+                    <span class="text-xs text-slate-500">@entry.Timestamp.ToString("MMM dd, HH:mm")</span>
+                </div>
+                <p class="mt-1 text-sm text-slate-600">@entry.Action <span
+                        class="font-medium text-slate-900">@entry.Target</span></p>
+                <p class="text-xs text-slate-400">Channel: @entry.Channel</p>
+            </li>
+        }
+    </ul>
+</section>

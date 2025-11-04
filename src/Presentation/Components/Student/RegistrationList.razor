@@ -1,0 +1,60 @@
+@namespace Presentation.Components.Student
+@using Application.Interfaces.Services
+@using Infrastructure.Data
+@inject IGenericsService<ClassRegistration> RegistrationService
+
+<h3>My Registrations</h3>
+
+@if (isLoading)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+}
+else if (!registrations.Any())
+{
+    <div class="alert alert-info">No registrations found.</div>
+}
+else
+{
+    <table class="table table-sm table-striped">
+        <thead>
+            <tr>
+                <th>Class</th>
+                <th>Student</th>
+                <th>Registered At</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in registrations)
+            {
+                <tr>
+                    <td>@r.ClassId</td>
+                    <td>@r.StudentId</td>
+                    <td>@r.RegisteredAt.ToString("yyyy-MM-dd")</td>
+                    <td>@r.RegistrationStatus</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<ClassRegistration> registrations = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isLoading = true;
+            var all = await RegistrationService.GetAllAsync();
+            registrations = all?.ToList() ?? new List<ClassRegistration>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

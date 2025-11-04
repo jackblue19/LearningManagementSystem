@@ -1,0 +1,20 @@
+@model IEnumerable<Presentation.ViewModels.Admin.RoomAvailabilityViewModel>
+
+<section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="flex items-center justify-between">
+        <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Room availability</h3>
+        <a href="#" class="text-xs font-medium text-brand-600 hover:text-brand-700">Manage rooms</a>
+    </div>
+    <ul class="mt-4 divide-y divide-slate-100">
+        @foreach (var room in Model)
+        {
+            <li class="flex items-center justify-between py-3">
+                <div>
+                    <p class="text-sm font-semibold text-slate-900">@room.Room</p>
+                    <p class="text-xs text-slate-500">Capacity @room.Capacity • @room.AvailabilityWindow</p>
+                </div>
+                <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">@room.Status</span>
+            </li>
+        }
+    </ul>
+</section>

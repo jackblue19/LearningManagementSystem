@@ -1,0 +1,26 @@
+@page
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h2 class="text-xl font-semibold">Overview</h2>
+            <component type="typeof(Presentation.Components.Teacher.TeacherDashboardStats)"
+                render-mode="ServerPrerendered" />
+        </div>
+
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h2 class="text-xl font-semibold">Class Attendance</h2>
+            <component type="typeof(Presentation.Components.Teacher.ClassAttendance)" render-mode="ServerPrerendered" />
+        </div>
+    </div>
+
+    <aside class="space-y-6">
+        <component type="typeof(Presentation.Components.Shared.QuickActions)" render-mode="ServerPrerendered"
+            Context="Teachers" />
+        <component type="typeof(Presentation.Components.Shared.RecentNotifications)" render-mode="ServerPrerendered" />
+    </aside>
+</div>

@@ -1,0 +1,114 @@
+@page
+@model Presentation.Areas.Admin.Pages.Users.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Users";
+}
+
+<div class="space-y-10">
+    <header class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div>
+            <h1 class="text-3xl font-semibold text-slate-900">Users</h1>
+            <p class="mt-2 text-sm text-slate-600">Manage accounts, role assignments, and activity across the platform.
+            </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+            <button type="button"
+                class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600">Invite
+                user</button>
+            <button type="button"
+                class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                    aria-hidden="true">
+                    <path d="M12 5.25v13.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M5.25 12h13.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span>Assign role</span>
+            </button>
+        </div>
+    </header>
+
+    <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Users</p>
+            <p class="mt-2 text-2xl font-semibold text-slate-900">@Model.Users.Count</p>
+            <p class="mt-1 text-xs text-slate-500">total accounts</p>
+        </article>
+        <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Active</p>
+            <p class="mt-2 text-2xl font-semibold text-slate-900">@Model.ActiveUsers</p>
+            <p class="mt-1 text-xs text-slate-500">signed in this week</p>
+        </article>
+        <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">New</p>
+            <p class="mt-2 text-2xl font-semibold text-slate-900">@Model.NewUsers</p>
+            <p class="mt-1 text-xs text-slate-500">joined in last 30 days</p>
+        </article>
+        <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Roles</p>
+            <p class="mt-2 text-2xl font-semibold text-slate-900">@Model.UniqueRoles</p>
+            <p class="mt-1 text-xs text-slate-500">role types in use</p>
+        </article>
+    </section>
+
+    <section class="rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <div class="border-b border-slate-100 px-6 py-4">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h2 class="text-lg font-semibold text-slate-900">Directory</h2>
+                    <p class="text-sm text-slate-500">Overview of roles, activity, and contact details.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="search" placeholder="Search user"
+                        class="w-48 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100" />
+                    <button type="button"
+                        class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-900">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                            aria-hidden="true">
+                            <path d="M6 9h12M6 12h12M6 15h12" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        <span>Filters</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-100 text-left text-sm">
+                <thead class="bg-slate-50 text-xs font-semibold uppercase text-slate-500">
+                    <tr>
+                        <th class="px-6 py-3">Name</th>
+                        <th class="px-6 py-3">Role</th>
+                        <th class="px-6 py-3">Email</th>
+                        <th class="px-6 py-3">Last active</th>
+                        <th class="px-6 py-3">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-700">
+                    @foreach (var user in Model.Users)
+                    {
+                        <tr>
+                            <td class="px-6 py-4">@user.Name</td>
+                            <td class="px-6 py-4">@user.Role</td>
+                            <td class="px-6 py-4">@user.Email</td>
+                            <td class="px-6 py-4">@user.LastActiveAt.ToString("MMM dd, HH:mm")</td>
+                            <td class="px-6 py-4">
+                                <span
+                                    class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">@(user.IsActive
+                                                                    ? "Active" : "Inactive")</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="grid gap-6 xl:grid-cols-3">
+        <div class="space-y-6 xl:col-span-2">
+            @await Html.PartialAsync("Shared/Components/_AuditLog", Model.AuditLog)
+        </div>
+        <div class="space-y-6">
+            @await Html.PartialAsync("Shared/Components/_NotificationPanel", Model.Notifications)
+        </div>
+    </section>
+</div>

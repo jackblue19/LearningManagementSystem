@@ -1,0 +1,32 @@
+@page
+@model Presentation.Areas.Students.Pages.DashboardModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h2 class="text-xl font-semibold">My Registrations</h2>
+            <component type="typeof(Presentation.Components.Student.RegistrationList)"
+                render-mode="ServerPrerendered" />
+        </div>
+
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h2 class="text-xl font-semibold">Quick Actions</h2>
+            <div class="flex gap-3 mt-3">
+                <button class="px-4 py-2 bg-indigo-600 text-white rounded">Register for Class</button>
+                <button class="px-4 py-2 bg-gray-200 text-gray-800 rounded">Request Support</button>
+            </div>
+        </div>
+    </div>
+
+    <aside class="space-y-6">
+        <component type="typeof(Presentation.Components.Shared.RecentNotifications)" render-mode="ServerPrerendered" />
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h3 class="text-sm font-medium text-gray-700">Tips</h3>
+            <p class="text-sm text-gray-500 mt-2">Check your upcoming sessions and complete pre-class materials.</p>
+        </div>
+    </aside>
+</div>

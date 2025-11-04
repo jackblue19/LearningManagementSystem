@@ -1,0 +1,29 @@
+@page
+@model Presentation.Areas.CentreManagement.Pages.DashboardModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Dashboard";
+}
+
+<component type="typeof(Presentation.Components.Shared.HeroBanner)" render-mode="ServerPrerendered" />
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+    <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h2 class="text-xl font-semibold">Centre Overview</h2>
+            <component type="typeof(Presentation.Components.Centre.CentreDashboard)" render-mode="ServerPrerendered" />
+        </div>
+
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h2 class="text-xl font-semibold">Operations</h2>
+            <p class="text-sm text-gray-600">Manage rooms, schedules and recent activity for your centre.</p>
+            <!-- Placeholder for ActivityFeed / Reports -->
+        </div>
+    </div>
+
+    <aside class="space-y-6">
+        <component type="typeof(Presentation.Components.Shared.QuickActions)" render-mode="ServerPrerendered"
+            Context="Centre" />
+        <component type="typeof(Presentation.Components.Shared.RecentNotifications)" render-mode="ServerPrerendered" />
+    </aside>
+</div>

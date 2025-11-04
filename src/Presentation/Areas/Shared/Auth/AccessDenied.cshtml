@@ -1,0 +1,7 @@
+@page
+@{
+    var query = HttpContext?.Request?.QueryString.HasValue == true
+        ? HttpContext.Request.QueryString.Value
+        : string.Empty;
+    Response.Redirect($"/Shared/Auth/AccessDenied{query}", permanent: false);
+}

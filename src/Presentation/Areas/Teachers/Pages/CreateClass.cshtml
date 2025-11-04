@@ -1,0 +1,233 @@
+@page
+@model Presentation.Areas.Teachers.Pages.CreateClassModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Create class";
+}
+
+<div class="space-y-10">
+    <header class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div class="space-y-2">
+            <p class="text-xs font-semibold uppercase tracking-wide text-brand-600">Teacher workspace</p>
+            <h1 class="text-3xl font-semibold text-slate-900">Create class</h1>
+            <p class="max-w-2xl text-sm text-slate-600">Define a new cohort, assign an instructor, and finalise the cadence before opening enrolment.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+            <a asp-area="Teachers" asp-page="/ManageClass" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600">
+                Back to classes
+            </a>
+            <a asp-area="Teachers" asp-page="/RegisterClass" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-brand-300 hover:text-brand-700">
+                Register learner
+            </a>
+        </div>
+    </header>
+
+    @if (TempData["Success"] is string createdMessage)
+    {
+        <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">@createdMessage</div>
+    }
+
+    <div class="grid gap-6 xl:grid-cols-3">
+        <div class="xl:col-span-2 space-y-6">
+            <div class="rounded-3xl border border-slate-200 bg-white shadow-sm">
+                <form method="post" class="px-6 py-6 space-y-8">
+                    <div>
+                        <h2 class="text-lg font-semibold text-slate-900">Class details</h2>
+                        <p class="text-sm text-slate-500">Choose the class identity and link it to an existing curriculum.</p>
+                    </div>
+
+                    <div asp-validation-summary="ModelOnly" class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700" role="alert"></div>
+
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div>
+                            <label asp-for="Input.Name" class="block text-sm font-semibold text-slate-800"></label>
+                            <input asp-for="Input.Name" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100" placeholder="Modern Web Apps" />
+                            <span asp-validation-for="Input.Name" class="mt-1 block text-xs text-rose-600"></span>
+                        </div>
+                        <div>
+                            <label asp-for="Input.Code" class="block text-sm font-semibold text-slate-800"></label>
+                            <input asp-for="Input.Code" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100" placeholder="WEB-302" />
+                            <span asp-validation-for="Input.Code" class="mt-1 block text-xs text-rose-600"></span>
+                        </div>
+                        <div>
+                            <label asp-for="Input.SubjectId" class="block text-sm font-semibold text-slate-800"></label>
+                            <select asp-for="Input.SubjectId" asp-items="Model.SubjectOptions" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100">
+                                <option value="">Select subject</option>
+                            </select>
+                            <span asp-validation-for="Input.SubjectId" class="mt-1 block text-xs text-rose-600"></span>
+                        </div>
+                        <div>
+                            <label asp-for="Input.InstructorId" class="block text-sm font-semibold text-slate-800"></label>
+                            <select asp-for="Input.InstructorId" asp-items="Model.InstructorOptions" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100">
+                                <option value="">Assign instructor</option>
+                            </select>
+                            <span asp-validation-for="Input.InstructorId" class="mt-1 block text-xs text-rose-600"></span>
+                        </div>
+                        <div>
+                            <label asp-for="Input.DeliveryMode" class="block text-sm font-semibold text-slate-800"></label>
+                            <select asp-for="Input.DeliveryMode" asp-items="Model.DeliveryModes" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"></select>
+                            <span asp-validation-for="Input.DeliveryMode" class="mt-1 block text-xs text-rose-600"></span>
+                        </div>
+                        <div>
+                            <label asp-for="Input.Capacity" class="block text-sm font-semibold text-slate-800"></label>
+                            <input asp-for="Input.Capacity" type="number" min="1" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100" />
+                            <span asp-validation-for="Input.Capacity" class="mt-1 block text-xs text-rose-600"></span>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label asp-for="Input.Description" class="block text-sm font-semibold text-slate-800"></label>
+                            <textarea asp-for="Input.Description" rows="3" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100" placeholder="Outline the outcomes and prerequisites"></textarea>
+                            <span asp-validation-for="Input.Description" class="mt-1 block text-xs text-rose-600"></span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <h2 class="text-lg font-semibold text-slate-900">Schedule</h2>
+                            <p class="text-sm text-slate-500">Set dates, recurring cadence, and time blocks.</p>
+                        </div>
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <label asp-for="Input.StartDate" class="block text-sm font-semibold text-slate-800"></label>
+                                <input asp-for="Input.StartDate" type="date" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100" />
+                                <span asp-validation-for="Input.StartDate" class="mt-1 block text-xs text-rose-600"></span>
+                            </div>
+                            <div>
+                                <label asp-for="Input.EndDate" class="block text-sm font-semibold text-slate-800"></label>
+                                <input asp-for="Input.EndDate" type="date" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100" />
+                                <span asp-validation-for="Input.EndDate" class="mt-1 block text-xs text-rose-600"></span>
+                            </div>
+                            <div>
+                                <label asp-for="Input.StartTime" class="block text-sm font-semibold text-slate-800"></label>
+                                <input asp-for="Input.StartTime" type="time" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100" />
+                                <span asp-validation-for="Input.StartTime" class="mt-1 block text-xs text-rose-600"></span>
+                            </div>
+                            <div>
+                                <label asp-for="Input.EndTime" class="block text-sm font-semibold text-slate-800"></label>
+                                <input asp-for="Input.EndTime" type="time" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100" />
+                                <span asp-validation-for="Input.EndTime" class="mt-1 block text-xs text-rose-600"></span>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label asp-for="Input.DaysOfWeek" class="block text-sm font-semibold text-slate-800"></label>
+                                <input asp-for="Input.DaysOfWeek" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100" placeholder="Tue & Thu" />
+                                <span asp-validation-for="Input.DaysOfWeek" class="mt-1 block text-xs text-rose-600"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <h2 class="text-lg font-semibold text-slate-900">Logistics</h2>
+                            <p class="text-sm text-slate-500">Capture room allocation or virtual meeting link.</p>
+                        </div>
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <div class="md:col-span-2">
+                                <label asp-for="Input.Room" class="block text-sm font-semibold text-slate-800"></label>
+                                <input asp-for="Input.Room" class="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100" placeholder="Innovation Lab 2B" />
+                                <span asp-validation-for="Input.Room" class="mt-1 block text-xs text-rose-600"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <p class="text-xs text-slate-500">Need learner invites? <a asp-area="Teachers" asp-page="/RegisterClass" class="font-semibold text-brand-600 hover:text-brand-700">Register them next</a>.</p>
+                        <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                            <span>Draft class</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            @if (Model.Summary is not null)
+            {
+                <div class="rounded-3xl border border-brand-200 bg-brand-50 px-6 py-6 text-sm text-brand-700">
+                    <h2 class="text-lg font-semibold text-brand-800">Draft overview</h2>
+                    <p class="mt-1">Share this summary with your academic coordinator for publishing.</p>
+                    <dl class="mt-4 grid gap-3">
+                        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                            <dt class="font-semibold text-brand-900">Class</dt>
+                            <dd>@Model.Summary.Name (@Model.Summary.Code)</dd>
+                        </div>
+                        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                            <dt class="font-semibold text-brand-900">Subject</dt>
+                            <dd>@Model.Summary.Subject</dd>
+                        </div>
+                        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                            <dt class="font-semibold text-brand-900">Instructor</dt>
+                            <dd>@Model.Summary.Instructor</dd>
+                        </div>
+                        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                            <dt class="font-semibold text-brand-900">Window</dt>
+                            <dd>@Model.Summary.StartDate.ToString("MMM d") - @Model.Summary.EndDate.ToString("MMM d")</dd>
+                        </div>
+                        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                            <dt class="font-semibold text-brand-900">Cadence</dt>
+                            <dd>@Model.Summary.DaysOfWeek - @Model.Summary.StartTime.ToString(@"hh\:mm") to @Model.Summary.EndTime.ToString(@"hh\:mm")</dd>
+                        </div>
+                        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                            <dt class="font-semibold text-brand-900">Capacity</dt>
+                            <dd>@Model.Summary.Capacity learners - @Model.Summary.DeliveryMode</dd>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(Model.Summary.Room))
+                        {
+                            <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                                <dt class="font-semibold text-brand-900">Room</dt>
+                                <dd>@Model.Summary.Room</dd>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.Summary.Description))
+                        {
+                            <div class="flex flex-col gap-1">
+                                <dt class="font-semibold text-brand-900">Overview</dt>
+                                <dd>@Model.Summary.Description</dd>
+                            </div>
+                        }
+                    </dl>
+                </div>
+            }
+        </div>
+
+        <aside class="space-y-6">
+            <div class="rounded-3xl border border-slate-200 bg-white shadow-sm">
+                <div class="border-b border-slate-100 px-6 py-4">
+                    <h2 class="text-lg font-semibold text-slate-900">Launch checklist</h2>
+                    <p class="text-sm text-slate-500">Steps to go live after drafting.</p>
+                </div>
+                <ol class="space-y-3 px-6 py-5 text-sm text-slate-600">
+                    <li class="flex items-start gap-3">
+                        <span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700">1</span>
+                        <div>
+                            <p class="font-semibold text-slate-900">Review with academics</p>
+                            <p class="text-xs text-slate-500">Confirm syllabus alignment and instructor availability.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700">2</span>
+                        <div>
+                            <p class="font-semibold text-slate-900">Publish to catalogue</p>
+                            <p class="text-xs text-slate-500">Enable enrolment on the student portal with a single toggle.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700">3</span>
+                        <div>
+                            <p class="font-semibold text-slate-900">Notify learners</p>
+                            <p class="text-xs text-slate-500">Send invites via Quick Actions or automate with marketing.</p>
+                        </div>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="rounded-3xl border border-slate-200 bg-slate-50 px-6 py-6 text-sm text-slate-600">
+                <h3 class="text-base font-semibold text-slate-900">Need inspiration?</h3>
+                <p class="mt-2">Reuse a semester template from last year or import sessions from a CSV schedule.</p>
+            </div>
+        </aside>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="~/Views/Shared/_ValidationScriptsPartial.cshtml" />
+}

@@ -1,0 +1,106 @@
+@page
+@model Presentation.Areas.Admin.Pages.Exams.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Exams";
+}
+
+<div class="space-y-10">
+    <header class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div>
+            <h1 class="text-3xl font-semibold text-slate-900">Exams</h1>
+            <p class="mt-2 text-sm text-slate-600">Monitor assessment schedules, compliance windows, and cohort performance.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+            <button type="button" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600">Create seating plan</button>
+            <button type="button" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                    <path d="M12 5.25v13.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M5.25 12h13.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span>Schedule exam</span>
+            </button>
+        </div>
+    </header>
+
+    <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Upcoming</p>
+            <p class="mt-2 text-2xl font-semibold text-slate-900">@Model.UpcomingCount</p>
+            <p class="mt-1 text-xs text-slate-500">exams within 14 days</p>
+        </article>
+        <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Completed</p>
+            <p class="mt-2 text-2xl font-semibold text-slate-900">@Model.CompletedCount</p>
+            <p class="mt-1 text-xs text-slate-500">results published</p>
+        </article>
+        <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Average score</p>
+            <p class="mt-2 text-2xl font-semibold text-slate-900">@Model.AverageExamScore.ToString("0.0")%</p>
+            <p class="mt-1 text-xs text-slate-500">across latest assessments</p>
+        </article>
+        <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Pass rate</p>
+            <p class="mt-2 text-2xl font-semibold text-slate-900">@Model.AveragePassRate.ToString("0.0")%</p>
+            <p class="mt-1 text-xs text-slate-500">weighted by cohort size</p>
+        </article>
+    </section>
+
+    <section class="rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <div class="border-b border-slate-100 px-6 py-4">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h2 class="text-lg font-semibold text-slate-900">Exam schedule</h2>
+                    <p class="text-sm text-slate-500">Key assessments with logistics and status.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="search" placeholder="Search exam" class="w-48 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100" />
+                    <button type="button" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-900">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                            <path d="M6 9h12M6 12h12M6 15h12" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        <span>Filters</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-100 text-left text-sm">
+                <thead class="bg-slate-50 text-xs font-semibold uppercase text-slate-500">
+                    <tr>
+                        <th class="px-6 py-3">Exam</th>
+                        <th class="px-6 py-3">Subject</th>
+                        <th class="px-6 py-3">Schedule</th>
+                        <th class="px-6 py-3">Room</th>
+                        <th class="px-6 py-3">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-700">
+                    @foreach (var exam in Model.Schedule)
+                    {
+                        <tr>
+                            <td class="px-6 py-4">@exam.Title</td>
+                            <td class="px-6 py-4">@exam.Subject</td>
+                            <td class="px-6 py-4">@exam.ScheduledAt.ToString("MMM dd, HH:mm")</td>
+                            <td class="px-6 py-4">@exam.Room</td>
+                            <td class="px-6 py-4">
+                                <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">@exam.Status</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="grid gap-6 xl:grid-cols-3">
+        <div class="space-y-6 xl:col-span-2">
+            @await Html.PartialAsync("Shared/Components/_ExamResults", Model.Results)
+            @await Html.PartialAsync("Shared/Components/_AttendanceSnapshot", Model.Attendance)
+        </div>
+        <div class="space-y-6">
+            @await Html.PartialAsync("Shared/Components/_NotificationPanel", Model.Notifications)
+            @await Html.PartialAsync("Shared/Components/_AuditLog", Model.AuditLog)
+        </div>
+    </section>
+</div>

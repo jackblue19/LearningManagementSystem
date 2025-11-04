@@ -1,0 +1,93 @@
+@namespace Presentation.Components.Admin
+@using Application.Interfaces.Services
+@using Application.DTOs
+@inject IAdminService AdminService
+
+<h3>Admin Dashboard</h3>
+
+<div class="row mb-3">
+    <div class="col-sm-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Classes</h5>
+                <p class="card-text display-6">@classesCount</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Users</h5>
+                <p class="card-text display-6">@usersCount</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Centers</h5>
+                <p class="card-text display-6">@centersCount</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+}
+else
+{
+    <h5>Recent Classes</h5>
+    <table class="table table-sm table-striped">
+        <thead>
+            <tr>
+                <th>Class</th>
+                <th>Teacher</th>
+                <th>Start</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in recent)
+            {
+                <tr>
+                    <td>@c.ClassName</td>
+                    <td>@c.TeacherId</td>
+                    <td>@(c.StartDate?.ToString("yyyy-MM-dd") ?? "-")</td>
+                    <td>@(c.ClassStatus ?? "-")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private bool isLoading = true;
+    private int classesCount = 0;
+    private int usersCount = 0;
+    private int centersCount = 0;
+    private List<ClassDto> recent = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isLoading = true;
+            var allClasses = (await AdminService.GetClassesAsync()).ToList();
+            classesCount = allClasses.Count;
+            recent = allClasses.OrderByDescending(c => c.CreatedAt).Take(8).ToList();
+
+            var allUsers = (await AdminService.GetUsersAsync())?.ToList() ?? new List<UserDto>();
+            usersCount = allUsers.Count;
+
+            centersCount = allClasses.Select(c => c.CenterId).Distinct().Count();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
