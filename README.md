@@ -1,7 +1,7 @@
 # LearningManagementSystem
 LMS
 ---
-### Features by Actors
+## Features by Actors
 * Teacher:
     - Đăng ký lịch dạy: dùng ClassSchedules (ngày, giờ, phòng, slot/batch) + phụ trợ TimeSlots, Rooms, TeacherAvailabilities. 
         - Có cả trigger đồng bộ giờ/room và proc rollback theo batch
@@ -31,8 +31,86 @@ LMS
 
 ---
 
-### Interfaces & Implementations
+## Interfaces & Implementations
 * Repositories:
     - Interfaces → Entities Class
+    *(trong src thì có chia theo module 1 xíu)*
+    
+| Repository Interface                                                | Entities                 |
+| ------------------------------------------------------------------- | -------------------------------- |
+| `IUserRepository`                                                   | Users                            |
+| `ICenterRepository`                                                 | Centers                          |
+| `ISubjectRepository`                                                | Subjects                         |
+| `IClassRepository`                                                  | Classes                          |
+| `IClassScheduleRepository`                                          | ClassSchedules                   |
+| `IClassRegistrationRepository`                                      | ClassRegistrations               |
+| `IAttendanceRepository`                                             | Attendances                      |
+| `IExamRepository`                                                   | Exams                            |
+| `IExamResultRepository`                                             | ExamResults                      |
+| `IPaymentRepository`                                                | Payments                         |
+| `IFeedbackRepository`                                               | Feedbacks                        |
+| `IAuditLogRepository`                                               | AuditLogs                        |
+| `INotificationRepository`                                           | Notifications                    |
+| `IMaterialRepository`                                               | ClassMaterials                   |
+| `ITimeSlotRepository`                                               | TimeSlots                        |
+| `IRoomRepository`                                                   | Rooms                            |
+| `IRoomAvailabilityRepository`                                       | RoomAvailabilities               |
+| `ITeacherAvailabilityRepository`                                    | TeacherAvailabilities            |
+| `IScheduleBatchRepository`                                          | ScheduleBatches                  |
+| `ITeacherPayoutRepository`                                          | *(có thể thêm nếu tính migration)*|
+
 * Services:
     - Interfaces → Role based → Services per Actors
+
+    *(trong src thì được chia theo struct như dưới → gpt rcm, đọc lướt thấy ok → tạo y đúc luôn)*
+
+### ___**Teacher Services**____
+| Service Interface             | Liên quan bảng                                                           | Mô tả                             |
+| ----------------------------- | ------------------------------------------------------------------------ | --------------------------------- |
+| `IClassScheduleService`       | ClassSchedules, TimeSlots, Rooms, TeacherAvailabilities, ScheduleBatches | Đăng ký / tạo / rollback lịch dạy |
+| `IExamService`                | Exams                                                                    | Tạo và quản lý bài kiểm tra       |
+| `IExamResultService`          | ExamResults                                                              | Nhập điểm cho học viên            |
+| `IAttendanceService`          | Attendances                                                              | Điểm danh học viên                |
+| `IMaterialService`            | ClassMaterials                                                           | Upload tài liệu dạy học           |
+| `ITimeSlotService`            | TimeSlots                                                                | Quản lý ca học (đọc slot)         |
+| `IRoomService`                | Rooms                                                                    | Tra cứu phòng học                 |
+| `ITeacherAvailabilityService` | TeacherAvailabilities                                                    | Quản lý lịch rảnh của giáo viên   |
+
+### ___**Student Services**____
+| Service Interface           | Liên quan bảng               | Mô tả                      |
+| --------------------------- | ---------------------------- | -------------------------- |
+| `IClassRegistrationService` | ClassRegistrations           | Đăng ký / hủy khóa học     |
+| `IStudentScheduleService`   | Classes + ClassSchedules     | Xem lịch học               |
+| `IStudentExamService`       | Exams                        | Xem danh sách bài kiểm tra |
+| `IStudentExamResultService` | ExamResults                  | Xem điểm cá nhân           |
+| `IPaymentService`           | Payments                     | Thanh toán học phí         |
+| `IStudentCourseService`     | Classes + ClassRegistrations | Danh sách lớp đã đăng ký   |
+
+### ___**Manager Services**____
+| Service Interface         | Liên quan bảng                  | Mô tả                        |
+| ------------------------- | ------------------------------- | ---------------------------- |
+| `IUserManagementService`  | Users                           | Quản lý tài khoản giáo viên  |
+| `IClassManagementService` | Classes, ClassSchedules         | Quản lý lớp học & lịch       |
+| `INotificationService`    | Notifications                   | Gửi & quản lý thông báo      |
+| `IPaymentReportService`   | Payments                        | Báo cáo giao dịch            |
+| `ITeacherPayoutService`   | TeacherPayouts / ClassSchedules | Tính toán chi trả giáo viên  |
+| `IRevenueReportService`   | Payments, Classes               | Báo cáo dòng tiền, doanh thu |
+
+### ___**Admin Services**____
+| Service Interface   | Liên quan bảng | Mô tả                     |
+| ------------------- | -------------- | ------------------------- |
+| `IAdminUserService` | Users          | Quản lý tài khoản manager |
+| `IAuditLogService`  | AuditLogs      | Xem audit logs            |
+| `IFeedbackService`  | Feedbacks      | Quản lý phản hồi          |
+| `INewUserService`   | Users          | Duyệt người dùng mới      |
+
+### ___**Common Services**____
+| Service Interface     | Mục đích                   |
+| --------------------- | -------------------------- |
+| `IUserService`        | Quản lý user chung         |
+| `IClassService`       | CRUD lớp học chung         |
+| `IEmailService`       | Gửi mail thông báo         |
+| `IFileStorageService` | Lưu file tài liệu, hóa đơn |
+| `ICenterService`      | CRUD centers               |
+| `ISubjectService`     | CRUD subjects              |
+
