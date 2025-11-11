@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Interfaces.Repositories;
-internal interface IGenericsRepository
+namespace Application.Interfaces.AdminServices;
+internal interface IAuditLogService
 {
 }

@@ -4,8 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DependencyInjection;
-
-internal class ApplicationServiceRegistration
+namespace Domain.ValueObjects;
+internal class Phone
 {
 }

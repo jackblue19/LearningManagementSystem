@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 //using AutoMapper;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Services.Base;
+namespace Application.Implementations.Base;
 internal class AppServiceBase
 {
 }

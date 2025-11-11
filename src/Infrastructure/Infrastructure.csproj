@@ -22,11 +22,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Application\Application.csproj" />
     <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Data\Migrations\" />
+    <Folder Include="Persistence\DataConfiguration\" />
+    <Folder Include="Persistence\Migrations\" />
   </ItemGroup>
 
 </Project>

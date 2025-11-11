@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Interfaces.Services;
-internal interface IGenericsService
+namespace Application.Interfaces.StudentServices;
+internal interface IPaymentService
 {
 }
