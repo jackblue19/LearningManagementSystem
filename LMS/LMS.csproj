@@ -9,11 +9,6 @@
   <ItemGroup>
     <Folder Include="Mappings\" />
     <Folder Include="Models\Entities\" />
-    <Folder Include="Pages\Admin\" />
-    <Folder Include="Pages\Manager\" />
-    <Folder Include="Pages\Common\" />
-    <Folder Include="Pages\Student\" />
-    <Folder Include="Pages\Teacher\" />
   </ItemGroup>
 
   <ItemGroup>
