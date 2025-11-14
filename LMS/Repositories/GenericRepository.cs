@@ -1,4 +1,4 @@
-﻿namespace LMS.Repositories;
+namespace LMS.Repositories;
 
 public class GenericRepository
 {
