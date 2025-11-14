@@ -1,88 +1,88 @@
-@model Domain.Entities.Class
+@* @model Domain.Entities.Class *@
 
-@{
-    ViewData["Title"] = "Create";
-}
+@* @{ *@
+@*     ViewData["Title"] = "Create"; *@
+@* } *@
 
-<h1>Create</h1>
+@* <h1>Create</h1> *@
 
-<h4>Class</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="ClassId" class="control-label"></label>
-                <input asp-for="ClassId" class="form-control" />
-                <span asp-validation-for="ClassId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ClassName" class="control-label"></label>
-                <input asp-for="ClassName" class="form-control" />
-                <span asp-validation-for="ClassName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SubjectId" class="control-label"></label>
-                <input asp-for="SubjectId" class="form-control" />
-                <span asp-validation-for="SubjectId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TeacherId" class="control-label"></label>
-                <input asp-for="TeacherId" class="form-control" />
-                <span asp-validation-for="TeacherId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ClassAddress" class="control-label"></label>
-                <input asp-for="ClassAddress" class="form-control" />
-                <span asp-validation-for="ClassAddress" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UnitPrice" class="control-label"></label>
-                <input asp-for="UnitPrice" class="form-control" />
-                <span asp-validation-for="UnitPrice" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TotalSessions" class="control-label"></label>
-                <input asp-for="TotalSessions" class="form-control" />
-                <span asp-validation-for="TotalSessions" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ScheduleDesc" class="control-label"></label>
-                <input asp-for="ScheduleDesc" class="form-control" />
-                <span asp-validation-for="ScheduleDesc" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CoverImageUrl" class="control-label"></label>
-                <input asp-for="CoverImageUrl" class="form-control" />
-                <span asp-validation-for="CoverImageUrl" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CenterId" class="control-label"></label>
-                <input asp-for="CenterId" class="form-control" />
-                <span asp-validation-for="CenterId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ClassStatus" class="control-label"></label>
-                <input asp-for="ClassStatus" class="form-control" />
-                <span asp-validation-for="ClassStatus" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+@* <h4>Class</h4> *@
+@* <hr /> *@
+@* <div class="row"> *@
+@*     <div class="col-md-4"> *@
+@*         <form asp-action="Create"> *@
+@*             <div asp-validation-summary="ModelOnly" class="text-danger"></div> *@
+@*             <div class="form-group"> *@
+@*                 <label asp-for="ClassId" class="control-label"></label> *@
+@*                 <input asp-for="ClassId" class="form-control" /> *@
+@*                 <span asp-validation-for="ClassId" class="text-danger"></span> *@
+@*             </div> *@
+@*             <div class="form-group"> *@
+@*                 <label asp-for="ClassName" class="control-label"></label> *@
+@*                 <input asp-for="ClassName" class="form-control" /> *@
+@*                 <span asp-validation-for="ClassName" class="text-danger"></span> *@
+@*             </div> *@
+@*             <div class="form-group"> *@
+@*                 <label asp-for="SubjectId" class="control-label"></label> *@
+@*                 <input asp-for="SubjectId" class="form-control" /> *@
+@*                 <span asp-validation-for="SubjectId" class="text-danger"></span> *@
+@*             </div> *@
+@*             <div class="form-group"> *@
+@*                 <label asp-for="TeacherId" class="control-label"></label> *@
+@*                 <input asp-for="TeacherId" class="form-control" /> *@
+@*                 <span asp-validation-for="TeacherId" class="text-danger"></span> *@
+@*             </div> *@
+@*             <div class="form-group"> *@
+@*                 <label asp-for="ClassAddress" class="control-label"></label> *@
+@*                 <input asp-for="ClassAddress" class="form-control" /> *@
+@*                 <span asp-validation-for="ClassAddress" class="text-danger"></span> *@
+@*             </div> *@
+@*             <div class="form-group"> *@
+@*                 <label asp-for="UnitPrice" class="control-label"></label> *@
+@*                 <input asp-for="UnitPrice" class="form-control" /> *@
+@*                 <span asp-validation-for="UnitPrice" class="text-danger"></span> *@
+@*             </div> *@
+@*             <div class="form-group"> *@
+@*                 <label asp-for="TotalSessions" class="control-label"></label> *@
+@*                 <input asp-for="TotalSessions" class="form-control" /> *@
+@*                 <span asp-validation-for="TotalSessions" class="text-danger"></span> *@
+@*             </div> *@
+@*             <div class="form-group"> *@
+@*                 <label asp-for="ScheduleDesc" class="control-label"></label> *@
+@*                 <input asp-for="ScheduleDesc" class="form-control" /> *@
+@*                 <span asp-validation-for="ScheduleDesc" class="text-danger"></span> *@
+@*             </div> *@
+@*             <div class="form-group"> *@
+@*                 <label asp-for="CoverImageUrl" class="control-label"></label> *@
+@*                 <input asp-for="CoverImageUrl" class="form-control" /> *@
+@*                 <span asp-validation-for="CoverImageUrl" class="text-danger"></span> *@
+@*             </div> *@
+@*             <div class="form-group"> *@
+@*                 <label asp-for="CreatedAt" class="control-label"></label> *@
+@*                 <input asp-for="CreatedAt" class="form-control" /> *@
+@*                 <span asp-validation-for="CreatedAt" class="text-danger"></span> *@
+@*             </div> *@
+@*             <div class="form-group"> *@
+@*                 <label asp-for="CenterId" class="control-label"></label> *@
+@*                 <input asp-for="CenterId" class="form-control" /> *@
+@*                 <span asp-validation-for="CenterId" class="text-danger"></span> *@
+@*             </div> *@
+@*             <div class="form-group"> *@
+@*                 <label asp-for="ClassStatus" class="control-label"></label> *@
+@*                 <input asp-for="ClassStatus" class="form-control" /> *@
+@*                 <span asp-validation-for="ClassStatus" class="text-danger"></span> *@
+@*             </div> *@
+@*             <div class="form-group"> *@
+@*                 <input type="submit" value="Create" class="btn btn-primary" /> *@
+@*             </div> *@
+@*         </form> *@
+@*     </div> *@
+@* </div> *@
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+@* <div> *@
+@*     <a asp-action="Index">Back to List</a> *@
+@* </div> *@
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+@* @section Scripts { *@
+@*     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");} *@
+@* } *@
