@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DependencyInjection
+namespace Application.DependencyInjection;
+
+internal class ApplicationServiceRegistration
 {
-    internal class ApplicationServiceRegistration
-    {
-    }
 }
