@@ -1,0 +1,184 @@
+@page
+@model LMS.Pages.Teacher.TeacherRoomsModel
+@{
+    ViewData["Title"] = "Tra cứu phòng học";
+}
+
+<div class="container mt-4">
+    <h2>Tra cứu phòng học</h2>
+
+    <!-- Search Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Tìm kiếm phòng học</h5>
+        </div>
+        <div class="card-body">
+            <form method="get">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="SearchKeyword" class="form-label">Tên phòng</label>
+                        <input asp-for="SearchKeyword" class="form-control" placeholder="Nhập tên phòng..." />
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="MinCapacity" class="form-label">Sức chứa tối thiểu</label>
+                        <input asp-for="MinCapacity" type="number" class="form-control" placeholder="VD: 30" />
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="IsActive" class="form-label">Trạng thái</label>
+                        <select asp-for="IsActive" class="form-select">
+                            <option value="">Tất cả</option>
+                            <option value="true">Đang hoạt động</option>
+                            <option value="false">Không hoạt động</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 mb-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Tìm kiếm
+                        </button>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.SearchKeyword) || Model.MinCapacity.HasValue || Model.IsActive.HasValue)
+                {
+                    <div class="mt-2">
+                        <a asp-page="TeacherRooms" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-x-circle"></i> Xóa bộ lọc
+                        </a>
+                    </div>
+                }
+            </form>
+        </div>
+    </div>
+
+    <!-- Rooms List -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5>Danh sách phòng học</h5>
+            <span class="badge bg-primary">@Model.Rooms.Count phòng</span>
+        </div>
+        <div class="card-body">
+            @if (Model.Rooms.Any())
+            {
+                <div class="row">
+                    @foreach (var room in Model.Rooms)
+                    {
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100 @(room.IsActive ? "border-success" : "border-secondary")">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="bi bi-door-open"></i> @room.RoomName
+                                    </h6>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <i class="bi bi-building"></i> @room.Center?.CenterName
+                                        </small>
+                                    </p>
+                                    <div class="mb-2">
+                                        <span class="badge bg-info">
+                                            <i class="bi bi-people"></i> Sức chứa: @(room.Capacity ?? 0) người
+                                        </span>
+                                    </div>
+                                    <div>
+                                        @if (room.IsActive)
+                                        {
+                                            <span class="badge bg-success">Đang hoạt động</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Không hoạt động</span>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <button type="button" 
+                                            class="btn btn-sm btn-outline-primary w-100"
+                                            onclick="showRoomDetails('@room.RoomId')">
+                                        <i class="bi bi-info-circle"></i> Chi tiết
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox display-1 text-muted"></i>
+                    <p class="text-muted mt-3">Không tìm thấy phòng học nào.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Room Details Modal -->
+<div class="modal fade" id="roomDetailsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chi tiết phòng học</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="roomDetailsContent">
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function showRoomDetails(roomId) {
+            const modal = new bootstrap.Modal(document.getElementById('roomDetailsModal'));
+            const content = document.getElementById('roomDetailsContent');
+            
+            // Show loading
+            content.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"></div></div>';
+            modal.show();
+            
+            // Fetch room details
+            fetch(`?handler=Details&roomId=${roomId}`)
+                .then(response => response.json())
+                .then(data => {
+                    content.innerHTML = `
+                        <table class="table">
+                            <tr>
+                                <th>Tên phòng:</th>
+                                <td>${data.roomName}</td>
+                            </tr>
+                            <tr>
+                                <th>Trung tâm:</th>
+                                <td>${data.centerName || 'N/A'}</td>
+                            </tr>
+                            <tr>
+                                <th>Sức chứa:</th>
+                                <td>${data.capacity || 0} người</td>
+                            </tr>
+                            <tr>
+                                <th>Trạng thái:</th>
+                                <td>
+                                    <span class="badge bg-${data.isActive ? 'success' : 'secondary'}">
+                                        ${data.isActive ? 'Đang hoạt động' : 'Không hoạt động'}
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    `;
+                })
+                .catch(error => {
+                    content.innerHTML = '<div class="alert alert-danger">Lỗi tải thông tin phòng học.</div>';
+                });
+        }
+    </script>
+}

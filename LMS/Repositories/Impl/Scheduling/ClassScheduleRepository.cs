@@ -1,5 +1,12 @@
-﻿namespace LMS.Repositories.Impl.Scheduling;
+﻿using LMS.Data;
+using LMS.Models.Entities;
+using LMS.Repositories.Interfaces.Scheduling;
 
-public class ClassScheduleRepository
+namespace LMS.Repositories.Impl.Scheduling;
+
+public class ClassScheduleRepository : GenericRepository<ClassSchedule, long>, IClassScheduleRepository
 {
+    public ClassScheduleRepository(CenterDbContext db) : base(db)
+    {
+    }
 }
