@@ -416,3 +416,14 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+TEACHER_FEATURES.md
+CONFIGURATION_CHECKLIST.md
+db/db_v2_script.txt
+db/seed_test_data.sql
+LMS/appsettings.json
+LMS/Data/README.md
+QUICK_START.md
+SEEDING_GUIDE.md
+SETUP_AND_RUN.md
+TEST_ATTENDANCE.md
+TESTING_GUIDE.md
