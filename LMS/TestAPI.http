@@ -1,0 +1,60 @@
+# For more info on HTTP files go to https://aka.ms/vs/httpfile
+@LMS.Host = http://localhost:5014
+
+### 1) Tạo user (teacher)
+POST {{LMS.Host}}/api/users
+Content-Type: application/json
+Accept: application/json
+
+{
+  "Username": "alice.teacher",
+  "Email": "alice.teacher@example.com",
+  "PasswordHash": "demo-hash-1",
+  "FullName": "Alice Teacher",
+  "Phone": "0901234567",
+  "RoleDesc": "teacher",
+  "IsActive": true
+}
+
+### 2) Tạo user (student)
+POST {{LMS.Host}}/api/users
+Content-Type: application/json
+Accept: application/json
+
+{
+  "Username": "bob.student",
+  "Email": "bob.student@example.com",
+  "PasswordHash": "demo-hash-2",
+  "FullName": "Bob Student",
+  "Phone": "0902345678",
+  "RoleDesc": "student",
+  "IsActive": true
+}
+
+### 3) Tạo user (manager)
+POST {{LMS.Host}}/api/users
+Content-Type: application/json
+Accept: application/json
+
+{
+  "Username": "cathy.manager",
+  "Email": "cathy.manager@example.com",
+  "PasswordHash": "demo-hash-3",
+  "FullName": "Cathy Manager",
+  "Phone": "0903456789",
+  "RoleDesc": "manager",
+  "IsActive": true
+}
+
+### 4) Lấy danh sách user (mặc định)
+GET {{LMS.Host}}/api/users
+Accept: application/json
+
+### 5) Lấy danh sách user (lọc + phân trang)
+GET {{LMS.Host}}/api/users?q=alice&role=teacher&isActive=true&skip=0&take=10
+Accept: application/json
+
+### 6) Lấy theo Id (thay {id} bằng GUID trả về từ POST)
+GET {{LMS.Host}}/api/users/68161930-e120-4f79-bb59-822061eadbc2
+Accept: application/json
+
