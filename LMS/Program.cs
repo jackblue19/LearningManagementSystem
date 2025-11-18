@@ -3,7 +3,9 @@ using LMS.Data;
 using LMS.Models.Entities;
 using LMS.Repositories;
 using LMS.Services.Impl;
+using LMS.Services.Impl.StudentService;
 using LMS.Services.Interfaces;
+using LMS.Services.Interfaces.StudentService;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,8 +21,17 @@ builder.Services.AddDbContext<CenterDbContext>(options =>
     options.UseSqlServer(connectionString);
 });
 
+//  Generic
 builder.Services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
 builder.Services.AddScoped(typeof(ICrudService<,>), typeof(CrudService<,>));
+
+//  Single mom <(")
+builder.Services.AddScoped<IClassRegistrationService, ClassRegistrationService>();
+builder.Services.AddScoped<IStudentCourseService, StudentCourseService>();
+builder.Services.AddScoped<IStudentScheduleService, StudentScheduleService>();
+builder.Services.AddScoped<IStudentExamService, StudentExamService>();
+builder.Services.AddScoped<IStudentExamResultService, StudentExamResultService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 // AuthZN
 builder.Services
