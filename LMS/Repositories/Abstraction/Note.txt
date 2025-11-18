@@ -1,0 +1,3 @@
+1. Cái này là bản refactor xịn xò hơn cho generic repository
+2. Hiện bản cũ nếu đang xài tốt thì cùng dùng đừng sử dụng cái này
+3. Có thể chưa phù hợp nhưng mà nó nhanh :>
