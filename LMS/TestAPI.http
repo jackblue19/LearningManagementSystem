@@ -1,60 +1,113 @@
 # For more info on HTTP files go to https://aka.ms/vs/httpfile
-@LMS.Host = http://localhost:5014
+@base = http://localhost:5014
 
-### 1) Tạo user (teacher)
-POST {{LMS.Host}}/api/users
+### 1) Create a manager user (UserId = GUID)
+POST {{base}}/api/users
 Content-Type: application/json
-Accept: application/json
 
 {
-  "Username": "alice.teacher",
-  "Email": "alice.teacher@example.com",
-  "PasswordHash": "demo-hash-1",
-  "FullName": "Alice Teacher",
-  "Phone": "0901234567",
-  "RoleDesc": "teacher",
-  "IsActive": true
+  "username": "manager01",
+  "email": "manager01@example.com",
+  "passwordHash": "hash",
+  "fullName": "Center Manager",
+  "roleDesc": "manager",
+  "isActive": true
 }
 
-### 2) Tạo user (student)
-POST {{LMS.Host}}/api/users
+### 2) Create a center (needs ManagerId from step 1)
+POST {{base}}/api/centers
 Content-Type: application/json
-Accept: application/json
 
 {
-  "Username": "bob.student",
-  "Email": "bob.student@example.com",
-  "PasswordHash": "demo-hash-2",
-  "FullName": "Bob Student",
-  "Phone": "0902345678",
-  "RoleDesc": "student",
-  "IsActive": true
+  "centerName": "UIT Center A",
+  "managerId": "cf2efbc5-2341-4647-8c85-064de5911836",
+  "centerAddress": "123 Dien Bien Phu",
+  "centerEmail": "contact@centerA.edu",
+  "phone": "0123456789",
+  "logo": null,
+  "isActive": true
 }
 
-### 3) Tạo user (manager)
-POST {{LMS.Host}}/api/users
+### 3) Create a subject (needs CenterId)
+POST {{base}}/api/subjects
 Content-Type: application/json
-Accept: application/json
 
 {
-  "Username": "cathy.manager",
-  "Email": "cathy.manager@example.com",
-  "PasswordHash": "demo-hash-3",
-  "FullName": "Cathy Manager",
-  "Phone": "0903456789",
-  "RoleDesc": "manager",
-  "IsActive": true
+  "subjectName": "English 5",
+  "centerId": "87f8763d-7087-4528-b209-39623f4c9e83",
+  "gradeLevel": "E5"
 }
 
-### 4) Lấy danh sách user (mặc định)
-GET {{LMS.Host}}/api/users
-Accept: application/json
+### 4) List subjects (paging + search)
+GET {{base}}/api/subjects?pageIndex=1&pageSize=10&search=math
+# GET {{base}}/api/subjects?pageIndex=1&pageSize=10&
 
-### 5) Lấy danh sách user (lọc + phân trang)
-GET {{LMS.Host}}/api/users?q=alice&role=teacher&isActive=true&skip=0&take=10
-Accept: application/json
+### 5) Exists + Count
+GET {{base}}/api/subjects/exists?name=Mathematics%2010
+# GET {{base}}/api/subjects/count?search=math
 
-### 6) Lấy theo Id (thay {id} bằng GUID trả về từ POST)
-GET {{LMS.Host}}/api/users/68161930-e120-4f79-bb59-822061eadbc2
-Accept: application/json
+### 6) Get/Update/Delete subject
+# Paste SubjectId (BIGINT) from step 3
+# GET {{base}}/api/subjects/{id}
+PUT {{base}}/api/subjects/20
+Content-Type: application/json
 
+{
+  "subjectName": "English UK 10 - Updated",
+  "gradeLevel": "G10A"
+}
+
+###
+DELETE {{base}}/api/subjects/20
+
+### 7) Create a teacher user (for Class.TeacherId)
+POST {{base}}/api/users
+Content-Type: application/json
+
+{
+  "username": "teacher01",
+  "email": "teacher01@example.com",
+  "passwordHash": "hash",
+  "fullName": "Teacher One",
+  "roleDesc": "teacher",
+  "isActive": true
+}
+
+### 8) Create a class (needs SubjectId, TeacherId, CenterId)
+POST {{base}}/api/classes
+Content-Type: application/json
+
+{
+  "className": "Algebra 101",
+  "subjectId": 5,
+  "teacherId": "8b6459f4-9a8f-4c42-8293-dbc926d27afa",
+  "centerId": "87f8763d-7087-4528-b209-39623f4c9e83",
+  "unitPrice": 100000,
+  "totalSessions": 20,
+  "startDate": "2025-12-01",
+  "endDate": "2026-03-01",
+  "scheduleDesc": "Tue-Thu evenings",
+  "classAddress": "Room 201",
+  "classStatus": "not start"
+}
+
+### 9) List classes (with includes Subject, Teacher) + paging
+# GET {{base}}/api/classes?pageIndex=1&pageSize=5
+
+### 10) Create schedules for a class, then list schedules
+POST {{base}}/api/schedules
+Content-Type: application/json
+
+{
+  "classId": "5d133f16-3274-4224-94b3-a4cd5c6354e8",
+  "sessionDate": "2025-12-02",
+  "roomName": "R201",
+  "startTime": "18:00:00",
+  "endTime": "19:30:00",
+  "slotOrder": 1,
+  "scheduleLabel": "S1",
+  "scheduleNote": null
+}
+
+###
+GET {{base}}/api/schedules?classId=5d133f16-3274-4224-94b3-a4cd5c6354e8
