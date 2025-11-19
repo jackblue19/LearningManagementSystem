@@ -66,4 +66,9 @@ public interface IAuthService
     /// Check if password is temporary OAuth marker
     /// </summary>
     bool IsOAuthTempPassword(string passwordHash);
+
+    /// <summary>
+    /// Reset password with email
+    /// </summary>
+    Task<bool> ResetPasswordAsync(string email, string newPassword, CancellationToken ct = default);
 }

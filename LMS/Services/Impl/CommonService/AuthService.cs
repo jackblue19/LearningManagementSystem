@@ -1,9 +1,11 @@
 using LMS.Data;
+using LMS.Helpers;
 using LMS.Models.Entities;
 using LMS.Models.ViewModels.Auth;
 using LMS.Repositories.Interfaces.Info;
 using LMS.Services.Interfaces.CommonService;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace LMS.Services.Impl.CommonService;
 
@@ -11,11 +13,22 @@ public class AuthService : IAuthService
 {
     private readonly IUserRepository _userRepo;
     private readonly CenterDbContext _db;
+    private readonly EmailHelper _emailHelper;
+    private readonly IMemoryCache _cache;
+    private readonly IConfiguration _configuration;
 
-    public AuthService(IUserRepository userRepo, CenterDbContext db)
+    public AuthService(
+        IUserRepository userRepo, 
+        CenterDbContext db, 
+        EmailHelper emailHelper, 
+        IMemoryCache cache,
+        IConfiguration configuration)
     {
         _userRepo = userRepo;
         _db = db;
+        _emailHelper = emailHelper;
+        _cache = cache;
+        _configuration = configuration;
     }
 
     public async Task<(bool Success, User? User, string? ErrorMessage)> LoginAsync(
@@ -148,22 +161,63 @@ public class AuthService : IAuthService
                 return (true, null);
             }
 
-            // TODO: Implement email sending logic
-            // Generate reset token, save to database, send email
-            // For now, just return success
+            // Generate reset token
+            var resetToken = Guid.NewGuid().ToString();
+            Console.WriteLine($"[AuthService] Generated token: {resetToken} for email: {email}");
 
-            // In production, you would:
-            // 1. Generate a secure token
-            // 2. Save token with expiration to database
-            // 3. Send email with reset link
-            // var resetToken = Guid.NewGuid().ToString();
-            // await _emailService.SendPasswordResetEmailAsync(email, resetToken);
+            // Store token in memory cache with 30-minute expiration
+            var cacheKey = $"reset_token_{email}";
+            var cacheOptions = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
+            
+            _cache.Set(cacheKey, resetToken, cacheOptions);
+            Console.WriteLine($"[AuthService] Token stored in cache with key: {cacheKey}");
+
+            // Build reset link
+            var baseUrl = _configuration["AppSettings:BaseUrl"] ?? "https://localhost:7045";
+            var resetLink = $"{baseUrl}/Common/ResetPassword?token={resetToken}&email={Uri.EscapeDataString(email)}";
+            Console.WriteLine($"[AuthService] Reset link: {resetLink}");
+
+            // Send email
+            var emailSent = await _emailHelper.SendPasswordResetEmailAsync(email, resetLink);
+
+            if (!emailSent)
+            {
+                return (false, "Không thể gửi email. Vui lòng thử lại sau.");
+            }
 
             return (true, null);
         }
         catch (Exception ex)
         {
             return (false, $"Lỗi: {ex.Message}");
+        }
+    }
+
+    public async Task<bool> ResetPasswordAsync(string email, string newPassword, CancellationToken ct = default)
+    {
+        try
+        {
+            var user = await _db.Users
+                .FirstOrDefaultAsync(u => u.Email == email && u.IsActive, ct);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            // Update password
+            user.PasswordHash = HashPassword(newPassword);
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _userRepo.UpdateAsync(user, saveNow: true, ct);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[AuthService] ResetPasswordAsync error: {ex.Message}");
+            return false;
         }
     }
 

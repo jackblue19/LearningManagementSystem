@@ -65,6 +65,12 @@ builder.Services.AddScoped<LMS.Services.Interfaces.TeacherService.ITeacherAvaila
 // Register Common Services
 builder.Services.AddScoped<LMS.Services.Interfaces.CommonService.IAuthService, LMS.Services.Impl.CommonService.AuthService>();
 
+// Register Helpers
+builder.Services.AddScoped<LMS.Helpers.EmailHelper>();
+
+// Add MemoryCache for token storage
+builder.Services.AddMemoryCache();
+
 // AuthZN
 builder.Services
             .AddAuthentication(options =>
