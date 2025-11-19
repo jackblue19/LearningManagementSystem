@@ -419,3 +419,4 @@ FodyWeavers.xsd
 *.md
 *.txt
 *.sql
+LMS/appsettings.json
