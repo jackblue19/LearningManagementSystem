@@ -1,0 +1,77 @@
+@page
+@model LMS.Pages.Student.CoursesModel
+@{
+    ViewData["Title"] = "My Courses";
+}
+
+<section class="container py-4">
+    <h2 class="mb-4">Registered Courses</h2>
+
+    <!-- Search Form -->
+    <form method="post" class="card shadow-sm mb-4">
+        <div class="card-body row g-3">
+
+            <div class="col-md-6">
+                <label asp-for="StudentId" class="form-label"></label>
+                <input asp-for="StudentId" class="form-control" />
+                <span asp-validation-for="StudentId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6 d-flex align-items-end">
+                <div class="form-check">
+                    <input asp-for="IncludeCancelled" class="form-check-input" />
+                    <label asp-for="IncludeCancelled" class="form-check-label"></label>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="card-footer text-end">
+            <button type="submit" class="btn btn-primary">Load courses</button>
+        </div>
+    </form>
+
+    <!-- Results -->
+    @if (Model.Courses.Any())
+    {
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            @foreach (var course in Model.Courses)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">@course.ClassName</h5>
+                            <p class="card-text text-muted">@course.ScheduleDesc</p>
+
+                            <dl class="row small">
+                                <dt class="col-5">Subject</dt>
+                                <dd class="col-7">@course.SubjectId</dd>
+
+                                <dt class="col-5">Teacher</dt>
+                                <dd class="col-7">@course.TeacherId</dd>
+
+                                <dt class="col-5">Start</dt>
+                                <dd class="col-7">@course.StartDate?.ToString("yyyy-MM-dd")</dd>
+
+                                <dt class="col-5">Sessions</dt>
+                                <dd class="col-7">@course.TotalSessions</dd>
+                            </dl>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <span class="badge bg-primary-subtle text-primary">
+                                @course.ClassStatus
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else if (Model.StudentId != Guid.Empty)
+    {
+        <p class="text-muted">No courses found for this student.</p>
+    }
+
+</section>
+
+<partial name="_ValidationScriptsPartial" />

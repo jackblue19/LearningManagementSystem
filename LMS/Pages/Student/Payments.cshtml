@@ -1,0 +1,104 @@
+@page
+@model LMS.Pages.Student.PaymentsModel
+@{
+    ViewData["Title"] = "Payments";
+}
+
+<section class="container py-4">
+    <h2 class="mb-3">Payments</h2>
+
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <div class="alert alert-success">@Model.StatusMessage</div>
+    }
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+
+    <!-- Search Payment History -->
+    <form method="get" class="card shadow-sm mb-4">
+        <div class="card-body row g-3">
+            <div class="col-md-6">
+                <label asp-for="StudentId" class="form-label"></label>
+                <input asp-for="StudentId" class="form-control" />
+                <span asp-validation-for="StudentId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button class="btn btn-secondary" type="submit">Load payments</button>
+        </div>
+    </form>
+
+    <!-- Create Quick Payment -->
+    <form method="post" asp-page-handler="Create" class="card shadow-sm mb-4">
+        <div class="card-header">
+            <strong>Record New Payment</strong>
+        </div>
+
+        <div class="card-body row g-3">
+            <div class="col-md-3">
+                <label asp-for="StudentId" class="form-label"></label>
+                <input asp-for="StudentId" class="form-control" />
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="ClassId" class="form-label"></label>
+                <input asp-for="ClassId" class="form-control" />
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="Amount" class="form-label"></label>
+                <input asp-for="Amount" class="form-control" />
+                <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="PaymentMethod" class="form-label"></label>
+                <input asp-for="PaymentMethod" class="form-control" placeholder="Cash / Card / VNPay ..." />
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <button class="btn btn-primary" type="submit">Record payment</button>
+        </div>
+    </form>
+
+    <!-- Payment History -->
+    @if (Model.Payments.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Payment Id</th>
+                        <th>Class</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Method</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model.Payments)
+                    {
+                        <tr>
+                            <td>@p.PaymentId</td>
+                            <td>@p.ClassId</td>
+                            <td>@p.Amount.ToString("C")</td>
+                            <td>@p.PaymentStatus</td>
+                            <td>@p.PaymentMethod</td>
+                            <td>@p.CreatedAt.ToLocalTime().ToString("g")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else if (Model.StudentId != Guid.Empty)
+    {
+        <p class="text-muted">No payment history found for this student.</p>
+    }
+</section>
+
+<partial name="_ValidationScriptsPartial" />

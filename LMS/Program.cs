@@ -1,9 +1,15 @@
-using System.Linq.Expressions;
 using LMS.Data;
-using LMS.Models.Entities;
 using LMS.Repositories;
+using LMS.Repositories.Impl.Academic;
+using LMS.Repositories.Impl.Finance;
+using LMS.Repositories.Impl.Scheduling;
+using LMS.Repositories.Interfaces.Academic;
+using LMS.Repositories.Interfaces.Finance;
+using LMS.Repositories.Interfaces.Scheduling;
 using LMS.Services.Impl;
+using LMS.Services.Impl.StudentService;
 using LMS.Services.Interfaces;
+using LMS.Services.Interfaces.StudentService;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +27,14 @@ builder.Services.AddDbContext<CenterDbContext>(options =>
 
 builder.Services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
 builder.Services.AddScoped(typeof(ICrudService<,>), typeof(CrudService<,>));
+builder.Services.AddScoped<IClassRepository, ClassRepository>();
+builder.Services.AddScoped<IClassRegistrationRepository, ClassRegistrationRepository>();
+builder.Services.AddScoped<IClassScheduleRepository, ClassScheduleRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IClassRegistrationService, ClassRegistrationService>();
+builder.Services.AddScoped<IStudentScheduleService, StudentScheduleService>();
+builder.Services.AddScoped<IStudentCourseService, StudentCourseService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 // AuthZN
 builder.Services
