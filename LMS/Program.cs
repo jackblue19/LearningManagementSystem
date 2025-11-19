@@ -2,8 +2,14 @@ using System.Linq.Expressions;
 using LMS.Data;
 using LMS.Models.Entities;
 using LMS.Repositories;
+using LMS.Repositories.Impl.Academic;
+using LMS.Repositories.Impl.Assessment;
+using LMS.Repositories.Interfaces.Academic;
+using LMS.Repositories.Interfaces.Assessment;
 using LMS.Services.Impl;
+using LMS.Services.Impl.TeacherService;
 using LMS.Services.Interfaces;
+using LMS.Services.Interfaces.TeacherService;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,7 +26,12 @@ builder.Services.AddDbContext<CenterDbContext>(options =>
 });
 
 builder.Services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
+builder.Services.AddScoped<IExamRepository, ExamRepository>();
+builder.Services.AddScoped<IExamResultRepository, ExamResultRepository>();
+
 builder.Services.AddScoped(typeof(ICrudService<,>), typeof(CrudService<,>));
+builder.Services.AddScoped<IExamService, ExamService>();
+builder.Services.AddScoped<IExamResultService, ExamResultService>();
 
 // AuthZN
 builder.Services
