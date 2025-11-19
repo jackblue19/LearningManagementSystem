@@ -1,5 +1,30 @@
-﻿namespace LMS.Repositories.Impl.Academic;
+﻿using LMS.Data;
+using LMS.Models.Entities;
+using LMS.Repositories.Interfaces.Academic;
+using Microsoft.EntityFrameworkCore;
 
-public class ClassRepository
+namespace LMS.Repositories.Impl.Academic;
+
+public class ClassRepository : GenericRepository<Class, Guid>, IClassRepository
 {
+    public ClassRepository(CenterDbContext db) : base(db) { }
+
+    public async Task<IEnumerable<Class>> GetByTeacherIdAsync(Guid teacherId, CancellationToken ct = default)
+    {
+        return await _db.Set<Class>()
+                        .Include(c => c.Subject)
+                        .Include(c => c.Center)
+                        .Where(c => c.TeacherId == teacherId)
+                        .OrderByDescending(c => c.CreatedAt)
+                        .ToListAsync(ct);
+    }
+
+    public async Task<IEnumerable<Class>> GetActiveClassesByTeacherAsync(Guid teacherId, CancellationToken ct = default)
+    {
+        return await _db.Set<Class>()
+                        .Include(c => c.Subject)
+                        .Where(c => c.TeacherId == teacherId && c.ClassStatus == "Active")
+                        .OrderBy(c => c.ClassName)
+                        .ToListAsync(ct);
+    }
 }
