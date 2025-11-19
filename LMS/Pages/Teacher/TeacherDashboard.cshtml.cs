@@ -1,4 +1,5 @@
 using LMS.Repositories.Interfaces.Info;
+using LMS.Services.Interfaces.CommonService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -10,10 +11,12 @@ namespace LMS.Pages.Teacher;
 public class TeacherDashboardModel : PageModel
 {
     private readonly IUserRepository _userRepo;
+    private readonly IAuthService _authService;
 
-    public TeacherDashboardModel(IUserRepository userRepo)
+    public TeacherDashboardModel(IUserRepository userRepo, IAuthService authService)
     {
         _userRepo = userRepo;
+        _authService = authService;
     }
 
     public async Task<IActionResult> OnGetAsync()
@@ -23,7 +26,7 @@ public class TeacherDashboardModel : PageModel
         if (!string.IsNullOrEmpty(userId) && Guid.TryParse(userId, out var userGuid))
         {
             var user = await _userRepo.GetByIdAsync(userGuid);
-            if (user != null && user.PasswordHash.Length > 50)
+            if (user != null && _authService.IsOAuthTempPassword(user.PasswordHash))
             {
                 return RedirectToPage("/Common/SetupPassword");
             }

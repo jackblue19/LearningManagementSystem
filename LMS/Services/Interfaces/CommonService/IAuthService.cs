@@ -61,4 +61,9 @@ public interface IAuthService
         string name, 
         string? picture, 
         CancellationToken ct = default);
+
+    /// <summary>
+    /// Check if password is temporary OAuth marker
+    /// </summary>
+    bool IsOAuthTempPassword(string passwordHash);
 }

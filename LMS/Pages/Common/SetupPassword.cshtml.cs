@@ -51,10 +51,13 @@ public class SetupPasswordModel : PageModel
         Console.WriteLine($"[SetupPassword] User found - Email: {user.Email}, Role: {user.RoleDesc}");
 
         // Check if user needs to setup password (Google OAuth users)
-        var hasDefaultPassword = user.PasswordHash.Length > 50; // Random GUID password is longer
-        if (!hasDefaultPassword)
+        var needsPasswordSetup = _authService.IsOAuthTempPassword(user.PasswordHash);
+        Console.WriteLine($"[SetupPassword] Needs password setup: {needsPasswordSetup}");
+        
+        if (!needsPasswordSetup)
         {
             // User already has a proper password, redirect to dashboard
+            Console.WriteLine($"[SetupPassword] User has proper password, redirecting to dashboard");
             return RedirectToRoleDashboard(user.RoleDesc);
         }
 

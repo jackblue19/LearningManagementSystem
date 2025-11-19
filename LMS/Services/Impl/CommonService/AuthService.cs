@@ -291,7 +291,7 @@ public class AuthService : IAuthService
                 UserId = Guid.NewGuid(),
                 Username = username,
                 Email = email,
-                PasswordHash = HashPassword(Guid.NewGuid().ToString()), // Random password for OAuth users
+                PasswordHash = HashPassword(OAUTH_TEMP_PASSWORD_MARKER), // Temporary marker for OAuth users
                 FullName = name,
                 Avatar = picture,
                 RoleDesc = "student", // Default role
@@ -320,6 +320,14 @@ public class AuthService : IAuthService
             Console.WriteLine($"[AuthService] StackTrace: {ex.StackTrace}");
             return (false, null, $"Lỗi đăng nhập Google: {ex.Message}", false);
         }
+    }
+
+    private const string OAUTH_TEMP_PASSWORD_MARKER = "__OAUTH_TEMP_PASSWORD__";
+
+    public bool IsOAuthTempPassword(string passwordHash)
+    {
+        // Check if password is the temporary OAuth marker
+        return passwordHash == HashPassword(OAUTH_TEMP_PASSWORD_MARKER);
     }
 
     public bool VerifyPassword(string password, string passwordHash)
