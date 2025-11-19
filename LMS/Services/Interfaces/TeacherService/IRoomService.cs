@@ -1,5 +1,9 @@
-﻿namespace LMS.Services.Interfaces.TeacherService;
+﻿using System;
+using LMS.Models.Entities;
+using LMS.Services.Interfaces;
 
-public interface IRoomService
+namespace LMS.Services.Interfaces.TeacherService;
+
+public interface IRoomService : ICrudService<Room, Guid>
 {
 }

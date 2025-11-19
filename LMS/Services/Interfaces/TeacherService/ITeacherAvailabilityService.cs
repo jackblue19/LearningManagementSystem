@@ -1,5 +1,8 @@
-﻿namespace LMS.Services.Interfaces.TeacherService;
+﻿using LMS.Models.Entities;
+using LMS.Services.Interfaces;
 
-public interface ITeacherAvailabilityService
+namespace LMS.Services.Interfaces.TeacherService;
+
+public interface ITeacherAvailabilityService : ICrudService<TeacherAvailability, long>
 {
 }
