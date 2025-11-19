@@ -2,8 +2,14 @@ using System.Linq.Expressions;
 using LMS.Data;
 using LMS.Models.Entities;
 using LMS.Repositories;
+using LMS.Repositories.Impl.Info;
+using LMS.Repositories.Interfaces.Info;
 using LMS.Services.Impl;
+using LMS.Services.Impl.AdminService;
+using LMS.Services.Impl.CommonService;
 using LMS.Services.Interfaces;
+using LMS.Services.Interfaces.AdminService;
+using LMS.Services.Interfaces.CommonService;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,13 +20,18 @@ builder.Services.AddRazorPages();
 
 // DI
 var connectionString = builder.Configuration.GetConnectionString("SqlServer");
-builder.Services.AddDbContext<CenterDbContext>(options =>
+builder.Services.AddDbContext<LMS.Data.CenterDbContext>(options =>
 {
     options.UseSqlServer(connectionString);
 });
 
 builder.Services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
 builder.Services.AddScoped(typeof(ICrudService<,>), typeof(CrudService<,>));
+
+// User Repository & Services
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAdminUserService, AdminUserService>();
 
 // AuthZN
 builder.Services
@@ -69,7 +80,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
+app.UseSession();
 
 app.MapRazorPages();
 
