@@ -22,17 +22,7 @@ public class PaymentService : IPaymentService
         _regRepo = regRepo;
         _classRepo = classRepo;
     }
-    /// <summary>
-    /// 1. tạm thời thì fake auto thành công :v
-    /// 2. đó trưa thi xong tích hợp thêm vnpay hoặc j đó khác sau :">
-    /// 3. đó sẽ refactor code lại
-    /// </summary>
-    /// <param name="studentId"></param>
-    /// <param name="classId"></param>
-    /// <param name="paymentMethod"></param>
-    /// <param name="ct"></param>
-    /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
+
     public async Task<PaymentCheckoutVm> CreateRegistrationPaymentAsync(
         Guid studentId, Guid classId, string paymentMethod, CancellationToken ct = default)
     {
@@ -56,8 +46,8 @@ public class PaymentService : IPaymentService
             ClassId = classId,
             RegistrationId = reg.RegistrationId,
             Amount = amount,
-            PaymentMethod = paymentMethod,
-            PaymentStatus = "paid",
+            PaymentMethod = paymentMethod,  //VNPAY
+            PaymentStatus = "pending",
             CreatedAt = DateTime.UtcNow,
             PaidAt = DateTime.UtcNow
         };
@@ -102,5 +92,44 @@ public class PaymentService : IPaymentService
             .ToList();
 
         return new PagedResult<PaymentHistoryVm>(items, total, pageIndex, pageSize);
+    }
+
+    public async Task<bool> UpdateRegistrationPaymentAsync(
+                                Guid paymentId, string newStatus,
+                                decimal? amountVerified = null, DateTime? paidAt = null,
+                                CancellationToken ct = default)
+    {
+        var payment = await _payRepo.GetByIdAsync(paymentId, asNoTracking: false, ct);
+        if (payment is null) return false;
+
+        // Idempotent: nếu đã paid thì bỏ qua
+        if (string.Equals(payment.PaymentStatus, "paid", StringComparison.OrdinalIgnoreCase)) return true;
+
+        // Nếu cổng trả về amount, đối chiếu để an toàn
+        if (amountVerified.HasValue && amountVerified.Value != payment.Amount)
+        {
+            payment.PaymentStatus = "failed"; // sai số tiền → fail
+            await _payRepo.UpdateAsync(payment, saveNow: false, ct);
+            await _payRepo.SaveChangesAsync(ct);
+            return false;
+        }
+
+        // Cập nhật trạng thái theo IPN/Webhook
+        payment.PaymentStatus = newStatus; // "paid" | "failed" | "canceled"...
+        if (string.Equals(newStatus, "paid", StringComparison.OrdinalIgnoreCase))
+        {
+            payment.PaidAt = paidAt ?? DateTime.UtcNow;
+        }
+
+        await _payRepo.UpdateAsync(payment, saveNow: false, ct);
+        await _payRepo.SaveChangesAsync(ct);
+        return true;
+    }
+
+    // helper
+    public Guid ParsePaymentIdFromTxnRef(string txnRef)
+    {
+        // Dùng PaymentId dưới dạng Guid "N" làm vnp_TxnRef
+        return Guid.ParseExact(txnRef, "N");
     }
 }

@@ -9,7 +9,15 @@ public interface IPaymentService
     Task<PaymentCheckoutVm> CreateRegistrationPaymentAsync(
         Guid studentId, Guid classId, string paymentMethod, CancellationToken ct = default);
 
+    Task<bool> UpdateRegistrationPaymentAsync(
+        Guid paymentId, string newStatus,
+        decimal? amountVerified = null, DateTime? paidAt = null,
+        CancellationToken ct = default);
+
     Task<PagedResult<PaymentHistoryVm>> ListMyPaymentsAsync(
         Guid studentId, DateOnly? from = null, DateOnly? to = null, string? status = null,
         int pageIndex = 1, int pageSize = 20, CancellationToken ct = default);
+
+    // helper
+    Guid ParsePaymentIdFromTxnRef(string txnRef);
 }
