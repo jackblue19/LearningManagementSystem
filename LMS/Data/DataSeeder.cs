@@ -16,7 +16,20 @@ public static class DataSeeder
 
         Console.WriteLine("Starting data seeding...");
 
-        // 1. Seed Users (Manager, Teacher, Students)
+        // Hash password function (same as AuthService)
+        string HashPassword(string password)
+        {
+            using var sha256 = System.Security.Cryptography.SHA256.Create();
+            var bytes = System.Text.Encoding.UTF8.GetBytes(password + "LMS_SALT_2025");
+            var hash = sha256.ComputeHash(bytes);
+            return Convert.ToBase64String(hash);
+        }
+
+        // Default password for all test accounts: "123456"
+        var defaultPasswordHash = HashPassword("123456");
+
+        // 1. Seed Users (Admin, Manager, Teacher, Students)
+        var adminId = Guid.NewGuid();
         var managerId = Guid.NewGuid();
         var teacherId = Guid.NewGuid();
         var student1Id = Guid.NewGuid();
@@ -29,11 +42,24 @@ public static class DataSeeder
         {
             new User
             {
+                UserId = adminId,
+                Username = "admin",
+                Email = "admin@lms.com",
+                PasswordHash = defaultPasswordHash,
+                FullName = "System Administrator",
+                Phone = "0900000000",
+                RoleDesc = "admin",
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow,
+                Avatar = "/images/avatars/admin.jpg"
+            },
+            new User
+            {
                 UserId = managerId,
-                Username = "manager01",
+                Username = "manager",
                 Email = "manager@lms.com",
-                PasswordHash = "hashed_password_123",
-                FullName = "Nguyễn Văn Manager",
+                PasswordHash = defaultPasswordHash,
+                FullName = "Nguyễn Văn Quản Lý",
                 Phone = "0901234567",
                 RoleDesc = "manager",
                 IsActive = true,
@@ -43,9 +69,9 @@ public static class DataSeeder
             new User
             {
                 UserId = teacherId,
-                Username = "teacher01",
+                Username = "teacher",
                 Email = "teacher@lms.com",
-                PasswordHash = "hashed_password_123",
+                PasswordHash = defaultPasswordHash,
                 FullName = "Trần Thị Giáo Viên",
                 Phone = "0902345678",
                 RoleDesc = "teacher",
@@ -58,7 +84,7 @@ public static class DataSeeder
                 UserId = student1Id,
                 Username = "student01",
                 Email = "student01@lms.com",
-                PasswordHash = "hashed_password_123",
+                PasswordHash = defaultPasswordHash,
                 FullName = "Lê Văn An",
                 Phone = "0903456789",
                 RoleDesc = "student",
@@ -70,7 +96,7 @@ public static class DataSeeder
                 UserId = student2Id,
                 Username = "student02",
                 Email = "student02@lms.com",
-                PasswordHash = "hashed_password_123",
+                PasswordHash = defaultPasswordHash,
                 FullName = "Phạm Thị Bình",
                 Phone = "0904567890",
                 RoleDesc = "student",
@@ -82,7 +108,7 @@ public static class DataSeeder
                 UserId = student3Id,
                 Username = "student03",
                 Email = "student03@lms.com",
-                PasswordHash = "hashed_password_123",
+                PasswordHash = defaultPasswordHash,
                 FullName = "Hoàng Văn Cường",
                 Phone = "0905678901",
                 RoleDesc = "student",
@@ -94,7 +120,7 @@ public static class DataSeeder
                 UserId = student4Id,
                 Username = "student04",
                 Email = "student04@lms.com",
-                PasswordHash = "hashed_password_123",
+                PasswordHash = defaultPasswordHash,
                 FullName = "Đặng Thị Dung",
                 Phone = "0906789012",
                 RoleDesc = "student",
@@ -106,7 +132,7 @@ public static class DataSeeder
                 UserId = student5Id,
                 Username = "student05",
                 Email = "student05@lms.com",
-                PasswordHash = "hashed_password_123",
+                PasswordHash = defaultPasswordHash,
                 FullName = "Vũ Văn Em",
                 Phone = "0907890123",
                 RoleDesc = "student",
@@ -117,7 +143,7 @@ public static class DataSeeder
 
         await context.Users.AddRangeAsync(users);
         await context.SaveChangesAsync();
-        Console.WriteLine("✓ Seeded 7 users (1 manager, 1 teacher, 5 students)");
+        Console.WriteLine("✓ Seeded 8 users (1 admin, 1 manager, 1 teacher, 5 students)");
 
         // 2. Seed Centers
         var centerId = Guid.NewGuid();
@@ -473,12 +499,21 @@ public static class DataSeeder
         Console.WriteLine($"  - Materials: {await context.ClassMaterials.CountAsync()}");
         Console.WriteLine($"  - Attendances: {await context.Attendances.CountAsync()}");
         Console.WriteLine("");
-        Console.WriteLine("🔑 Login Credentials:");
-        Console.WriteLine("  Teacher: teacher01 / hashed_password_123");
-        Console.WriteLine("  Manager: manager01 / hashed_password_123");
-        Console.WriteLine("  Student: student01 / hashed_password_123");
+        Console.WriteLine("🔑 Login Credentials (All passwords: 123456):");
+        Console.WriteLine("  Admin:    admin    / 123456");
+        Console.WriteLine("  Manager:  manager  / 123456");
+        Console.WriteLine("  Teacher:  teacher  / 123456");
+        Console.WriteLine("  Student:  student01 / 123456");
+        Console.WriteLine("");
+        Console.WriteLine("📧 Login với Email:");
+        Console.WriteLine("  admin@lms.com / 123456");
+        Console.WriteLine("  manager@lms.com / 123456");
+        Console.WriteLine("  teacher@lms.com / 123456");
+        Console.WriteLine("  student01@lms.com / 123456");
         Console.WriteLine("");
         Console.WriteLine("🎯 Test URLs:");
+        Console.WriteLine("  - Login: /Common/Login");
+        Console.WriteLine("  - Register: /Common/Register");
         Console.WriteLine("  - Rooms: /Teacher/TeacherRooms");
         Console.WriteLine("  - Materials: /Teacher/TeacherMaterials");
         Console.WriteLine($"  - Attendance: /Teacher/TeacherAttendance?scheduleId={schedule1Id}");
