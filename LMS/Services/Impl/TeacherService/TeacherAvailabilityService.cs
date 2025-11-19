@@ -1,5 +1,14 @@
-﻿namespace LMS.Services.Impl.TeacherService;
+﻿using LMS.Repositories.Interfaces.Scheduling;
+using LMS.Services.Interfaces.TeacherService;
 
-public class TeacherAvailabilityService
+namespace LMS.Services.Impl.TeacherService;
+
+public class TeacherAvailabilityService : ITeacherAvailabilityService
 {
+    private readonly ITeacherAvailabilityRepository _teacherAvailRepo;
+
+    public TeacherAvailabilityService(ITeacherAvailabilityRepository teacherAvailRepo)
+    {
+        _teacherAvailRepo = teacherAvailRepo;
+    }
 }

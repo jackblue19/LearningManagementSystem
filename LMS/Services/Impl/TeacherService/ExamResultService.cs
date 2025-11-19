@@ -1,5 +1,14 @@
-﻿namespace LMS.Services.Impl.TeacherService;
+﻿using LMS.Repositories.Interfaces.Assessment;
+using LMS.Services.Interfaces.TeacherService;
 
-public class ExamResultService
+namespace LMS.Services.Impl.TeacherService;
+
+public class ExamResultService : IExamResultService
 {
+    private readonly IExamResultRepository _examResultRepo;
+
+    public ExamResultService(IExamResultRepository examResultRepo)
+    {
+        _examResultRepo = examResultRepo;
+    }
 }

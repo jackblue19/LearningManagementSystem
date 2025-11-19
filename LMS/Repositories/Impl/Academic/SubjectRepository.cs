@@ -1,5 +1,12 @@
-﻿namespace LMS.Repositories.Impl.Academic;
+﻿using LMS.Data;
+using LMS.Models.Entities;
+using LMS.Repositories.Interfaces.Academic;
 
-public class SubjectRepository
+namespace LMS.Repositories.Impl.Academic;
+
+public class SubjectRepository : GenericRepository<Subject, long>, ISubjectRepository
 {
+    public SubjectRepository(CenterDbContext db) : base(db)
+    {
+    }
 }
