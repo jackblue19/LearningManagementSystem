@@ -1,0 +1,87 @@
+@page
+@model LMS.Pages.Manager.EditTeacherModel
+@{
+    ViewData["Title"] = "Chỉnh sửa giáo viên";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-pencil-fill"></i> Chỉnh sửa thông tin giáo viên</h4>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage
+                        </div>
+                    }
+
+                    @if (Model.Teacher != null)
+                    {
+                        <form method="post">
+                            <input type="hidden" asp-for="Input.UserId" />
+
+                            <div class="mb-3">
+                                <label class="form-label">Tên đăng nhập</label>
+                                <input type="text" class="form-control" value="@Model.Teacher.Username" readonly disabled />
+                                <small class="text-muted">Tên đăng nhập không thể thay đổi</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Input.Email" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input asp-for="Input.Email" type="email" class="form-control" />
+                                <span asp-validation-for="Input.Email" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Input.FullName" class="form-label">Họ tên <span class="text-danger">*</span></label>
+                                <input asp-for="Input.FullName" class="form-control" />
+                                <span asp-validation-for="Input.FullName" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Input.Phone" class="form-label">Số điện thoại</label>
+                                <input asp-for="Input.Phone" type="tel" class="form-control" />
+                                <span asp-validation-for="Input.Phone" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input asp-for="Input.IsActive" class="form-check-input" />
+                                    <label asp-for="Input.IsActive" class="form-check-label">
+                                        Tài khoản đang hoạt động
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a asp-page="/Manager/ManageTeachers" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-left"></i> Quay lại
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> Lưu thay đổi
+                                </button>
+                            </div>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            Không tìm thấy giáo viên.
+                        </div>
+                        <a asp-page="/Manager/ManageTeachers" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Quay lại danh sách
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
