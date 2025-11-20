@@ -7,4 +7,6 @@ public interface IClassRepository : IGenericRepository<Class, Guid>
     Task<IReadOnlyList<Class>> GetClassesByTeacherIdAsync(
         Guid teacherId,
         CancellationToken ct = default);
+    Task<IEnumerable<Class>> GetByTeacherIdAsync(Guid teacherId, CancellationToken ct = default);
+    Task<IEnumerable<Class>> GetActiveClassesByTeacherAsync(Guid teacherId, CancellationToken ct = default);
 }
