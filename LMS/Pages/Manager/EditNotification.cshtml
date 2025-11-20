@@ -1,0 +1,84 @@
+@page
+@model LMS.Pages.Manager.EditNotificationModel
+@{
+    ViewData["Title"] = "Chỉnh sửa thông báo";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-pencil-square"></i> Chỉnh sửa thông báo
+                    </h4>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form method="post">
+                        <input type="hidden" asp-for="Input.NotificationId" />
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Title" class="form-label fw-bold"></label>
+                            <input asp-for="Input.Title" class="form-control" placeholder="Nhập tiêu đề thông báo" />
+                            <span asp-validation-for="Input.Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Message" class="form-label fw-bold"></label>
+                            <textarea asp-for="Input.Message" class="form-control" rows="5" 
+                                      placeholder="Nhập nội dung thông báo"></textarea>
+                            <span asp-validation-for="Input.Message" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                <span id="charCount">0</span>/2000 ký tự
+                            </small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Type" class="form-label fw-bold"></label>
+                            <select asp-for="Input.Type" class="form-select">
+                                <option value="info">Thông tin (Xanh dương)</option>
+                                <option value="success">Thành công (Xanh lá)</option>
+                                <option value="warning">Cảnh báo (Vàng)</option>
+                                <option value="danger">Khẩn cấp (Đỏ)</option>
+                            </select>
+                            <span asp-validation-for="Input.Type" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-page="/Manager/ManageNotifications" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Cập nhật
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Character counter
+        const messageTextarea = document.querySelector('textarea[name="Input.Message"]');
+        const charCount = document.getElementById('charCount');
+        
+        function updateCharCount() {
+            charCount.textContent = messageTextarea.value.length;
+        }
+        
+        messageTextarea.addEventListener('input', updateCharCount);
+        updateCharCount();
+    </script>
+}

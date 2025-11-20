@@ -1,0 +1,204 @@
+@page
+@model LMS.Pages.Manager.ManageNotificationsModel
+@{
+    ViewData["Title"] = "Quản lý thông báo";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="bi bi-bell-fill text-primary"></i> Quản lý thông báo
+                </h2>
+                <div>
+                    <button type="button" class="btn btn-danger me-2" id="deleteSelectedBtn" disabled onclick="deleteSelected()">
+                        <i class="bi bi-trash"></i> Xóa đã chọn
+                    </button>
+                    <a asp-page="/Manager/SendNotification" class="btn btn-primary">
+                        <i class="bi bi-send"></i> Gửi thông báo mới
+                    </a>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i> @Model.SuccessMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (!Model.Notifications.Any())
+            {
+                <div class="alert alert-info text-center py-5">
+                    <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                    <h5>Chưa có thông báo nào được gửi</h5>
+                    <p class="mb-0">Bắt đầu gửi thông báo đến giáo viên và học sinh</p>
+                </div>
+            }
+            else
+            {
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px;">
+                                            <input type="checkbox" id="selectAll" class="form-check-input" onchange="toggleSelectAll(this)">
+                                        </th>
+                                        <th>Nội dung</th>
+                                        <th>Loại</th>
+                                        <th>Thời gian</th>
+                                        <th>Người nhận</th>
+                                        <th>Đã đọc</th>
+                                        <th>Chưa đọc</th>
+                                        <th style="width: 150px;">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var notification in Model.Notifications)
+                                    {
+                                        var contentLines = notification.Content?.Split('\n', 2) ?? new[] { "", "" };
+                                        var title = contentLines.Length > 0 ? contentLines[0] : "";
+                                        var message = contentLines.Length > 1 ? contentLines[1] : "";
+
+                                        var badgeClass = notification.Type switch
+                                        {
+                                            "success" => "bg-success",
+                                            "warning" => "bg-warning text-dark",
+                                            "danger" => "bg-danger",
+                                            _ => "bg-info"
+                                        };
+
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" class="form-check-input notification-checkbox" 
+                                                       value="@notification.NotificationId" onchange="updateDeleteButton()">
+                                            </td>
+                                            <td>
+                                                <strong>@title</strong>
+                                                @if (!string.IsNullOrEmpty(message))
+                                                {
+                                                    <br />
+                                                    <small class="text-muted">@message</small>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge @badgeClass">
+                                                    @(notification.Type ?? "info")
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <small>@notification.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">
+                                                    @notification.RecipientCount người
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success">
+                                                    @notification.ReadCount
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-warning text-dark">
+                                                    @notification.UnreadCount
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <a asp-page="/Manager/EditNotification" asp-route-id="@notification.NotificationId" 
+                                                       class="btn btn-outline-primary" title="Chỉnh sửa">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <form method="post" asp-page-handler="Delete" asp-route-id="@notification.NotificationId" 
+                                                          class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa thông báo này?')">
+                                                        <button type="submit" class="btn btn-outline-danger" title="Xóa">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        @if (Model.TotalPages > 1)
+                        {
+                            <nav class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                                        <a class="page-link" asp-page="/Manager/ManageNotifications" asp-route-pageNumber="@(Model.PageNumber - 1)">
+                                            <i class="bi bi-chevron-left"></i> Trước
+                                        </a>
+                                    </li>
+                                    
+                                    @for (int i = 1; i <= Model.TotalPages; i++)
+                                    {
+                                        <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                            <a class="page-link" asp-page="/Manager/ManageNotifications" asp-route-pageNumber="@i">@i</a>
+                                        </li>
+                                    }
+                                    
+                                    <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+                                        <a class="page-link" asp-page="/Manager/ManageNotifications" asp-route-pageNumber="@(Model.PageNumber + 1)">
+                                            Sau <i class="bi bi-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<form method="post" asp-page-handler="DeleteMultiple" id="deleteMultipleForm">
+    <input type="hidden" name="selectedIds" id="selectedIdsInput">
+</form>
+
+@section Scripts {
+    <script>
+        function toggleSelectAll(checkbox) {
+            const checkboxes = document.querySelectorAll('.notification-checkbox');
+            checkboxes.forEach(cb => cb.checked = checkbox.checked);
+            updateDeleteButton();
+        }
+
+        function updateDeleteButton() {
+            const checkboxes = document.querySelectorAll('.notification-checkbox:checked');
+            const deleteBtn = document.getElementById('deleteSelectedBtn');
+            deleteBtn.disabled = checkboxes.length === 0;
+            deleteBtn.textContent = checkboxes.length > 0 
+                ? ` Xóa đã chọn (${checkboxes.length})`
+                : ' Xóa đã chọn';
+        }
+
+        function deleteSelected() {
+            const checkboxes = document.querySelectorAll('.notification-checkbox:checked');
+            if (checkboxes.length === 0) return;
+
+            if (!confirm(`Bạn có chắc muốn xóa ${checkboxes.length} thông báo đã chọn?`)) return;
+
+            const ids = Array.from(checkboxes).map(cb => cb.value).join(',');
+            document.getElementById('selectedIdsInput').value = ids;
+            document.getElementById('deleteMultipleForm').submit();
+        }
+    </script>
+}

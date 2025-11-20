@@ -25,6 +25,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddControllers();
+builder.Services.AddSignalR();
 
 // DI
 var connectionString = builder.Configuration.GetConnectionString("SqlServer");
@@ -108,5 +110,7 @@ app.UseAuthorization();
 app.UseSession();
 
 app.MapRazorPages();
+app.MapControllers();
+app.MapHub<LMS.Hubs.NotificationHub>("/notificationHub");
 
 app.Run();
