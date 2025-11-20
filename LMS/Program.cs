@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using LMS.Data;
+using LMS.Helpers;
 using LMS.Models.Entities;
 using LMS.Models.ViewModels.Bank;
 using LMS.Repositories;
@@ -32,24 +33,8 @@ builder.Services.AddDbContext<CenterDbContext>(options =>
 builder.Services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
 builder.Services.AddScoped(typeof(ICrudService<,>), typeof(CrudService<,>));
 
-//builder.Services.Configure<VnPayOptions>(builder.Configuration.GetSection("VnPay"));
-var vnPayConfig = builder.Configuration.GetSection("VnPay");
-builder.Services.AddVnpayClient(config =>
-{
-    config.TmnCode = vnPayConfig["TmnCode"];
-    config.HashSecret = vnPayConfig["HashSecret"];
-    config.CallbackUrl = vnPayConfig["CallBackUrl"];
-    config.BaseUrl = vnPayConfig["BaseUrl"];
-    config.Version = vnPayConfig["Version"];
-});
-
-//  Single mom <(")
-builder.Services.AddScoped<IClassRegistrationService, ClassRegistrationService>();
-builder.Services.AddScoped<IStudentCourseService, StudentCourseService>();
-builder.Services.AddScoped<IStudentScheduleService, StudentScheduleService>();
-builder.Services.AddScoped<IStudentExamService, StudentExamService>();
-builder.Services.AddScoped<IStudentExamResultService, StudentExamResultService>();
-builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddVnPayConfig(builder.Configuration);
+builder.Services.AddStudentServices();
 
 // AuthZN
 builder.Services
