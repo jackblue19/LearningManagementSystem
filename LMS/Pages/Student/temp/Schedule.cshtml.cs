@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using LMS.Models.ViewModels.StudentService;
 using LMS.Services.Interfaces.StudentService;
 
-namespace LMS.Pages.Student;
+namespace LMS.Pages.Student.temp;
 
 public class ScheduleModel : PageModel
 {

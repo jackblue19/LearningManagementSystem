@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using LMS.Models.Entities;
 
-namespace LMS.Pages.Student;
+namespace LMS.Pages.Student.temp;
 
 [Authorize(Policy = "StudentOnly")]
 public class EditProfileModel : PageModel
