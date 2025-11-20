@@ -4,6 +4,8 @@
     ViewData["Title"] = "Courses – My Classes";
 }
 
+<partial name="_StudentNav" model="Model.StudentId" />
+
 <h2>Lớp đã đăng ký</h2>
 
 @if ( !string.IsNullOrWhiteSpace(Model.Flash) )
