@@ -1,0 +1,32 @@
+@page
+@model LMS.Pages.Student.ResultsModel
+@{
+    ViewData["Title"] = "My Results";
+}
+
+<partial name="_StudentNav" model="Model.StudentId" />
+
+<h2>Điểm số</h2>
+
+@if ( Model.Page is { Items.Count: > 0 } )
+{
+    <table>
+        <thead><tr><th>Kỳ thi</th><th>Ngày</th><th>Lớp</th><th>Điểm</th><th>Ghi chú</th></tr></thead>
+        <tbody>
+            @foreach ( var r in Model.Page.Items )
+            {
+                <tr>
+                    <td>@r.Title</td>
+                    <td>@(r.ExamDate?.ToString("yyyy-MM-dd"))</td>
+                    <td>@r.ClassName</td>
+                    <td>@(r.Score?.ToString("0.##"))</td>
+                    <td>@r.Note</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Chưa có kết quả.</p>
+}
