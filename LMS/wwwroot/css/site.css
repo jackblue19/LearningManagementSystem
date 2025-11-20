@@ -20,3 +20,40 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+/* Notification styles */
+#notificationDropdownMenu {
+    max-height: 400px;
+    overflow-y: auto;
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+#notificationDropdownMenu .dropdown-item {
+    white-space: normal;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+#notificationDropdownMenu .dropdown-item:hover {
+    background-color: #f8f9fa;
+    text-decoration: none;
+}
+
+#notificationDropdownMenu .dropdown-item.unread {
+    background-color: #e7f3ff;
+    border-left: 3px solid #0d6efd;
+}
+
+#notificationDropdownMenu .dropdown-item:active,
+#notificationDropdownMenu .dropdown-item:focus {
+    outline: none;
+    text-decoration: none;
+}
+
+#notificationList .text-muted {
+    font-size: 0.875rem;
+}
