@@ -1,0 +1,204 @@
+@page
+@model LMS.Pages.Teacher.TeacherAttendanceModel
+@{
+    ViewData["Title"] = "Điểm danh học viên";
+}
+
+<div class="container mt-4">
+    <h2>Điểm danh học viên</h2>
+
+    @if (!string.IsNullOrEmpty(Model.Message))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @Model.Message
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @Model.ErrorMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (Model.Schedule != null)
+    {
+        <!-- Schedule Info -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5>Thông tin buổi học</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Lớp học:</strong> @Model.Schedule.Class?.ClassName</p>
+                        <p><strong>Ngày học:</strong> @Model.Schedule.SessionDate.ToString("dd/MM/yyyy")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Thời gian:</strong> @Model.Schedule.StartTime - @Model.Schedule.EndTime</p>
+                        <p><strong>Phòng:</strong> @Model.Schedule.RoomName</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Quick Actions -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Thao tác nhanh</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" asp-page-handler="QuickMark" style="display:inline;">
+                <input type="hidden" name="scheduleId" value="@Model.ScheduleId" />
+                <input type="hidden" name="markAll" value="present" />
+                <button type="submit" class="btn btn-success me-2">
+                    <i class="bi bi-check-all"></i> Đánh dấu tất cả "Có mặt"
+                </button>
+            </form>
+            <form method="post" asp-page-handler="QuickMark" style="display:inline;">
+                <input type="hidden" name="scheduleId" value="@Model.ScheduleId" />
+                <input type="hidden" name="markAll" value="absent" />
+                <button type="submit" class="btn btn-danger me-2">
+                    <i class="bi bi-x-circle"></i> Đánh dấu tất cả "Vắng mặt"
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Attendance Form -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5>Danh sách điểm danh</h5>
+            <span class="badge bg-primary">@Model.Students.Count học viên</span>
+        </div>
+        <div class="card-body">
+            @if (Model.Students.Any())
+            {
+                <form method="post">
+                    <input type="hidden" asp-for="ScheduleId" />
+                    
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Họ và tên</th>
+                                    <th>Email</th>
+                                    <th>Trạng thái</th>
+                                    <th>Ghi chú</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.AttendanceInputs.Count; i++)
+                                {
+                                    <tr>
+                                        <td>@(i + 1)</td>
+                                        <td>
+                                            <input type="hidden" asp-for="AttendanceInputs[i].StudentId" />
+                                            <strong>@Model.AttendanceInputs[i].StudentName</strong>
+                                        </td>
+                                        <td>
+                                            @{
+                                                var student = Model.Students.FirstOrDefault(s => s.UserId == Model.AttendanceInputs[i].StudentId);
+                                            }
+                                            @student?.Email
+                                        </td>
+                                        <td>
+                                            <select asp-for="AttendanceInputs[i].Status" class="form-select form-select-sm">
+                                                <option value="present" selected="@(Model.AttendanceInputs[i].Status == "present")">
+                                                    ✓ Có mặt
+                                                </option>
+                                                <option value="absent" selected="@(Model.AttendanceInputs[i].Status == "absent")">
+                                                    ✗ Vắng mặt
+                                                </option>
+                                                <option value="late" selected="@(Model.AttendanceInputs[i].Status == "late")">
+                                                    ⏰ Đi muộn
+                                                </option>
+                                                <option value="excused" selected="@(Model.AttendanceInputs[i].Status == "excused")">
+                                                    📝 Có phép
+                                                </option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input asp-for="AttendanceInputs[i].Note" 
+                                                   class="form-control form-control-sm" 
+                                                   placeholder="Ghi chú..." />
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-save"></i> Lưu điểm danh
+                        </button>
+                        <a asp-page="TeacherDashboard" class="btn btn-secondary btn-lg ms-2">
+                            <i class="bi bi-arrow-left"></i> Quay lại
+                        </a>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-people display-1 text-muted"></i>
+                    <p class="text-muted mt-3">Không có học viên nào trong lớp này.</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    @if (Model.Attendances.Any())
+    {
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Thống kê điểm danh</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="p-3 bg-success bg-opacity-10 rounded">
+                            <h3 class="text-success">@Model.Attendances.Count(a => a.StudentStatus == "present")</h3>
+                            <p class="mb-0">Có mặt</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3 bg-danger bg-opacity-10 rounded">
+                            <h3 class="text-danger">@Model.Attendances.Count(a => a.StudentStatus == "absent")</h3>
+                            <p class="mb-0">Vắng mặt</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3 bg-warning bg-opacity-10 rounded">
+                            <h3 class="text-warning">@Model.Attendances.Count(a => a.StudentStatus == "late")</h3>
+                            <p class="mb-0">Đi muộn</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3 bg-info bg-opacity-10 rounded">
+                            <h3 class="text-info">@Model.Attendances.Count(a => a.StudentStatus == "excused")</h3>
+                            <p class="mb-0">Có phép</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-save indicator
+        document.querySelector('form').addEventListener('submit', function() {
+            const btn = this.querySelector('button[type="submit"]');
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang lưu...';
+            btn.disabled = true;
+        });
+    </script>
+}
