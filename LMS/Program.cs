@@ -102,16 +102,16 @@ builder.Services
                 options.LogoutPath = "/Common/Logout";
                 options.SlidingExpiration = true;
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-            })
-            .AddGoogle(options =>
-            {
-                options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? "";
-                options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? "";
-                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.SaveTokens = true;
-                options.Scope.Add("profile");
-                options.Scope.Add("email");
             });
+/*.AddGoogle(options =>
+{
+    options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? "";
+    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? "";
+    options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.SaveTokens = true;
+    options.Scope.Add("profile");
+    options.Scope.Add("email");
+});*/
 
 builder.Services.AddSession(options =>
 {
