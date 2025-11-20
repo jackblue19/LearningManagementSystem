@@ -1,0 +1,9 @@
+@model Guid
+<nav style="margin-bottom:1rem">
+    <a asp-page="./Courses" asp-route-studentId="@Model">Courses</a> |
+    <a asp-page="./MyCourses" asp-route-studentId="@Model">My Courses</a> |
+    <a asp-page="./Registrations" asp-route-studentId="@Model">Registrations</a> |
+    <a asp-page="./Schedule" asp-route-studentId="@Model">Schedule</a> |
+    <a asp-page="./Exams" asp-route-studentId="@Model">Exams</a> |
+    <a asp-page="./Payments" asp-route-studentId="@Model">Payments</a>
+</nav>
