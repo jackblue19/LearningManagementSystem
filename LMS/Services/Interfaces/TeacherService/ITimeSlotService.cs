@@ -1,8 +1,9 @@
 ﻿using LMS.Models.Entities;
+using LMS.Services.Interfaces;
 
 namespace LMS.Services.Interfaces.TeacherService;
 
-public interface ITimeSlotService
+public interface ITimeSlotService : ICrudService<TimeSlot, byte>
 {
     // Basic interface placeholder
 }

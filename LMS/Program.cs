@@ -1,8 +1,15 @@
 using LMS.Data;
 using LMS.Helpers;
 using LMS.Repositories;
+using LMS.Repositories.Impl.Academic;
+using LMS.Repositories.Impl.Assessment;
+using LMS.Repositories.Interfaces.Academic;
+using LMS.Repositories.Interfaces.Assessment;
 using LMS.Services.Impl;
+using LMS.Services.Impl.TeacherService;
 using LMS.Services.Interfaces;
+using LMS.Services.Interfaces.TeacherService;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +26,9 @@ builder.Services.AddDbContext<CenterDbContext>(options =>
 
 //  Generic
 builder.Services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
+builder.Services.AddScoped<IExamRepository, ExamRepository>();
+builder.Services.AddScoped<IExamResultRepository, ExamResultRepository>();
+
 builder.Services.AddScoped(typeof(ICrudService<,>), typeof(CrudService<,>));
 
 // Register Repositories
@@ -35,6 +45,8 @@ builder.Services.AddMemoryCache();
 
 builder.Services.AddVnPayConfig(builder.Configuration);
 builder.Services.AddStudentServices();
+builder.Services.AddScoped<IExamService, ExamService>();
+builder.Services.AddScoped<IExamResultService, ExamResultService>();
 
 // AuthZN
 builder.Services.AddAuthenticationServices(builder.Configuration);
