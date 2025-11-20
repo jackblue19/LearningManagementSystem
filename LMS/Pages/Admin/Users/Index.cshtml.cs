@@ -30,6 +30,11 @@ public class IndexModel : PageModel
 
     public async Task OnGetAsync(CancellationToken ct = default)
     {
+        if (!string.IsNullOrWhiteSpace(SearchTerm))
+        {
+            SearchTerm = SearchTerm.Trim();
+        }
+
         var result = await _adminUserService.GetUsersAsync(
             searchTerm: SearchTerm,
             roleFilter: RoleFilter,

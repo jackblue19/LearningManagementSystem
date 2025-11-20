@@ -1,5 +1,13 @@
-﻿namespace LMS.Repositories.Impl.Communication;
+﻿using LMS.Data;
+using LMS.Models.Entities;
+using LMS.Repositories;
+using LMS.Repositories.Interfaces.Communication;
 
-public class AuditLogRepository
+namespace LMS.Repositories.Impl.Communication;
+
+public class AuditLogRepository : GenericRepository<AuditLog, long>, IAuditLogRepository
 {
+    public AuditLogRepository(LMS.Data.CenterDbContext db) : base(db)
+    {
+    }
 }

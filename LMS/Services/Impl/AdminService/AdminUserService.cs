@@ -64,7 +64,7 @@ public class AdminUserService : IAdminUserService
 
     public Task UpdateUserAsync(User user, CancellationToken ct = default)
         => _userService.UpdateAsync(user, ct);
-
+        
     public Task DeleteUserAsync(Guid id, CancellationToken ct = default)
         => _userService.DeleteByIdAsync(id, ct);
 
@@ -77,4 +77,5 @@ public class AdminUserService : IAdminUserService
         user.IsActive = !user.IsActive;
         await _userService.UpdateAsync(user, ct);
     }
+    
 }

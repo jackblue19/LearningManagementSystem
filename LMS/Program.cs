@@ -2,7 +2,9 @@ using System.Linq.Expressions;
 using LMS.Data;
 using LMS.Models.Entities;
 using LMS.Repositories;
+using LMS.Repositories.Impl.Communication;
 using LMS.Repositories.Impl.Info;
+using LMS.Repositories.Interfaces.Communication;
 using LMS.Repositories.Interfaces.Info;
 using LMS.Services.Impl;
 using LMS.Services.Impl.AdminService;
@@ -32,6 +34,11 @@ builder.Services.AddScoped(typeof(ICrudService<,>), typeof(CrudService<,>));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAdminUserService, AdminUserService>();
+builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
 // AuthZN
 builder.Services
