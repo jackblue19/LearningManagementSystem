@@ -1,0 +1,44 @@
+@page
+@model LMS.Pages.Student.ExamsModel
+@{
+    ViewData["Title"] = "Exams";
+}
+
+<partial name="_StudentNav" model="Model.StudentId" />
+
+<h2>Bài kiểm tra</h2>
+
+<form method="get">
+    <input type="hidden" name="studentId" value="@Model.StudentId" />
+    <label>Từ</label><input type="date" name="From" value="@Model.From?.ToString("yyyy-MM-dd")" />
+    <label>Đến</label><input type="date" name="To" value="@Model.To?.ToString("yyyy-MM-dd")" />
+    <label>Chỉ hiện sắp tới</label><input type="checkbox" name="UpcomingOnly" value="true" @(Model.UpcomingOnly ? "checked" : "") />
+    <input type="number" name="PageIndex" value="@Model.PageIndex" min="1" />
+    <input type="number" name="PageSize" value="@Model.PageSize" min="1" />
+    <button type="submit">Lọc</button>
+</form>
+
+@if ( Model.Page is { Items.Count: > 0 } )
+{
+    <table>
+        <thead><tr><th>Ngày</th><th>Lớp</th><th>Tiêu đề</th><th>Loại</th><th>Điểm tối đa</th><th>Thời lượng (phút)</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+            @foreach ( var e in Model.Page.Items )
+            {
+                <tr>
+                    <td>@(e.ExamDate?.ToString("yyyy-MM-dd"))</td>
+                    <td>@e.ClassName</td>
+                    <td>@e.Title</td>
+                    <td>@e.ExamType</td>
+                    <td>@(e.MaxScore?.ToString("0.##"))</td>
+                    <td>@e.DurationMin</td>
+                    <td>@e.ExamStatus</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Không có dữ liệu.</p>
+}

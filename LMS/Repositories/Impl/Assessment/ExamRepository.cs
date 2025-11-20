@@ -1,5 +1,12 @@
-﻿namespace LMS.Repositories.Impl.Assessment;
+﻿using LMS.Data;
+using LMS.Models.Entities;
+using LMS.Repositories.Interfaces.Assessment;
 
-public class ExamRepository
+namespace LMS.Repositories.Impl.Assessment;
+
+public class ExamRepository : GenericRepository<Exam, Guid>, IExamRepository
 {
+    public ExamRepository(CenterDbContext db) : base(db)
+    {
+    }
 }

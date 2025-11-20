@@ -1,0 +1,61 @@
+@page
+@model LMS.Pages.Student.MyCoursesModel
+@{
+    ViewData["Title"] = "Courses – My Classes";
+}
+
+<partial name="_StudentNav" model="Model.StudentId" />
+
+<h2>Lớp đã đăng ký</h2>
+
+@if ( !string.IsNullOrWhiteSpace(Model.Flash) )
+{
+    <div style="color:green">@Model.Flash</div>
+}
+
+@if ( Model.Page is { Items.Count: > 0 } )
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Tên lớp</th>
+                <th>Subject</th>
+                <th>Giá/Số buổi</th>
+                <th>Lịch</th>
+                <th>Trạng thái</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ( var c in Model.Page.Items )
+            {
+                <tr>
+                    <td>@c.ClassName</td>
+                    <td>@c.SubjectName (@c.SubjectId)</td>
+                    <td>@(c.UnitPrice?.ToString("0.##")) / @c.TotalSessions</td>
+                    <td>@c.ScheduleDesc</td>
+                    <td>@c.ClassStatus</td>
+                    <td>
+                        <form method="post" asp-page-handler="Cancel">
+                            <input type="hidden" name="studentId" value="@Model.StudentId" />
+                            <input type="hidden" name="classId" value="@c.ClassId" />
+                            <button type="submit">Hủy đăng ký</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    var prev = Model.PageIndex > 1 ? Model.PageIndex - 1 : 1;
+    var next = (Model.PageIndex * Model.PageSize) < Model.Page.TotalCount
+                ? Model.PageIndex + 1
+                : Model.PageIndex;
+    <a asp-page="./MyCourses" asp-route-studentId="@Model.StudentId" asp-route-PageIndex="@prev" asp-route-PageSize="@Model.PageSize">« Trước</a>
+    <span> Trang @Model.PageIndex / @((Model.Page.TotalCount + Model.Page.PageSize - 1) / Model.Page.PageSize) </span>
+    <a asp-page="./MyCourses" asp-route-studentId="@Model.StudentId" asp-route-PageIndex="@next" asp-route-PageSize="@Model.PageSize">Sau »</a>
+}
+else
+{
+    <p>Chưa có lớp nào.</p>
+}

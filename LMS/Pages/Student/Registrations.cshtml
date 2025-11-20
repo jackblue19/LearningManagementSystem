@@ -1,0 +1,42 @@
+@page
+@model LMS.Pages.Student.RegistrationsModel
+@{
+    ViewData["Title"] = "My Registrations";
+}
+
+<partial name="_StudentNav" model="Model.StudentId" />
+
+<h2>Đăng ký của tôi</h2>
+
+@if ( Model.Page is { Items.Count: > 0 } )
+{
+    <table>
+        <thead>
+            <tr>
+                <th>RegistrationId</th>
+                <th>Lớp</th>
+                <th>Thời gian</th>
+                <th>Lịch</th>
+                <th>Trạng thái</th>
+                <th>ĐK lúc</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ( var r in Model.Page.Items )
+            {
+                <tr>
+                    <td>@r.RegistrationId</td>
+                    <td>@r.ClassName</td>
+                    <td>@(r.StartDate?.ToString("yyyy-MM-dd")) → @(r.EndDate?.ToString("yyyy-MM-dd"))</td>
+                    <td>@r.ScheduleDesc</td>
+                    <td>@r.RegistrationStatus</td>
+                    <td>@r.RegisteredAt</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Không có đăng ký.</p>
+}

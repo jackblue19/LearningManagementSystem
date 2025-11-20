@@ -1,0 +1,134 @@
+@page
+@model LMS.Pages.Manager.EditProfileModel
+@{
+    ViewData["Title"] = "Thông tin cá nhân - Manager";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Cover Image -->
+        <div class="col-12 mb-4">
+            <div class="card shadow-sm">
+                <div class="position-relative" style="height: 250px; overflow: hidden; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    @if (!string.IsNullOrEmpty(Model.Input.CurrentCoverImage))
+                    {
+                        <img src="@Model.Input.CurrentCoverImage" alt="Cover" class="w-100 h-100" style="object-fit: cover; opacity: 0.8;" />
+                    }
+                    <div class="position-absolute bottom-0 start-0 p-4 text-white">
+                        <div class="d-flex align-items-end">
+                            <div class="me-3">
+                                @if (!string.IsNullOrEmpty(Model.Input.CurrentAvatar))
+                                {
+                                    <img src="@Model.Input.CurrentAvatar" alt="Avatar" class="rounded-circle border border-4 border-white shadow" style="width: 120px; height: 120px; object-fit: cover;" />
+                                }
+                                else
+                                {
+                                    <div class="rounded-circle border border-4 border-white bg-secondary d-flex align-items-center justify-content-center" style="width: 120px; height: 120px;">
+                                        <i class="bi bi-person-fill" style="font-size: 3rem; color: white;"></i>
+                                    </div>
+                                }
+                            </div>
+                            <div class="mb-3">
+                                <h3 class="mb-0 fw-bold">@Model.Input.FullName</h3>
+                                <p class="mb-0"><i class="bi bi-briefcase-fill me-1"></i> Quản lý trung tâm</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Form -->
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pencil-square"></i> Chỉnh sửa thông tin cá nhân
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            @Model.ErrorMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            @Model.SuccessMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form method="post" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Input.FullName" class="form-label fw-semibold">
+                                    <i class="bi bi-person-badge"></i> Họ và tên
+                                </label>
+                                <input asp-for="Input.FullName" class="form-control form-control-lg" placeholder="Nhập họ và tên đầy đủ" />
+                                <span asp-validation-for="Input.FullName" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Input.Email" class="form-label fw-semibold">
+                                    <i class="bi bi-envelope"></i> Email
+                                </label>
+                                <input asp-for="Input.Email" class="form-control form-control-lg" placeholder="manager@example.com" />
+                                <span asp-validation-for="Input.Email" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Phone" class="form-label fw-semibold">
+                                <i class="bi bi-telephone"></i> Số điện thoại
+                            </label>
+                            <input asp-for="Input.Phone" class="form-control form-control-lg" placeholder="0912345678" />
+                            <span asp-validation-for="Input.Phone" class="text-danger"></span>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Input.AvatarFile" class="form-label fw-semibold">
+                                    <i class="bi bi-image"></i> Ảnh đại diện
+                                </label>
+                                <input asp-for="Input.AvatarFile" class="form-control" accept="image/*" />
+                                <span asp-validation-for="Input.AvatarFile" class="text-danger"></span>
+                                <small class="text-muted">Khuyến nghị: 500x500px, JPG/PNG</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Input.CoverImageFile" class="form-label fw-semibold">
+                                    <i class="bi bi-card-image"></i> Ảnh bìa
+                                </label>
+                                <input asp-for="Input.CoverImageFile" class="form-control" accept="image/*" />
+                                <span asp-validation-for="Input.CoverImageFile" class="text-danger"></span>
+                                <small class="text-muted">Khuyến nghị: 1920x250px, JPG/PNG</small>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-lg px-4" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none;">
+                                <i class="bi bi-save"></i> Lưu thay đổi
+                            </button>
+                            <a asp-page="/Manager/ManagerDashboard" class="btn btn-outline-secondary btn-lg px-4">
+                                <i class="bi bi-x-circle"></i> Hủy
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

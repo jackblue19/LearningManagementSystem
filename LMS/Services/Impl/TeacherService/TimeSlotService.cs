@@ -1,5 +1,14 @@
-﻿namespace LMS.Services.Impl.TeacherService;
+﻿using LMS.Repositories.Interfaces.Scheduling;
+using LMS.Services.Interfaces.TeacherService;
 
-public class TimeSlotService
+namespace LMS.Services.Impl.TeacherService;
+
+public class TimeSlotService : ITimeSlotService
 {
+    private readonly ITimeSlotRepository _timeSlotRepo;
+
+    public TimeSlotService(ITimeSlotRepository timeSlotRepo)
+    {
+        _timeSlotRepo = timeSlotRepo;
+    }
 }

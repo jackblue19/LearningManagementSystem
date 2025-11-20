@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -23,6 +23,9 @@ public partial class Payment
 
     [StringLength(40)]
     public string? PaymentMethod { get; set; }
+    public string? VnpTxnRef { get; set; }
+    public string? BankCode { get; set; }
+    public string? TnxNo { get; set; }
 
     [Precision(0)]
     public DateTime CreatedAt { get; set; }

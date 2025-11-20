@@ -1,19 +1,22 @@
-using System.Linq.Expressions;
 using LMS.Data;
-using LMS.Models.Entities;
+using LMS.Helpers;
 using LMS.Repositories;
 using LMS.Repositories.Impl.Communication;
 using LMS.Repositories.Impl.Info;
 using LMS.Repositories.Interfaces.Communication;
 using LMS.Repositories.Interfaces.Info;
 using LMS.Services.Impl;
-using LMS.Services.Impl.AdminService;
-using LMS.Services.Impl.CommonService;
+
 using LMS.Services.Interfaces;
-using LMS.Services.Interfaces.AdminService;
-using LMS.Services.Interfaces.CommonService;
+
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using VNPAY;
+using VNPAY.Extensions;
+using VNPAY.Models;
+using VNPAY.Models.Enums;
+using VNPAY.Models.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,52 +30,49 @@ builder.Services.AddDbContext<LMS.Data.CenterDbContext>(options =>
     options.UseSqlServer(connectionString);
 });
 
+//  Generic
 builder.Services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
 builder.Services.AddScoped(typeof(ICrudService<,>), typeof(CrudService<,>));
 
-// User Repository & Services
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IAdminUserService, AdminUserService>();
-builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
-builder.Services.AddScoped<IFeedbackService, FeedbackService>();
-builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
-builder.Services.AddScoped<IAuditLogService, AuditLogService>();
-builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+// Register Repositories
+builder.Services.AddRepositories();
+
+// Register Services
+builder.Services.AddApplicationServices();
+
+// Register Helpers
+builder.Services.AddScoped<EmailHelper>();
+
+// Add MemoryCache for token storage
+builder.Services.AddMemoryCache();
+
+builder.Services.AddVnPayConfig(builder.Configuration);
+builder.Services.AddStudentServices();
 
 // AuthZN
-builder.Services
-            .AddAuthentication(options =>
-            {
-                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            })
-            .AddCookie(options =>
-            {
-                // nào có path login ui đồ ok thì bỏ vô sau
-                //options.LoginPath = "/SystemAccounts/Login";
-                //options.AccessDeniedPath = "/SystemAccounts/AccessDenied";
-                //options.LogoutPath = "/SystemAccounts/Logout";
-                options.SlidingExpiration = true;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-            });
+builder.Services.AddAuthenticationServices(builder.Configuration);
+builder.Services.AddAuthorizationPolicies();
 
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
-
-builder.Services.AddDistributedMemoryCache();
-
-builder.Services.Configure<CookiePolicyOptions>(options =>
-{
-    options.MinimumSameSitePolicy = SameSiteMode.Lax;
-});
-
-builder.Services.AddAuthorization();
+// Session
+builder.Services.AddSessionServices();
 
 var app = builder.Build();
+
+// Seed data on startup (only in development)
+if (app.Environment.IsDevelopment())
+{
+    var services = app.Services.CreateScope().ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<CenterDbContext>();
+        await DataSeeder.SeedAsync(context);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while seeding the database.");
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -94,4 +94,3 @@ app.UseSession();
 app.MapRazorPages();
 
 app.Run();
-

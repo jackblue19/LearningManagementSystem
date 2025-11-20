@@ -1,5 +1,12 @@
-﻿namespace LMS.Repositories.Impl.Info;
+﻿using LMS.Data;
+using LMS.Models.Entities;
+using LMS.Repositories.Interfaces.Info;
 
-public class CenterRepository
+namespace LMS.Repositories.Impl.Info;
+
+public class CenterRepository : GenericRepository<Center, Guid>, ICenterRepository
 {
+    public CenterRepository(CenterDbContext db) : base(db)
+    {
+    }
 }
