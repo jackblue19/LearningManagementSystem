@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 namespace LMS.Services.Impl.StudentService;
 
 public class PaymentService : IPaymentService
+public class PaymentService : IPaymentService
 {
     private readonly IGenericRepository<Payment, Guid> _payRepo;
     private readonly IGenericRepository<ClassRegistration, long> _regRepo;

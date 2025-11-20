@@ -1,6 +1,7 @@
 ﻿using LMS.Data;
 using LMS.Models.Entities;
 using LMS.Repositories.Interfaces.Academic;
+using LMS.Repositories;
 
 namespace LMS.Repositories.Impl.Academic;
 
