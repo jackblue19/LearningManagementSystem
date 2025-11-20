@@ -78,4 +78,14 @@ public class AttendanceRepository : GenericRepository<Attendance, long>, IAttend
 
         await _db.SaveChangesAsync(ct);
     }
+
+    public Task<bool> HasAttendanceRecordAsync(Guid studentId, Guid courseId, DateTime date, CancellationToken ct = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Attendance> GetAttendanceRecordAsync(Guid studentId, Guid courseId, DateTime date, CancellationToken ct = default)
+    {
+        throw new NotImplementedException();
+    }
 }

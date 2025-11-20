@@ -27,12 +27,6 @@ public class ClassRepository : GenericRepository<Class, Guid>, IClassRepository
                         .OrderBy(c => c.ClassName)
                         .ToListAsync(ct);
     }
-    private readonly CenterDbContext _db;
-
-    public ClassRepository(CenterDbContext db) : base(db)
-    {
-        _db = db;
-    }
 
     public async Task<IReadOnlyList<Class>> GetClassesByTeacherIdAsync(
         Guid teacherId,
