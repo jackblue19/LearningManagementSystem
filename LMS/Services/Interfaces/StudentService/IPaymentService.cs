@@ -20,4 +20,11 @@ public interface IPaymentService
 
     // helper
     Guid ParsePaymentIdFromTxnRef(string txnRef);
+
+    //  VNPAY
+    // Dùng để redirect người dùng sang VNPAY
+    string BuildPaymentUrl(Guid paymentId, decimal amountVnd, string orderInfo, string clientIp);
+
+    // Parse + verify chữ ký từ query trả về (Return, IPN)
+    bool TryParseAndVerify(IQueryCollection query, out VnPayReturn data);
 }

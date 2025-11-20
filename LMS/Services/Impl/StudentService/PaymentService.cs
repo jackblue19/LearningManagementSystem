@@ -1,8 +1,10 @@
+using LMS.Helpers;
 using LMS.Models.Entities;
 using LMS.Models.ViewModels;
 using LMS.Models.ViewModels.Bank;
 using LMS.Repositories;
 using LMS.Services.Interfaces.StudentService;
+using Microsoft.Extensions.Options;
 using System.Linq.Expressions;
 
 namespace LMS.Services.Impl.StudentService;
@@ -12,15 +14,18 @@ public class PaymentService : IPaymentService
     private readonly IGenericRepository<Payment, Guid> _payRepo;
     private readonly IGenericRepository<ClassRegistration, long> _regRepo;
     private readonly IGenericRepository<Class, Guid> _classRepo;
+    private readonly VnPayOptions _opt;
 
     public PaymentService(
         IGenericRepository<Payment, Guid> payRepo,
         IGenericRepository<ClassRegistration, long> regRepo,
-        IGenericRepository<Class, Guid> classRepo)
+        IGenericRepository<Class, Guid> classRepo,
+        IOptions<VnPayOptions> opt)
     {
         _payRepo = payRepo;
         _regRepo = regRepo;
         _classRepo = classRepo;
+        _opt = opt.Value;
     }
 
     public async Task<PaymentCheckoutVm> CreateRegistrationPaymentAsync(
@@ -131,5 +136,52 @@ public class PaymentService : IPaymentService
     {
         // Dùng PaymentId dưới dạng Guid "N" làm vnp_TxnRef
         return Guid.ParseExact(txnRef, "N");
+    }
+
+    //  VNPAY
+    public string BuildPaymentUrl(Guid paymentId, decimal amountVnd, string orderInfo, string clientIp)
+    {
+        var nowGmt7 = DateTime.UtcNow.AddHours(7);
+        var lib = new VnPayLibrary();
+
+        lib.AddRequestData("vnp_Version", _opt.Version);
+        lib.AddRequestData("vnp_Command", _opt.Command);
+        lib.AddRequestData("vnp_TmnCode", _opt.TmnCode);
+        lib.AddRequestData("vnp_Amount", ((long)(amountVnd * 100m)).ToString()); // *100
+        lib.AddRequestData("vnp_CreateDate", nowGmt7.ToString("yyyyMMddHHmmss"));
+        lib.AddRequestData("vnp_ExpireDate", nowGmt7.AddMinutes(15).ToString("yyyyMMddHHmmss"));
+        lib.AddRequestData("vnp_CurrCode", _opt.CurrCode);
+        lib.AddRequestData("vnp_IpAddr", clientIp);
+        lib.AddRequestData("vnp_Locale", _opt.Locale);
+        lib.AddRequestData("vnp_OrderInfo", orderInfo);
+        lib.AddRequestData("vnp_OrderType", "other");
+        lib.AddRequestData("vnp_ReturnUrl", _opt.ReturnUrl);
+        lib.AddRequestData("vnp_TxnRef", paymentId.ToString("N"));
+
+        // Tạo URL + ký HMACSHA512 (nội bộ lib sẽ thực hiện)
+        return lib.CreateRequestUrl(_opt.PaymentUrl, _opt.HashSecret);
+    }
+
+    public bool TryParseAndVerify(IQueryCollection query, out VnPayReturn data)
+    {
+        var lib = new VnPayLibrary();
+        foreach (var (k, v) in query)
+        {
+            if (!string.IsNullOrEmpty(k) && k.StartsWith("vnp_"))
+                lib.AddResponseData(k, v!);
+        }
+        var hash = query["vnp_SecureHash"].ToString();
+        var ok = lib.ValidateSignature(hash, _opt.HashSecret);  // verify HMAC
+        var refStr = lib.GetResponseData("vnp_TxnRef");
+        var amountStr = lib.GetResponseData("vnp_Amount");      // *100
+        var rsp = lib.GetResponseData("vnp_ResponseCode");
+        var bank = lib.GetResponseData("vnp_BankCode");
+        var txnNo = lib.GetResponseData("vnp_TransactionNo");
+
+        var amount = decimal.TryParse(amountStr, out var a) ? a / 100m : 0m;
+        var pid = Guid.TryParseExact(refStr, "N", out var g) ? g : Guid.Empty;
+
+        data = new VnPayReturn(pid, amount, rsp, bank, txnNo);
+        return ok;
     }
 }

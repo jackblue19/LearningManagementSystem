@@ -1,13 +1,20 @@
 using System.Linq.Expressions;
 using LMS.Data;
 using LMS.Models.Entities;
+using LMS.Models.ViewModels.Bank;
 using LMS.Repositories;
 using LMS.Services.Impl;
 using LMS.Services.Impl.StudentService;
 using LMS.Services.Interfaces;
 using LMS.Services.Interfaces.StudentService;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using VNPAY;
+using VNPAY.Extensions;
+using VNPAY.Models;
+using VNPAY.Models.Enums;
+using VNPAY.Models.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +31,17 @@ builder.Services.AddDbContext<CenterDbContext>(options =>
 //  Generic
 builder.Services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
 builder.Services.AddScoped(typeof(ICrudService<,>), typeof(CrudService<,>));
+
+//builder.Services.Configure<VnPayOptions>(builder.Configuration.GetSection("VnPay"));
+var vnPayConfig = builder.Configuration.GetSection("VnPay");
+builder.Services.AddVnpayClient(config =>
+{
+    config.TmnCode = vnPayConfig["TmnCode"];
+    config.HashSecret = vnPayConfig["HashSecret"];
+    config.CallbackUrl = vnPayConfig["CallBackUrl"];
+    config.BaseUrl = vnPayConfig["BaseUrl"];
+    config.Version = vnPayConfig["Version"];
+});
 
 //  Single mom <(")
 builder.Services.AddScoped<IClassRegistrationService, ClassRegistrationService>();
