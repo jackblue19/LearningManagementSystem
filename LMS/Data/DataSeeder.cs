@@ -27,6 +27,7 @@ public static class DataSeeder
 
         // Default password for all test accounts: "123456"
         var defaultPasswordHash = HashPassword("123456");
+        Console.WriteLine(defaultPasswordHash);
 
         // 1. Seed Users (Admin, Manager, Teacher, Students)
         var adminId = Guid.NewGuid();
