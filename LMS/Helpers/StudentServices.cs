@@ -5,7 +5,9 @@ using LMS.Repositories.Interfaces.Academic;
 using LMS.Repositories.Interfaces.Finance;
 using LMS.Repositories.Interfaces.Scheduling;
 using LMS.Services.Impl.StudentService;
+using LMS.Services.Impl.TeacherService;
 using LMS.Services.Interfaces.StudentService;
+using LMS.Services.Interfaces.TeacherService;
 
 namespace LMS.Helpers;
 
@@ -19,6 +21,8 @@ public static class StudentServices
         services.AddScoped<IStudentExamService, StudentExamService>();
         services.AddScoped<IStudentExamResultService, StudentExamResultService>();
         services.AddScoped<IPaymentService, PaymentService>();
+        services.AddScoped<IExamService, ExamService>();
+        services.AddScoped<IExamResultService, ExamResultService>();
 
         // repo
         services.AddScoped<IClassRepository, ClassRepository>();

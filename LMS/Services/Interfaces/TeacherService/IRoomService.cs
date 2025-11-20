@@ -2,7 +2,7 @@ using LMS.Models.Entities;
 
 namespace LMS.Services.Interfaces.TeacherService;
 
-public interface IRoomService : ICrudService<Room, Guid>
+public interface IRoomService
 {
     Task<IReadOnlyList<Room>> GetAllRoomsAsync(
         bool? isActive = null,

@@ -45,8 +45,6 @@ builder.Services.AddMemoryCache();
 
 builder.Services.AddVnPayConfig(builder.Configuration);
 builder.Services.AddStudentServices();
-builder.Services.AddScoped<IExamService, ExamService>();
-builder.Services.AddScoped<IExamResultService, ExamResultService>();
 
 // AuthZN
 builder.Services.AddAuthenticationServices(builder.Configuration);

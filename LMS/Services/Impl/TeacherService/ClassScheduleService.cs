@@ -31,7 +31,6 @@ public class ClassScheduleService : CrudService<ClassSchedule, long>, IClassSche
         IRoomAvailabilityRepository roomAvailabilityRepository,
         ITeacherAvailabilityRepository teacherAvailabilityRepository,
         IClassScheduleRepository scheduleRepo,
-        IClassScheduleRepository scheduleRepo,
         CenterDbContext db)
         : base(classScheduleRepository)
     {

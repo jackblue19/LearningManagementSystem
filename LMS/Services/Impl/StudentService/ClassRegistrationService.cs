@@ -5,10 +5,6 @@ using LMS.Models.ViewModels.StudentService;
 using LMS.Repositories;
 using LMS.Services.Interfaces.StudentService;
 
-using LMS.Models.Entities;
-using LMS.Repositories.Interfaces.Academic;
-using LMS.Services.Interfaces.StudentService;
-
 namespace LMS.Services.Impl.StudentService;
 
 public class ClassRegistrationService : IClassRegistrationService

@@ -4,7 +4,7 @@ using LMS.Services.Interfaces.StudentService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace LMS.Pages.Student;
+namespace LMS.Pages.Common;
 
 public class ScheduleModel : PageModel
 {
@@ -71,7 +71,7 @@ public class ScheduleModel : PageModel
 
         return Schedules
             .Where(x => x.SessionDate.DayOfWeek == targetDayOfWeek)
-            .Where(x => (x.SlotId == slot || x.SlotOrder == slot))
+            .Where(x => x.SlotId == slot || x.SlotOrder == slot)
             .Select(x => new ScheduleCellDto
             {
                 ClassName = x.Class?.ClassName ?? "",

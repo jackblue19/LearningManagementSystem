@@ -1,4 +1,4 @@
-﻿using LMS.Data;
+using LMS.Data;
 using LMS.Models.Entities;
 using LMS.Repositories.Interfaces.Assessment;
 using Microsoft.EntityFrameworkCore;
