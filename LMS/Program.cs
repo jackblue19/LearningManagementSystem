@@ -49,14 +49,6 @@ builder.Services.AddMemoryCache();
 
 builder.Services.AddVnPayConfig(builder.Configuration);
 builder.Services.AddStudentServices();
-builder.Services.AddScoped<IClassRepository, ClassRepository>();
-builder.Services.AddScoped<IClassRegistrationRepository, ClassRegistrationRepository>();
-builder.Services.AddScoped<IClassScheduleRepository, ClassScheduleRepository>();
-builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
-builder.Services.AddScoped<IClassRegistrationService, ClassRegistrationService>();
-builder.Services.AddScoped<IStudentScheduleService, StudentScheduleService>();
-builder.Services.AddScoped<IStudentCourseService, StudentCourseService>();
-builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 // AuthZN
 builder.Services.AddAuthenticationServices(builder.Configuration);
