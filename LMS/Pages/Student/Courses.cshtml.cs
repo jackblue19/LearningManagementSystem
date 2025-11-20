@@ -1,67 +1,61 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+using LMS.Models.Entities;
+using LMS.Services.Interfaces.StudentService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using LMS.Models.ViewModels.StudentService;
-using LMS.Services.Interfaces.StudentService;
-using LMS.Models.ViewModels;
 
 namespace LMS.Pages.Student;
 
 public class CoursesModel : PageModel
 {
-    private readonly IStudentCourseService _courseSvc;
-    private readonly IClassRegistrationService _regSvc;
+    private readonly IStudentCourseService _courseService;
 
-    public CoursesModel(IStudentCourseService courseSvc, IClassRegistrationService regSvc)
+    public CoursesModel(IStudentCourseService courseService)
     {
-        _courseSvc = courseSvc;
-        _regSvc = regSvc;
+        _courseService = courseService;
     }
 
+    // -------------------------------
+    // Query & Form properties
+    // -------------------------------
     [BindProperty(SupportsGet = true)]
+    [Display(Name = "Student Id")]
     public Guid StudentId { get; set; }
 
     [BindProperty(SupportsGet = true)]
-    public string? Search { get; set; }
+    [Display(Name = "Show cancelled")]
+    public bool IncludeCancelled { get; set; }
 
-    [BindProperty(SupportsGet = true)]
-    public Guid? CenterId { get; set; }
+    // -------------------------------
+    // View data
+    // -------------------------------
+    public IReadOnlyList<Class> Courses { get; private set; } = Array.Empty<Class>();
 
-    [BindProperty(SupportsGet = true)]
-    public long? SubjectId { get; set; }
-
-    [BindProperty(SupportsGet = true)]
-    public int PageIndex { get; set; } = 1;
-
-    [BindProperty(SupportsGet = true)]
-    public int PageSize { get; set; } = 10;
-
-    public PagedResult<StudentCourseListItemVm>? Page { get; set; }
-    public string? Flash { get; set; }
-
+    // -------------------------------
+    // GET: load courses if StudentId provided
+    // -------------------------------
     public async Task OnGetAsync(CancellationToken ct)
     {
-        Page = await _courseSvc.ListAvailableClassesAsync(
-            StudentId, Search, CenterId, SubjectId, PageIndex, PageSize, ct);
-        Flash = TempData["flash"] as string;
+        if (StudentId == Guid.Empty)
+            return;
+
+        Courses = await _courseService.GetRegisteredClassesAsync(StudentId, IncludeCancelled, ct);
     }
 
-    public async Task<IActionResult> OnPostRegisterAsync(Guid classId, CancellationToken ct)
+    // -------------------------------
+    // POST: triggered by Load Courses button
+    // -------------------------------
+    public async Task<IActionResult> OnPostAsync(CancellationToken ct)
     {
-        var ok = await _regSvc.RegisterAsync(StudentId, classId, ct);
-        TempData["flash"] = ok
-            ? "Đăng ký lớp thành công."
-            : "Bạn đã đăng ký lớp này hoặc lớp không khả dụng.";
-        return RedirectToPage(new
+        if (StudentId == Guid.Empty)
         {
-            studentId = StudentId,
-            search = Search,
-            centerId = CenterId,
-            subjectId = SubjectId,
-            pageIndex = PageIndex,
-            pageSize = PageSize
-        });
+            ModelState.AddModelError(nameof(StudentId), "Student Id is required.");
+            return Page();
+        }
+
+        Courses = await _courseService.GetRegisteredClassesAsync(StudentId, IncludeCancelled, ct);
+
+        // Return the page (not redirect) so that validation messages appear
+        return Page();
     }
 }

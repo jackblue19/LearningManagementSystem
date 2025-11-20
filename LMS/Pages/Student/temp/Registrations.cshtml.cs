@@ -6,7 +6,7 @@ using LMS.Models.ViewModels.StudentService;
 using LMS.Services.Interfaces.StudentService;
 using LMS.Models.ViewModels;
 
-namespace LMS.Pages.Student;
+namespace LMS.Pages.Student.temp;
 
 public class RegistrationsModel : PageModel
 {

@@ -2,9 +2,12 @@ using LMS.Models.Entities;
 using LMS.Models.ViewModels.StudentService;
 using LMS.Repositories;
 using LMS.Services.Interfaces.StudentService;
+using System.Linq;
+using System.Linq.Expressions;
+using LMS.Repositories.Interfaces.Academic;
+using LMS.Repositories.Interfaces.Scheduling;
 
 namespace LMS.Services.Impl.StudentService;
-
 public class StudentScheduleService : IStudentScheduleService
 {
     private readonly IGenericRepository<ClassRegistration, long> _regRepo;
@@ -21,7 +24,7 @@ public class StudentScheduleService : IStudentScheduleService
         _classRepo = classRepo;
     }
 
-    public async Task<IReadOnlyList<StudentScheduleItemVm>> GetScheduleAsync(
+    public async Task<IReadOnlyList<StudentScheduleItemVm>> GetScheduleAsyncZ(
        Guid studentId, DateOnly from, DateOnly to, CancellationToken ct = default)
     {
         var regs = await _regRepo.ListAsync(
@@ -48,5 +51,49 @@ public class StudentScheduleService : IStudentScheduleService
                                         s.SessionDate, s.StartTime, s.EndTime,
                                         s.SlotOrder, s.RoomName, s.ScheduleLabel))
                         .ToList();
+    }
+
+    private const string StatusCancelled = "Cancelled";
+
+    public async Task<IReadOnlyList<ClassSchedule>> GetScheduleAsync(
+        Guid studentId,
+        DateOnly? startDate = null,
+        DateOnly? endDate = null,
+        CancellationToken ct = default)
+    {
+        var registrations = await _regRepo.ListAsync(
+            predicate: registration =>
+                registration.StudentId == studentId &&
+                !string.Equals(registration.RegistrationStatus, StatusCancelled, StringComparison.OrdinalIgnoreCase),
+            ct: ct);
+
+        var classIds = registrations
+            .Select(reg => reg.ClassId)
+            .Distinct()
+            .ToList();
+
+        if (classIds.Count == 0) return Array.Empty<ClassSchedule>();
+
+        Expression<Func<ClassSchedule, bool>> predicate = schedule =>
+            classIds.Contains(schedule.ClassId) &&
+            (!startDate.HasValue || schedule.SessionDate >= startDate.Value) &&
+            (!endDate.HasValue || schedule.SessionDate <= endDate.Value);
+
+        var includes = new Expression<Func<ClassSchedule, object>>[]
+        {
+            schedule => schedule.Class,
+            schedule => schedule.Class.Teacher,
+            schedule => schedule.Room
+        };
+
+        var schedules = await _scheduleRepo.ListAsync(
+            predicate: predicate,
+            orderBy: query => query
+                .OrderBy(schedule => schedule.SessionDate)
+                .ThenBy(schedule => schedule.StartTime),
+            includes: includes,
+            ct: ct);
+
+        return schedules;
     }
 }

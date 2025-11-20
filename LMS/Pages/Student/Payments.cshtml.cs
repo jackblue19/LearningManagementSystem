@@ -1,60 +1,112 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using LMS.Models.ViewModels.Bank;
-using LMS.Services.Interfaces.StudentService;
-using LMS.Models.ViewModels;
+//using System.ComponentModel.DataAnnotations;
+//using LMS.Models.Entities;
+//using LMS.Services.Interfaces.StudentService;
+//using Microsoft.AspNetCore.Mvc;
+//using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace LMS.Pages.Student;
+//namespace LMS.Pages.Student;
 
-public class PaymentsModel : PageModel
-{
-    private readonly IPaymentService _paymentSvc;
+//public class PaymentsModel : PageModel
+//{
+//    private readonly IPaymentService _paymentService;
 
-    public PaymentsModel(IPaymentService paymentSvc) => _paymentSvc = paymentSvc;
+//    public PaymentsModel(IPaymentService paymentService)
+//    {
+//        _paymentService = paymentService;
+//    }
 
-    [BindProperty(SupportsGet = true)]
-    public Guid StudentId { get; set; }
+//    // -----------------------------
+//    // Form + Query properties
+//    // -----------------------------
+//    [BindProperty(SupportsGet = true)]
+//    [Display(Name = "Student Id")]
+//    public Guid StudentId { get; set; }
 
-    [BindProperty(SupportsGet = true)]
-    public DateOnly? From { get; set; }
+//    [BindProperty]
+//    [Display(Name = "Class Id")]
+//    public Guid ClassId { get; set; }
 
-    [BindProperty(SupportsGet = true)]
-    public DateOnly? To { get; set; }
+//    [BindProperty]
+//    [DataType(DataType.Currency)]
+//    public decimal Amount { get; set; }
 
-    [BindProperty(SupportsGet = true)]
-    public string? Status { get; set; }
+//    [BindProperty]
+//    [Display(Name = "Payment Method")]
+//    public string? PaymentMethod { get; set; }
 
-    [BindProperty(SupportsGet = true)]
-    public int PageIndex { get; set; } = 1;
+//    // -----------------------------
+//    // View Data
+//    // -----------------------------
+//    public IReadOnlyList<Payment> Payments { get; private set; } = Array.Empty<Payment>();
 
-    [BindProperty(SupportsGet = true)]
-    public int PageSize { get; set; } = 10;
+//    [TempData] public string? StatusMessage { get; set; }
+//    [TempData] public string? ErrorMessage { get; set; }
 
-    public PagedResult<PaymentHistoryVm>? Page { get; set; }
-    public PaymentCheckoutVm? LastPayment { get; set; }
-    public string? Flash { get; set; }
+//    // -----------------------------
+//    // Load payments on GET
+//    // -----------------------------
+//    public async Task OnGetAsync(CancellationToken ct)
+//    {
+//        await LoadPaymentsAsync(ct);
+//    }
 
-    public async Task OnGetAsync(CancellationToken ct)
-    {
-        Page = await _paymentSvc.ListMyPaymentsAsync(StudentId, From, To, Status, PageIndex, PageSize, ct);
-        Flash = TempData["flash"] as string;
-    }
+//    // -----------------------------
+//    // Create a payment
+//    // -----------------------------
+//    public async Task<IActionResult> OnPostCreateAsync(CancellationToken ct)
+//    {
+//        if (StudentId == Guid.Empty || ClassId == Guid.Empty)
+//        {
+//            ModelState.AddModelError(string.Empty, "Student Id and Class Id are required.");
+//            await LoadPaymentsAsync(ct);
+//            return Page();
+//        }
 
-    public async Task<IActionResult> OnPostPayAsync(Guid classId, string method, CancellationToken ct)
-    {
-        LastPayment = await _paymentSvc.CreateRegistrationPaymentAsync(StudentId, classId, method, ct);
-        TempData["flash"] = $"Thanh toán thành công: {LastPayment.Amount:0.##} cho lớp {LastPayment.ClassName}.";
-        return RedirectToPage(new
-        {
-            studentId = StudentId,
-            from = From?.ToString("yyyy-MM-dd"),
-            to = To?.ToString("yyyy-MM-dd"),
-            status = Status,
-            pageIndex = PageIndex,
-            pageSize = PageSize
-        });
-    }
-}
+//        if (Amount <= 0)
+//        {
+//            ModelState.AddModelError(nameof(Amount), "Amount must be greater than 0.");
+//            await LoadPaymentsAsync(ct);
+//            return Page();
+//        }
+
+//        try
+//        {
+//            var payment = await _paymentService.CreatePaymentAsync(
+//                StudentId,
+//                ClassId,
+//                Amount,
+//                PaymentMethod,
+//                ct
+//            );
+
+//            if (payment is null)
+//            {
+//                ErrorMessage = "Student is not registered for this class or registration is inactive.";
+//            }
+//            else
+//            {
+//                StatusMessage = $"Payment recorded successfully ({payment.Amount:C}).";
+//            }
+//        }
+//        catch (Exception ex)
+//        {
+//            ErrorMessage = ex.Message;
+//        }
+
+//        return RedirectToPage(new { StudentId });
+//    }
+
+//    // -----------------------------
+//    // Helper to load payments safely
+//    // -----------------------------
+//    private async Task LoadPaymentsAsync(CancellationToken ct)
+//    {
+//        if (StudentId == Guid.Empty)
+//        {
+//            Payments = Array.Empty<Payment>();
+//            return;
+//        }
+
+//        Payments = await _paymentService.GetStudentPaymentsAsync(StudentId, ct);
+//    }
+//}

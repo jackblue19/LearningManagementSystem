@@ -1,8 +1,16 @@
 using LMS.Data;
 using LMS.Helpers;
 using LMS.Repositories;
+using LMS.Repositories.Impl.Academic;
+using LMS.Repositories.Impl.Finance;
+using LMS.Repositories.Impl.Scheduling;
+using LMS.Repositories.Interfaces.Academic;
+using LMS.Repositories.Interfaces.Finance;
+using LMS.Repositories.Interfaces.Scheduling;
 using LMS.Services.Impl;
+using LMS.Services.Impl.StudentService;
 using LMS.Services.Interfaces;
+using LMS.Services.Interfaces.StudentService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VNPAY;
@@ -41,6 +49,14 @@ builder.Services.AddMemoryCache();
 
 builder.Services.AddVnPayConfig(builder.Configuration);
 builder.Services.AddStudentServices();
+builder.Services.AddScoped<IClassRepository, ClassRepository>();
+builder.Services.AddScoped<IClassRegistrationRepository, ClassRegistrationRepository>();
+builder.Services.AddScoped<IClassScheduleRepository, ClassScheduleRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IClassRegistrationService, ClassRegistrationService>();
+builder.Services.AddScoped<IStudentScheduleService, StudentScheduleService>();
+builder.Services.AddScoped<IStudentCourseService, StudentCourseService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 // AuthZN
 builder.Services.AddAuthenticationServices(builder.Configuration);

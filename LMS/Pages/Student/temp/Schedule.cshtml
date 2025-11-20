@@ -1,0 +1,42 @@
+@page
+@model LMS.Pages.Student.temp.ScheduleModel
+@{
+    ViewData["Title"] = "My Schedule";
+}
+
+<partial name="_StudentNav" model="Model.StudentId" />
+
+<h2>Lịch học</h2>
+
+<form method="get" class="mb-2">
+    <input type="hidden" name="studentId" value="@Model.StudentId" />
+    <label>Từ ngày</label>
+    <input type="date" name="From" value="@Model.From?.ToString("yyyy-MM-dd")" />
+    <label>Đến ngày</label>
+    <input type="date" name="To" value="@Model.To?.ToString("yyyy-MM-dd")" />
+    <button type="submit">Xem</button>
+</form>
+
+@if ( Model.Items.Count > 0 )
+{
+    <table>
+        <thead><tr><th>Ngày</th><th>Giờ</th><th>Lớp</th><th>Phòng</th><th>Slot</th><th>Nhãn</th></tr></thead>
+        <tbody>
+            @foreach ( var s in Model.Items )
+            {
+                <tr>
+                    <td>@s.SessionDate.ToString("yyyy-MM-dd")</td>
+                    <td>@(s.StartTime?.ToString("HH\\:mm")) - @(s.EndTime?.ToString("HH\\:mm"))</td>
+                    <td>@s.ClassName</td>
+                    <td>@s.RoomName</td>
+                    <td>@s.SlotOrder</td>
+                    <td>@s.ScheduleLabel</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Không có lịch trong khoảng đã chọn.</p>
+}

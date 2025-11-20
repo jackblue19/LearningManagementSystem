@@ -1,0 +1,128 @@
+@page "{studentId:guid?}"
+@model LMS.Pages.Student.ClassRegistrationsModel
+@{
+    ViewData["Title"] = "My Class Registrations";
+}
+
+<section class="container py-4">
+
+    <h2 class="mb-3">My Classes</h2>
+
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <div class="alert alert-success">@Model.StatusMessage</div>
+    }
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+
+    @if (Model.StudentId == Guid.Empty)
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Enter Student ID</h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-8">
+                        <label asp-for="StudentId" class="form-label"></label>
+                        <input asp-for="StudentId" class="form-control" placeholder="Enter Student ID (GUID)" />
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">Load Classes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="mb-2">Student ID</h5>
+                <p class="text-muted mb-0">@Model.StudentId</p>
+            </div>
+        </div>
+    }
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h5 class="mb-0">Available Classes</h5>
+        </div>
+
+        <table class="table table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>Class</th>
+                    <th>Teacher</th>
+                    <th>Schedule</th>
+                    <th>Unit Price</th>
+                    <th>Status</th>
+                    <th style="width: 140px"></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model.Classes.Any())
+                {
+                    @foreach (var c in Model.Classes)
+                    {
+                        var isRegistered = Model.RegisteredClassIds.Contains(c.ClassId);
+
+                        <tr>
+                            <td>@c.ClassName</td>
+                            <td>@(c.Teacher?.FullName ?? "N/A")</td>
+                            <td>@(c.ScheduleDesc ?? "N/A")</td>
+                            <td>@(c.UnitPrice?.ToString("C") ?? "N/A")</td>
+
+                            <td>
+                                @if (isRegistered)
+                                {
+                                    <span class="badge bg-success">Registered</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Not Registered</span>
+                                }
+                            </td>
+
+                            <td>
+                                <form method="post" class="d-flex gap-2">
+                                    <input type="hidden" asp-for="StudentId" />
+                                    <input type="hidden" name="ClassId" value="@c.ClassId" />
+
+                                    @if (isRegistered)
+                                    {
+                                        <button type="submit"
+                                                asp-page-handler="Cancel"
+                                                class="btn btn-outline-danger btn-sm">
+                                            Cancel
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit"
+                                                asp-page-handler="Register"
+                                                class="btn btn-primary btn-sm">
+                                            Register
+                                        </button>
+                                    }
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            No classes available.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</section>

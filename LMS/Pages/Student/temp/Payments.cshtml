@@ -1,0 +1,59 @@
+@page
+@model LMS.Pages.Student.temp.PaymentsModel
+@{
+    ViewData["Title"] = "Payments";
+}
+
+<partial name="_StudentNav" model="Model.StudentId" />
+
+<h2>Thanh toán</h2>
+
+<form method="get" class="mb-2">
+    <input type="hidden" name="studentId" value="@Model.StudentId" />
+    <label>Từ</label><input type="date" name="From" value="@Model.From?.ToString("yyyy-MM-dd")" />
+    <label>Đến</label><input type="date" name="To" value="@Model.To?.ToString("yyyy-MM-dd")" />
+    <label>Trạng thái</label><input name="Status" value="@Model.Status" placeholder="paid/pending/..." />
+    <input type="number" name="PageIndex" value="@Model.PageIndex" min="1" />
+    <input type="number" name="PageSize" value="@Model.PageSize" min="1" />
+    <button type="submit">Lọc</button>
+</form>
+
+@if ( !string.IsNullOrWhiteSpace(Model.Flash) )
+{
+    <div style="color:green">@Model.Flash</div>
+}
+
+<section class="mb-3">
+    <h3>Tạo thanh toán</h3>
+    <form method="post" asp-page-handler="Pay">
+        <input type="hidden" name="studentId" value="@Model.StudentId" />
+        <input name="classId" placeholder="ClassId (GUID)" />
+        <input name="method" placeholder="Phương thức (VD: cash, bank)" />
+        <button type="submit">Thanh toán</button>
+    </form>
+</section>
+
+@if ( Model.Page is { Items.Count: > 0 } )
+{
+    <table>
+        <thead><tr><th>PaymentId</th><th>Lớp</th><th>Số tiền</th><th>Phương thức</th><th>Trạng thái</th><th>Tạo lúc</th><th>Thanh toán lúc</th></tr></thead>
+        <tbody>
+            @foreach ( var p in Model.Page.Items )
+            {
+                <tr>
+                    <td>@p.PaymentId</td>
+                    <td>@p.ClassName</td>
+                    <td>@p.Amount.ToString("0.##")</td>
+                    <td>@p.PaymentMethod</td>
+                    <td>@p.PaymentStatus</td>
+                    <td>@p.CreatedAt</td>
+                    <td>@p.PaidAt</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Không có giao dịch.</p>
+}

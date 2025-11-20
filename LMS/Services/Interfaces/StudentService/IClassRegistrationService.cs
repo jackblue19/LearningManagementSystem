@@ -13,4 +13,6 @@ public interface IClassRegistrationService
 
     Task<PagedResult<StudentRegisteredClassVm>> ListMyRegistrationsAsync(
         Guid studentId, int pageIndex = 1, int pageSize = 20, CancellationToken ct = default);
+        
+    Task<bool> IsRegisteredAsync(Guid studentId, Guid classId, CancellationToken ct = default);
 }
