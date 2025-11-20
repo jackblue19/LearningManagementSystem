@@ -8,8 +8,8 @@ namespace LMS.Repositories;
 public class GenericRepository<T, TKey> : IGenericRepository<T, TKey>
     where T : class
 {
-    private readonly CenterDbContext _db;
-    private readonly DbSet<T> _set;
+    protected readonly CenterDbContext _db;
+    protected readonly DbSet<T> _set;
 
     public GenericRepository(CenterDbContext db)
     {

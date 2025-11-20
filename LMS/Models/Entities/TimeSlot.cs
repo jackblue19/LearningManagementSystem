@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LMS.Models.Entities;
 
-[Index("SlotOrder", Name = "UQ__TimeSlot__F57364B47815BB11", IsUnique = true)]
+[Index("SlotOrder", Name = "UQ__TimeSlot__F57364B4FF7CC15B", IsUnique = true)]
 public partial class TimeSlot
 {
     [Key]

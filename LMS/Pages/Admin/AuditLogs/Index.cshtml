@@ -1,0 +1,149 @@
+@page
+@model LMS.Pages.Admin.AuditLogs.IndexModel
+@{
+    ViewData["Title"] = "Audit Logs";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Audit Logs</h2>
+    </div>
+
+    <form method="get" class="mb-4">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label" for="SearchTerm">Search</label>
+                <input class="form-control" id="SearchTerm" name="SearchTerm"
+                       value="@Model.SearchTerm" placeholder="User, entity, record, action" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="ActionFilter">Action</label>
+                <select class="form-select" id="ActionFilter" name="ActionFilter">
+                    <option value="">All</option>
+                    @foreach (var action in Model.ViewModel.ActionOptions)
+                    {
+                        <option value="@action" selected="@(string.Equals(Model.ActionFilter, action, StringComparison.OrdinalIgnoreCase))">
+                            @action
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" for="DateFrom">From</label>
+                <input class="form-control" type="date" id="DateFrom" name="DateFrom"
+                       value="@(Model.DateFrom?.ToString("yyyy-MM-dd"))" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" for="DateTo">To</label>
+                <input class="form-control" type="date" id="DateTo" name="DateTo"
+                       value="@(Model.DateTo?.ToString("yyyy-MM-dd"))" />
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="submit" class="btn btn-secondary w-100">Filter</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Entity</th>
+                    <th>Record</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.ViewModel.Logs.Items.Any())
+                {
+                    @foreach (var log in Model.ViewModel.Logs.Items)
+                    {
+                        <tr>
+                            <td>@log.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>
+                                <div class="fw-semibold">@log.Username</div>
+                                <small class="text-muted">@log.FullName</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">@log.ActionType ?? "N/A"</span>
+                            </td>
+                            <td>@(log.EntityName ?? "-")</td>
+                            <td>@(log.RecordId ?? "-")</td>
+                            <td style="min-width: 260px;">
+                                <details>
+                                    <summary class="text-primary">View Data</summary>
+                                    <div class="mt-2">
+                                        <div class="mb-2">
+                                            <strong>New Data</strong>
+                                            <pre class="bg-light p-2 rounded" style="white-space: pre-wrap;">@(!string.IsNullOrWhiteSpace(log.NewData) ? log.NewData : "(empty)")</pre>
+                                        </div>
+                                        <div>
+                                            <strong>Old Data</strong>
+                                            <pre class="bg-light p-2 rounded" style="white-space: pre-wrap;">@(!string.IsNullOrWhiteSpace(log.OldData) ? log.OldData : "(empty)")</pre>
+                                        </div>
+                                    </div>
+                                </details>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center">No audit logs found.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.ViewModel.Logs.TotalCount > 0)
+    {
+        var totalPages = (int)Math.Ceiling((double)Model.ViewModel.Logs.TotalCount / Model.ViewModel.Logs.PageSize);
+        <nav aria-label="Audit log pagination">
+            <ul class="pagination justify-content-center">
+                @if (Model.ViewModel.Logs.PageIndex > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-page="Index"
+                           asp-route-SearchTerm="@Model.SearchTerm"
+                           asp-route-ActionFilter="@Model.ActionFilter"
+                           asp-route-DateFrom="@(Model.DateFrom?.ToString("yyyy-MM-dd"))"
+                           asp-route-DateTo="@(Model.DateTo?.ToString("yyyy-MM-dd"))"
+                           asp-route-PageIndex="@(Model.ViewModel.Logs.PageIndex - 1)">Previous</a>
+                    </li>
+                }
+
+                @for (int i = Math.Max(1, Model.ViewModel.Logs.PageIndex - 2);
+                     i <= Math.Min(totalPages, Model.ViewModel.Logs.PageIndex + 2);
+                     i++)
+                {
+                    <li class="page-item @(i == Model.ViewModel.Logs.PageIndex ? "active" : "")">
+                        <a class="page-link" asp-page="Index"
+                           asp-route-SearchTerm="@Model.SearchTerm"
+                           asp-route-ActionFilter="@Model.ActionFilter"
+                           asp-route-DateFrom="@(Model.DateFrom?.ToString("yyyy-MM-dd"))"
+                           asp-route-DateTo="@(Model.DateTo?.ToString("yyyy-MM-dd"))"
+                           asp-route-PageIndex="@i">@i</a>
+                    </li>
+                }
+
+                @if (Model.ViewModel.Logs.PageIndex < totalPages)
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-page="Index"
+                           asp-route-SearchTerm="@Model.SearchTerm"
+                           asp-route-ActionFilter="@Model.ActionFilter"
+                           asp-route-DateFrom="@(Model.DateFrom?.ToString("yyyy-MM-dd"))"
+                           asp-route-DateTo="@(Model.DateTo?.ToString("yyyy-MM-dd"))"
+                           asp-route-PageIndex="@(Model.ViewModel.Logs.PageIndex + 1)">Next</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>
+

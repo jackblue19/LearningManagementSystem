@@ -1,3 +1,28 @@
+
+/*app.MapPost("/usersm", async (CenterDbContext db) =>
+{
+    var managerId = Guid.NewGuid();
+
+    var manager = new LMS.Models.Entities.User
+    {
+        UserId = managerId,
+        Username = "manager",
+        Email = "manager@lms.com",
+        PasswordHash = "123@123",
+        FullName = "Nguyễn Văn Quản Lý",
+        Phone = "0901234567",
+        RoleDesc = "manager",
+        IsActive = true,
+        CreatedAt = DateTime.UtcNow,
+        Avatar = "/images/avatars/manager.jpg"
+    };
+
+    db.Users.Add(manager);
+    await db.SaveChangesAsync();
+
+    return Results.Created($"/users/{manager.UserId}", manager);
+});*/
+
 /*using LMS.Models.Entities;
 using LMS.Pages;
 using LMS.Services.Interfaces;

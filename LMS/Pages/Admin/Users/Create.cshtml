@@ -1,0 +1,104 @@
+@page
+@model LMS.Pages.Admin.Users.CreateModel
+@{
+    ViewData["Title"] = "Create User";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2>Create New User</h2>
+            <hr />
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ViewModel.Username" class="form-label"></label>
+                        <input asp-for="ViewModel.Username" class="form-control" />
+                        <span asp-validation-for="ViewModel.Username" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ViewModel.Email" class="form-label"></label>
+                        <input asp-for="ViewModel.Email" class="form-control" type="email" />
+                        <span asp-validation-for="ViewModel.Email" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ViewModel.Password" class="form-label"></label>
+                    <input asp-for="ViewModel.Password" class="form-control" type="password" />
+                    <span asp-validation-for="ViewModel.Password" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ViewModel.FullName" class="form-label"></label>
+                        <input asp-for="ViewModel.FullName" class="form-control" />
+                        <span asp-validation-for="ViewModel.FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ViewModel.Phone" class="form-label"></label>
+                        <input asp-for="ViewModel.Phone" class="form-control" />
+                        <span asp-validation-for="ViewModel.Phone" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ViewModel.RoleDesc" class="form-label"></label>
+                        <select asp-for="ViewModel.RoleDesc" class="form-select">
+                            <option value="">-- Select Role --</option>
+                            @foreach (var role in Model.ViewModel.AvailableRoles)
+                            {
+                                <option value="@role">@role</option>
+                            }
+                        </select>
+                        <span asp-validation-for="ViewModel.RoleDesc" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ViewModel.IsActive" class="form-label"></label>
+                        <div class="form-check form-switch mt-2">
+                            <input asp-for="ViewModel.IsActive" class="form-check-input" type="checkbox" />
+                            <label class="form-check-label" asp-for="ViewModel.IsActive">Active</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ViewModel.Avatar" class="form-label"></label>
+                    <input asp-for="ViewModel.Avatar" class="form-control" />
+                    <span asp-validation-for="ViewModel.Avatar" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ViewModel.CoverImageUrl" class="form-label"></label>
+                    <input asp-for="ViewModel.CoverImageUrl" class="form-control" />
+                    <span asp-validation-for="ViewModel.CoverImageUrl" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Create</button>
+                    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

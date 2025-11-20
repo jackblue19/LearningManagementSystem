@@ -1,5 +1,9 @@
 # For more info on HTTP files go to https://aka.ms/vs/httpfile
-@base = http://localhost:7045
+@base = http://localhost:5014
+
+###
+POST {{base}}/usersm
+Content-Type: application/json
 
 ### 1) Create a manager user (UserId = GUID)
 POST {{base}}/api/users

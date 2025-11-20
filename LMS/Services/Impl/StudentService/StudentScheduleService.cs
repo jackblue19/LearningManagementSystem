@@ -1,11 +1,15 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using LMS.Models.Entities;
+using LMS.Repositories.Interfaces.Scheduling;
+using LMS.Services.Interfaces.StudentService;
 using LMS.Models.ViewModels.StudentService;
 using LMS.Repositories;
-using LMS.Services.Interfaces.StudentService;
 using System.Linq;
 using System.Linq.Expressions;
 using LMS.Repositories.Interfaces.Academic;
-using LMS.Repositories.Interfaces.Scheduling;
 
 namespace LMS.Services.Impl.StudentService;
 public class StudentScheduleService : IStudentScheduleService
@@ -13,15 +17,18 @@ public class StudentScheduleService : IStudentScheduleService
     private readonly IGenericRepository<ClassRegistration, long> _regRepo;
     private readonly IGenericRepository<ClassSchedule, long> _scheduleRepo;
     private readonly IGenericRepository<Class, Guid> _classRepo;
+    private readonly IClassScheduleRepository _classScheduleRepository;
 
     public StudentScheduleService(
         IGenericRepository<ClassRegistration, long> regRepo,
         IGenericRepository<ClassSchedule, long> scheduleRepo,
+        IClassScheduleRepository classScheduleRepository,
         IGenericRepository<Class, Guid> classRepo)
     {
         _regRepo = regRepo;
         _scheduleRepo = scheduleRepo;
         _classRepo = classRepo;
+        _classScheduleRepository = classScheduleRepository;
     }
 
     public async Task<IReadOnlyList<StudentScheduleItemVm>> GetScheduleAsyncZ(
@@ -96,4 +103,11 @@ public class StudentScheduleService : IStudentScheduleService
 
         return schedules;
     }
+    
+    public Task<IReadOnlyList<ClassSchedule>> GetClassScheduleAsync(
+        Guid classId,
+        DateOnly? from = null,
+        DateOnly? to = null,
+        CancellationToken ct = default)
+        => _classScheduleRepository.GetByClassAsync(classId, from, to, ct);
 }

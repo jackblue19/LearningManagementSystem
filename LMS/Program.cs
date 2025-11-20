@@ -1,23 +1,25 @@
+using System;
 using LMS.Data;
 using LMS.Helpers;
 using LMS.Repositories;
+using LMS.Repositories.Impl.Communication;
+using LMS.Repositories.Impl.Info;
+using LMS.Repositories.Interfaces.Communication;
+using LMS.Repositories.Interfaces.Info;
 using LMS.Repositories.Impl.Academic;
-using LMS.Repositories.Impl.Finance;
-using LMS.Repositories.Impl.Scheduling;
+using LMS.Repositories.Impl.Assessment;
 using LMS.Repositories.Interfaces.Academic;
-using LMS.Repositories.Interfaces.Finance;
-using LMS.Repositories.Interfaces.Scheduling;
+using LMS.Repositories.Interfaces.Assessment;
 using LMS.Services.Impl;
-using LMS.Services.Impl.StudentService;
+using LMS.Services.Impl.AdminService;
+using LMS.Services.Impl.CommonService;
+using LMS.Services.Impl.TeacherService;
 using LMS.Services.Interfaces;
-using LMS.Services.Interfaces.StudentService;
-using Microsoft.AspNetCore.Mvc;
+using LMS.Services.Interfaces.AdminService;
+using LMS.Services.Interfaces.CommonService;
+using LMS.Services.Interfaces.TeacherService;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using VNPAY;
-using VNPAY.Extensions;
-using VNPAY.Models;
-using VNPAY.Models.Enums;
-using VNPAY.Models.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,13 +28,16 @@ builder.Services.AddRazorPages();
 
 // DI
 var connectionString = builder.Configuration.GetConnectionString("SqlServer");
-builder.Services.AddDbContext<CenterDbContext>(options =>
+builder.Services.AddDbContext<LMS.Data.CenterDbContext>(options =>
 {
     options.UseSqlServer(connectionString);
 });
 
 //  Generic
 builder.Services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
+builder.Services.AddScoped<IExamRepository, ExamRepository>();
+builder.Services.AddScoped<IExamResultRepository, ExamResultRepository>();
+
 builder.Services.AddScoped(typeof(ICrudService<,>), typeof(CrudService<,>));
 
 // Register Repositories
@@ -49,14 +54,16 @@ builder.Services.AddMemoryCache();
 
 builder.Services.AddVnPayConfig(builder.Configuration);
 builder.Services.AddStudentServices();
-builder.Services.AddScoped<IClassRepository, ClassRepository>();
-builder.Services.AddScoped<IClassRegistrationRepository, ClassRegistrationRepository>();
-builder.Services.AddScoped<IClassScheduleRepository, ClassScheduleRepository>();
-builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
-builder.Services.AddScoped<IClassRegistrationService, ClassRegistrationService>();
-builder.Services.AddScoped<IStudentScheduleService, StudentScheduleService>();
-builder.Services.AddScoped<IStudentCourseService, StudentCourseService>();
-builder.Services.AddScoped<IPaymentService, PaymentService>();
+
+// User Repository & Services
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAdminUserService, AdminUserService>();
+builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
 // AuthZN
 builder.Services.AddAuthenticationServices(builder.Configuration);
@@ -98,6 +105,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseSession();
 
 app.MapRazorPages();
 
