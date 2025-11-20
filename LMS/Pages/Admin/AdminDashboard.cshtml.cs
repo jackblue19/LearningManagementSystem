@@ -5,6 +5,7 @@ using LMS.Models.ViewModels.Admin;
 using LMS.Services.Interfaces.AdminService;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LMS.Pages.Admin;
 
@@ -28,7 +29,7 @@ public class AdminDashboardModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
-        Dashboard = await _dashboardService.GetDashboardAsync(ct);
+        Dashboard = await _dashboardService.GetDashboardAsync();
         // Check if user needs to setup password (Google OAuth users)
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (!string.IsNullOrEmpty(userId) && Guid.TryParse(userId, out var userGuid))
