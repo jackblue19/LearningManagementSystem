@@ -115,7 +115,12 @@
                         <label asp-for="Input.Password" class="form-label">
                             <i class="bi bi-lock me-1"></i> Mật khẩu
                         </label>
-                        <input asp-for="Input.Password" class="form-control" placeholder="Nhập mật khẩu" />
+                        <div class="input-group">
+                            <input asp-for="Input.Password" class="form-control" placeholder="Nhập mật khẩu" id="password" />
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                <i class="bi bi-eye" id="toggleIcon"></i>
+                            </button>
+                        </div>
                         <span asp-validation-for="Input.Password" class="text-danger small"></span>
                     </div>
 
@@ -123,7 +128,12 @@
                         <label asp-for="Input.ConfirmPassword" class="form-label">
                             <i class="bi bi-lock-fill me-1"></i> Xác nhận mật khẩu
                         </label>
-                        <input asp-for="Input.ConfirmPassword" class="form-control" placeholder="Nhập lại mật khẩu" />
+                        <div class="input-group">
+                            <input asp-for="Input.ConfirmPassword" class="form-control" placeholder="Nhập lại mật khẩu" id="confirmPassword" />
+                            <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                                <i class="bi bi-eye" id="toggleConfirmIcon"></i>
+                            </button>
+                        </div>
                         <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
                     </div>
 
@@ -155,5 +165,37 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script>
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const password = document.getElementById('password');
+            const icon = document.getElementById('toggleIcon');
+            
+            if (password.type === 'password') {
+                password.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                password.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        });
+
+        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+            const confirmPassword = document.getElementById('confirmPassword');
+            const icon = document.getElementById('toggleConfirmIcon');
+            
+            if (confirmPassword.type === 'password') {
+                confirmPassword.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                confirmPassword.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        });
+    </script>
 </body>
 </html>

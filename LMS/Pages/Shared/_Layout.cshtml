@@ -42,7 +42,12 @@
                             {
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-page="/Manager/ManagerDashboard">
-                                        <i class="bi bi-speedometer2"></i> Manager Dashboard
+                                        <i class="bi bi-speedometer2"></i> Dashboard
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-page="/Manager/ManageTeachers">
+                                        <i class="bi bi-people-fill"></i> Quản lý giáo viên
                                     </a>
                                 </li>
                             }
@@ -85,13 +90,32 @@
                                     <span>@fullName</span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    @{
+                                        var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+                                        var profilePage = userRole switch
+                                        {
+                                            "admin" => "/Admin/EditProfile",
+                                            "manager" => "/Manager/EditProfile",
+                                            "teacher" => "/Teacher/EditProfile",
+                                            "student" => "/Student/EditProfile",
+                                            _ => "/Shared/EditProfile"
+                                        };
+                                        var changePasswordPage = userRole switch
+                                        {
+                                            "admin" => "/Admin/ChangePassword",
+                                            "manager" => "/Manager/ChangePassword",
+                                            "teacher" => "/Teacher/ChangePassword",
+                                            "student" => "/Student/ChangePassword",
+                                            _ => "/Shared/ChangePassword"
+                                        };
+                                    }
                                     <li>
-                                        <a class="dropdown-item" asp-page="/Common/EditProfile">
+                                        <a class="dropdown-item" asp-page="@profilePage">
                                             <i class="bi bi-person-circle"></i> Thông tin cá nhân
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" asp-page="/Common/ChangePassword">
+                                        <a class="dropdown-item" asp-page="@changePasswordPage">
                                             <i class="bi bi-shield-lock"></i> Đổi mật khẩu
                                         </a>
                                     </li>

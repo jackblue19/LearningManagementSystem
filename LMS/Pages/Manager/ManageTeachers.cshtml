@@ -1,0 +1,238 @@
+@page
+@model LMS.Pages.Manager.ManageTeachersModel
+@{
+    ViewData["Title"] = "Quản lý giáo viên";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-people-fill"></i> Quản lý tài khoản giáo viên</h2>
+        <a asp-page="/Manager/CreateTeacher" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Thêm giáo viên mới
+        </a>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Tìm kiếm</label>
+                    <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control" placeholder="Tên, email, số điện thoại...">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Trạng thái</label>
+                    <select name="isActive" class="form-select">
+                        <option value="">Tất cả</option>
+                        <option value="true" selected="@(Model.IsActive == true)">Đang hoạt động</option>
+                        <option value="false" selected="@(Model.IsActive == false)">Đã vô hiệu hóa</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Tìm kiếm
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> @Model.SuccessMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Teachers Table -->
+    <div class="card">
+        <div class="card-body">
+            @if (Model.Teachers.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Avatar</th>
+                                <th>Tên đăng nhập</th>
+                                <th>Họ tên</th>
+                                <th>Email</th>
+                                <th>Số điện thoại</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày tạo</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var teacher in Model.Teachers)
+                            {
+                                <tr>
+                                    <td>
+                                        <img src="@(teacher.Avatar ?? "/images/default-avatar.svg")" 
+                                             alt="@teacher.FullName" 
+                                             class="rounded-circle" 
+                                             style="width: 40px; height: 40px; object-fit: cover;"
+                                             onerror="this.src='/images/default-avatar.svg'">
+                                    </td>
+                                    <td>@teacher.Username</td>
+                                    <td>@teacher.FullName</td>
+                                    <td>@teacher.Email</td>
+                                    <td>@(teacher.Phone ?? "N/A")</td>
+                                    <td>
+                                        @if (teacher.IsActive)
+                                        {
+                                            <span class="badge bg-success">Hoạt động</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Vô hiệu hóa</span>
+                                        }
+                                    </td>
+                                    <td>@teacher.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-page="/Manager/EditTeacher" asp-route-id="@teacher.UserId" class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            @if (teacher.IsActive)
+                                            {
+                                                <button type="button" class="btn btn-sm btn-outline-warning" title="Vô hiệu hóa" 
+                                                        onclick="confirmDeactivate('@teacher.UserId', '@teacher.FullName')">
+                                                    <i class="bi bi-x-circle"></i>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <form method="post" asp-page-handler="Activate" style="display: inline;">
+                                                    <input type="hidden" name="teacherId" value="@teacher.UserId" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Kích hoạt">
+                                                        <i class="bi bi-check-circle"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                            <button type="button" class="btn btn-sm btn-outline-info" title="Đặt lại mật khẩu"
+                                                    onclick="showResetPasswordModal('@teacher.UserId', '@teacher.FullName')">
+                                                <i class="bi bi-key"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                @if (Model.TotalPages > 1)
+                {
+                    <nav aria-label="Page navigation" class="mt-3">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                                <a class="page-link" asp-page="/Manager/ManageTeachers" 
+                                   asp-route-pageNumber="@(Model.PageNumber - 1)"
+                                   asp-route-searchTerm="@Model.SearchTerm"
+                                   asp-route-isActive="@Model.IsActive">Trước</a>
+                            </li>
+                            @for (int i = 1; i <= Model.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                    <a class="page-link" asp-page="/Manager/ManageTeachers" 
+                                       asp-route-pageNumber="@i"
+                                       asp-route-searchTerm="@Model.SearchTerm"
+                                       asp-route-isActive="@Model.IsActive">@i</a>
+                                </li>
+                            }
+                            <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+                                <a class="page-link" asp-page="/Manager/ManageTeachers" 
+                                   asp-route-pageNumber="@(Model.PageNumber + 1)"
+                                   asp-route-searchTerm="@Model.SearchTerm"
+                                   asp-route-isActive="@Model.IsActive">Sau</a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                    <p class="text-muted mt-3">Không tìm thấy giáo viên nào.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Đặt lại mật khẩu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-page-handler="ResetPassword">
+                <div class="modal-body">
+                    <input type="hidden" id="resetTeacherId" name="teacherId" />
+                    <p>Đặt lại mật khẩu cho giáo viên: <strong id="resetTeacherName"></strong></p>
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu mới</label>
+                        <input type="password" name="newPassword" class="form-control" required minlength="6" placeholder="Nhập mật khẩu mới (tối thiểu 6 ký tự)">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Đặt lại mật khẩu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Deactivate Confirmation Modal -->
+<div class="modal fade" id="deactivateModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận vô hiệu hóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-page-handler="Deactivate">
+                <div class="modal-body">
+                    <input type="hidden" id="deactivateTeacherId" name="teacherId" />
+                    <p>Bạn có chắc muốn vô hiệu hóa tài khoản giáo viên: <strong id="deactivateTeacherName"></strong>?</p>
+                    <p class="text-danger"><small>Giáo viên sẽ không thể đăng nhập sau khi bị vô hiệu hóa.</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-warning">Vô hiệu hóa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function showResetPasswordModal(teacherId, teacherName) {
+            document.getElementById('resetTeacherId').value = teacherId;
+            document.getElementById('resetTeacherName').textContent = teacherName;
+            new bootstrap.Modal(document.getElementById('resetPasswordModal')).show();
+        }
+
+        function confirmDeactivate(teacherId, teacherName) {
+            document.getElementById('deactivateTeacherId').value = teacherId;
+            document.getElementById('deactivateTeacherName').textContent = teacherName;
+            new bootstrap.Modal(document.getElementById('deactivateModal')).show();
+        }
+    </script>
+}
