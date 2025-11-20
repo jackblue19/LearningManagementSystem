@@ -6,7 +6,7 @@ namespace LMS.Services.Interfaces.StudentService;
 
 public interface IStudentScheduleService
 {
-    Task<IReadOnlyList<StudentScheduleItemVm>> GetScheduleAsync(
+    Task<IReadOnlyList<StudentScheduleItemVm>> GetScheduleAsyncZ(
            Guid studentId, DateOnly from, DateOnly to, CancellationToken ct = default);
            
     Task<IReadOnlyList<ClassSchedule>> GetScheduleAsync(

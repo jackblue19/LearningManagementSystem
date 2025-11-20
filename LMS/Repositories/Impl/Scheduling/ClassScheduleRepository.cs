@@ -9,7 +9,4 @@ public class ClassScheduleRepository : GenericRepository<ClassSchedule, long>, I
     public ClassScheduleRepository(CenterDbContext db) : base(db)
     {
     }
-    public ClassScheduleRepository(CenterDbContext db) : base(db)
-    {
-    }
 }

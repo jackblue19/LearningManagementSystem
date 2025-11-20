@@ -8,8 +8,6 @@ using Microsoft.Extensions.Options;
 using System.Linq.Expressions;
 
 namespace LMS.Services.Impl.StudentService;
-
-public class PaymentService : IPaymentService
 public class PaymentService : IPaymentService
 {
     private readonly IGenericRepository<Payment, Guid> _payRepo;

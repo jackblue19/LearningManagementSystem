@@ -32,7 +32,7 @@ public class ScheduleModel : PageModel
     {
         var from = From ?? DateOnly.FromDateTime(DateTime.Today);
         var to = To ?? from.AddDays(14);
-        Items = await _scheduleSvc.GetScheduleAsync(StudentId, from, to, ct);
+        Items = await _scheduleSvc.GetScheduleAsyncZ(StudentId, from, to, ct);
         From = from; To = to;
     }
 }

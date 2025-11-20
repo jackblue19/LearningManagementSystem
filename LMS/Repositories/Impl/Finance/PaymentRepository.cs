@@ -9,7 +9,4 @@ public class PaymentRepository : GenericRepository<Payment, Guid>, IPaymentRepos
     public PaymentRepository(CenterDbContext db) : base(db)
     {
     }
-    public PaymentRepository(CenterDbContext db) : base(db)
-    {
-    }
 }

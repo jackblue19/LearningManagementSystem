@@ -8,8 +8,7 @@ using LMS.Repositories.Interfaces.Academic;
 using LMS.Repositories.Interfaces.Scheduling;
 
 namespace LMS.Services.Impl.StudentService;
-
-public class StudentScheduleService : IStudentScheduleService : IStudentScheduleService
+public class StudentScheduleService : IStudentScheduleService
 {
     private readonly IGenericRepository<ClassRegistration, long> _regRepo;
     private readonly IGenericRepository<ClassSchedule, long> _scheduleRepo;
@@ -25,7 +24,7 @@ public class StudentScheduleService : IStudentScheduleService : IStudentSchedule
         _classRepo = classRepo;
     }
 
-    public async Task<IReadOnlyList<StudentScheduleItemVm>> GetScheduleAsync(
+    public async Task<IReadOnlyList<StudentScheduleItemVm>> GetScheduleAsyncZ(
        Guid studentId, DateOnly from, DateOnly to, CancellationToken ct = default)
     {
         var regs = await _regRepo.ListAsync(
@@ -56,13 +55,13 @@ public class StudentScheduleService : IStudentScheduleService : IStudentSchedule
 
     private const string StatusCancelled = "Cancelled";
 
-    /*public async Task<IReadOnlyList<ClassSchedule>> GetScheduleAsync(
+    public async Task<IReadOnlyList<ClassSchedule>> GetScheduleAsync(
         Guid studentId,
         DateOnly? startDate = null,
         DateOnly? endDate = null,
         CancellationToken ct = default)
     {
-        var registrations = await _registrationRepository.ListAsync(
+        var registrations = await _regRepo.ListAsync(
             predicate: registration =>
                 registration.StudentId == studentId &&
                 !string.Equals(registration.RegistrationStatus, StatusCancelled, StringComparison.OrdinalIgnoreCase),
@@ -87,7 +86,7 @@ public class StudentScheduleService : IStudentScheduleService : IStudentSchedule
             schedule => schedule.Room
         };
 
-        var schedules = await _scheduleRepository.ListAsync(
+        var schedules = await _scheduleRepo.ListAsync(
             predicate: predicate,
             orderBy: query => query
                 .OrderBy(schedule => schedule.SessionDate)
@@ -96,5 +95,5 @@ public class StudentScheduleService : IStudentScheduleService : IStudentSchedule
             ct: ct);
 
         return schedules;
-    }*/
+    }
 }
