@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -73,6 +73,10 @@ public class ClassScheduleService : CrudService<ClassSchedule, long>, IClassSche
 
         schedule.StartTime = context.StartTime;
         schedule.EndTime = context.EndTime;
+        if (context.Slot is not null && !schedule.SlotOrder.HasValue)
+        {
+            schedule.SlotOrder = context.Slot.SlotOrder;
+        }
 
         var created = await _classScheduleRepository.AddAsync(schedule, saveNow, ct);
         return ScheduleOperationResult.FromAvailability(availability, created);
@@ -121,7 +125,7 @@ public class ClassScheduleService : CrudService<ClassSchedule, long>, IClassSche
                 "Teacher is already assigned to another class during the requested time.");
         }
 
-        var hasTeacherAvailability = await _teacherAvailabilityRepository.HasAvailabilityWindowAsync(
+        var hasTeacherAvailability = await EnsureTeacherAvailabilityWindowAsync(
             context.TeacherId,
             context.DayOfWeek,
             start,
@@ -151,12 +155,12 @@ public class ClassScheduleService : CrudService<ClassSchedule, long>, IClassSche
                     "Room is already booked for the requested time.");
             }
 
-            var hasRoomAvailability = await _roomAvailabilityRepository.HasAvailabilityWindowAsync(
-                roomId,
-                context.DayOfWeek,
-                start,
-                end,
-                ct);
+            var hasRoomAvailability = await EnsureRoomAvailabilityWindowAsync(
+            roomId,
+            context.DayOfWeek,
+            start,
+            end,
+            ct);
 
             if (!hasRoomAvailability)
             {
@@ -246,6 +250,60 @@ public class ClassScheduleService : CrudService<ClassSchedule, long>, IClassSche
     {
         if (conflicts.Any(c => string.Equals(c.Code, code, StringComparison.OrdinalIgnoreCase))) return;
         conflicts.Add(ScheduleConflict.From(code, message));
+    }
+
+    private async Task<bool> EnsureTeacherAvailabilityWindowAsync(
+        Guid teacherId,
+        byte dayOfWeek,
+        TimeOnly start,
+        TimeOnly end,
+        CancellationToken ct)
+    {
+        if (teacherId == Guid.Empty || end <= start) return false;
+
+        if (await _teacherAvailabilityRepository.HasAvailabilityWindowAsync(teacherId, dayOfWeek, start, end, ct))
+        {
+            return true;
+        }
+
+        var availability = new TeacherAvailability
+        {
+            TeacherId = teacherId,
+            DayOfWeek = dayOfWeek,
+            StartTime = start,
+            EndTime = end,
+            Note = "Auto-generated from teacher schedule"
+        };
+
+        await _teacherAvailabilityRepository.AddAsync(availability, saveNow: true, ct);
+        return true;
+    }
+
+    private async Task<bool> EnsureRoomAvailabilityWindowAsync(
+        Guid roomId,
+        byte dayOfWeek,
+        TimeOnly start,
+        TimeOnly end,
+        CancellationToken ct)
+    {
+        if (roomId == Guid.Empty || end <= start) return false;
+
+        if (await _roomAvailabilityRepository.HasAvailabilityWindowAsync(roomId, dayOfWeek, start, end, ct))
+        {
+            return true;
+        }
+
+        var availability = new RoomAvailability
+        {
+            RoomId = roomId,
+            DayOfWeek = dayOfWeek,
+            StartTime = start,
+            EndTime = end,
+            Note = "Auto-generated from teacher schedule"
+        };
+
+        await _roomAvailabilityRepository.AddAsync(availability, saveNow: true, ct);
+        return true;
     }
 
     private sealed class ScheduleValidationContext
