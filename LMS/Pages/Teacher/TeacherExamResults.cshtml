@@ -1,0 +1,131 @@
+@page
+@model LMS.Pages.Teacher.TeacherExamResultsModel
+@{
+    ViewData["Title"] = "Kết quả kỳ thi";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="mb-1"><i class="bi bi-bar-chart-line me-2"></i>Kết quả kỳ thi</h2>
+            <p class="text-muted mb-0">Cập nhật điểm số cho học viên trong lớp.</p>
+        </div>
+        <a asp-page="TeacherExams" asp-route-classId="@Model.Exam?.ClassId" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Quay lại quản lý kỳ thi
+        </a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.Message))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @Model.Message
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @Model.ErrorMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (Model.Exam is null)
+    {
+        <div class="alert alert-warning">
+            Không tìm thấy thông tin kỳ thi.
+        </div>
+    }
+    else
+    {
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <p class="mb-0 text-muted">Kỳ thi</p>
+                        <h5 class="mb-0">@Model.Exam.Title</h5>
+                        <small class="text-muted">@Model.Exam.ExamType</small>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mb-0 text-muted">Ngày thi</p>
+                        <h5 class="mb-0">@Model.Exam.ExamDate?.ToString("dd/MM/yyyy") ?? "Chưa đặt"</h5>
+                    </div>
+                    <div class="col-md-2">
+                        <p class="mb-0 text-muted">Điểm tối đa</p>
+                        <h5 class="mb-0">@Model.Exam.MaxScore?.ToString("0.##") ?? "--"</h5>
+                    </div>
+                    <div class="col-md-3 text-md-end">
+                        <p class="mb-0 text-muted">Thống kê</p>
+                        <div><strong>Điểm TB:</strong> @Model.AverageScore.ToString("0.##")</div>
+                        <div><strong>Đạt:</strong> @Model.PassCount học viên</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Danh sách học viên</h5>
+            </div>
+            <div class="card-body">
+                @if (!Model.ResultInputs.Any())
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-people display-4 text-muted"></i>
+                        <p class="mt-3 text-muted">Chưa có học viên đăng ký lớp này.</p>
+                    </div>
+                }
+                else
+                {
+                    <form method="post">
+                        <input type="hidden" asp-for="ExamId" />
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Học viên</th>
+                                        <th>Email</th>
+                                        <th>Điểm</th>
+                                        <th>Ghi chú</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.EditableResults.Count; i++)
+                                    {
+                                        var row = Model.EditableResults[i];
+                                        <tr>
+                                            <td>
+                                                <input type="hidden" asp-for="EditableResults[i].StudentId" />
+                                                <strong>@row.StudentName</strong>
+                                            </td>
+                                            <td>@row.StudentEmail</td>
+                                            <td style="max-width: 160px;">
+                                                <input asp-for="EditableResults[i].Score" class="form-control" type="number" min="0"
+                                                    step="0.25" />
+                                                <span asp-validation-for="EditableResults[i].Score" class="text-danger"></span>
+                                            </td>
+                                            <td>
+                                                <input asp-for="EditableResults[i].Note" class="form-control" maxlength="300" />
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <small class="text-muted">Để trống điểm để xóa kết quả của học viên.</small>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Lưu điểm
+                            </button>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
