@@ -1,0 +1,328 @@
+@page
+@model LMS.Pages.Manager.RoomScheduleModel
+@{
+    ViewData["Title"] = $"Lịch phòng {Model.RoomInfo?.RoomName}";
+}
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+    .schedule-grid {
+        display: grid;
+        grid-template-columns: 100px repeat(7, 1fr);
+        gap: 0;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .schedule-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem;
+        text-align: center;
+        font-weight: 600;
+        border-right: 1px solid rgba(255,255,255,0.2);
+    }
+    .schedule-header:last-child {
+        border-right: none;
+    }
+    .time-label {
+        background: #f8f9fa;
+        padding: 1rem 0.5rem;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.875rem;
+        border-right: 1px solid #dee2e6;
+        border-top: 1px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .schedule-cell {
+        min-height: 100px;
+        padding: 0.5rem;
+        border-right: 1px solid #dee2e6;
+        border-top: 1px solid #dee2e6;
+        background: white;
+        position: relative;
+    }
+    .schedule-cell:last-child {
+        border-right: none;
+    }
+    .schedule-cell.booked {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+    }
+    .class-info {
+        background: white;
+        border: 2px solid #667eea;
+        border-radius: 8px;
+        padding: 0.5rem;
+        font-size: 0.8rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .class-name {
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 0.25rem;
+    }
+    .class-detail {
+        color: #6c757d;
+        font-size: 0.75rem;
+        margin: 0.1rem 0;
+    }
+    .schedule-list-item {
+        border-left: 4px solid #667eea;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+    .schedule-list-item:hover {
+        background: #e9ecef;
+        transform: translateX(5px);
+    }
+    .filter-card {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="mb-2">
+                    <i class="bi bi-calendar3"></i> Lịch phòng @Model.RoomInfo?.RoomName
+                </h1>
+                <p class="mb-0 opacity-75">
+                    <i class="bi bi-building"></i> @Model.RoomInfo?.Center?.CenterName
+                    <span class="mx-2">|</span>
+                    <i class="bi bi-people-fill"></i> Sức chứa: @Model.RoomInfo?.Capacity chỗ
+                </p>
+            </div>
+            <a asp-page="/Manager/ManageRooms" class="btn btn-outline-light btn-lg">
+                <i class="bi bi-arrow-left"></i> Quay lại
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter and View Toggle -->
+    <div class="card filter-card">
+        <div class="card-body">
+            <form method="get">
+                <input type="hidden" name="id" value="@Model.RoomInfo?.RoomId" />
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label">Từ ngày</label>
+                        <input type="date" name="StartDate" class="form-control" 
+                               value="@Model.StartDate?.ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Đến ngày</label>
+                        <input type="date" name="EndDate" class="form-control" 
+                               value="@Model.EndDate?.ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Kiểu hiển thị</label>
+                        <select name="ViewType" class="form-select">
+                            <option value="list" selected="@(Model.ViewType == "list")">Danh sách</option>
+                            <option value="grid" selected="@(Model.ViewType == "grid")">Lưới tuần</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Xem lịch
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-calendar-check text-success" style="font-size: 2rem;"></i>
+                    <h3 class="mt-2 mb-0">@Model.Schedules.Count</h3>
+                    <p class="text-muted mb-0">Buổi học trong khoảng</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-book text-info" style="font-size: 2rem;"></i>
+                    <h3 class="mt-2 mb-0">@Model.Schedules.Select(s => s.ClassName).Distinct().Count()</h3>
+                    <p class="text-muted mb-0">Lớp học sử dụng</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-person-badge text-warning" style="font-size: 2rem;"></i>
+                    <h3 class="mt-2 mb-0">@Model.Schedules.Select(s => s.TeacherName).Distinct().Count()</h3>
+                    <p class="text-muted mb-0">Giáo viên giảng dạy</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Schedules.Any())
+    {
+        @if (Model.ViewType == "grid")
+        {
+            <!-- Grid View -->
+            <div class="card">
+                <div class="card-body p-0">
+                    <div class="schedule-grid">
+                        <!-- Header Row -->
+                        <div class="schedule-header">Slot</div>
+                        @for (int i = 0; i < 7; i++)
+                        {
+                            var currentDate = Model.StartDate!.Value.AddDays(i);
+                            <div class="schedule-header">
+                                @LMS.Pages.Manager.RoomScheduleModel.GetDayOfWeekName(currentDate.DayOfWeek)
+                                <br />
+                                <small>@currentDate.ToString("dd/MM")</small>
+                            </div>
+                        }
+
+                        <!-- Time Slots -->
+                        @foreach (var slot in Model.TimeSlots)
+                        {
+                            <div class="time-label">
+                                <div>
+                                    <div>Slot @slot.SlotOrder</div>
+                                    <small class="text-muted">@slot.StartTime.ToString("HH:mm")</small>
+                                    <small class="text-muted">-@slot.EndTime.ToString("HH:mm")</small>
+                                </div>
+                            </div>
+
+                            @for (int i = 0; i < 7; i++)
+                            {
+                                var currentDate = Model.StartDate!.Value.AddDays(i);
+                                var schedule = Model.GetScheduleForCell(currentDate, (byte)(slot.SlotOrder ?? 0));
+
+                                <div class="schedule-cell @(schedule != null ? "booked" : "")">
+                                    @if (schedule != null)
+                                    {
+                                        <div class="class-info">
+                                            <div class="class-name">@schedule.ClassName</div>
+                                            <div class="class-detail">
+                                                <i class="bi bi-book"></i> @schedule.SubjectName
+                                            </div>
+                                            <div class="class-detail">
+                                                <i class="bi bi-person-badge"></i> @schedule.TeacherName
+                                            </div>
+                                            <div class="class-detail">
+                                                <i class="bi bi-clock"></i> @schedule.StartTime.ToString("HH:mm") - @schedule.EndTime.ToString("HH:mm")
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="text-center text-muted py-3">
+                                            <i class="bi bi-dash-lg"></i>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6 class="mb-3"><i class="bi bi-info-circle"></i> Chú thích</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-2">
+                                <div style="width: 30px; height: 30px; background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%); border-radius: 4px; margin-right: 10px;"></div>
+                                <span>Phòng đã được đặt</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-2">
+                                <div style="width: 30px; height: 30px; background: white; border: 1px solid #dee2e6; border-radius: 4px; margin-right: 10px;"></div>
+                                <span>Phòng trống</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- List View -->
+            @foreach (var dateGroup in Model.Schedules.GroupBy(s => s.SessionDate).OrderBy(g => g.Key))
+            {
+                <div class="card mb-3">
+                    <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <h5 class="mb-0">
+                            <i class="bi bi-calendar-day"></i>
+                            @LMS.Pages.Manager.RoomScheduleModel.GetDayOfWeekName(dateGroup.Key.DayOfWeek), 
+                            @dateGroup.Key.ToString("dd/MM/yyyy")
+                            <span class="badge bg-light text-dark ms-2">@dateGroup.Count() buổi học</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var schedule in dateGroup.OrderBy(s => s.SlotOrder))
+                        {
+                            <div class="schedule-list-item">
+                                <div class="row align-items-center">
+                                    <div class="col-md-2">
+                                        <div class="text-center">
+                                            <div class="badge bg-primary mb-1">Slot @schedule.SlotOrder</div>
+                                            <div class="small text-muted">
+                                                @schedule.StartTime.ToString("HH:mm") - @schedule.EndTime.ToString("HH:mm")
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-10">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <strong class="text-primary">@schedule.ClassName</strong>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <i class="bi bi-book text-info"></i> @schedule.SubjectName
+                                            </div>
+                                            <div class="col-md-4">
+                                                <i class="bi bi-person-badge text-success"></i> @schedule.TeacherName
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-calendar-x text-muted" style="font-size: 4rem;"></i>
+                <h4 class="mt-3 text-muted">Không có lịch học nào</h4>
+                <p class="text-muted">
+                    Phòng @Model.RoomInfo?.RoomName chưa có lịch học nào trong khoảng thời gian này.
+                </p>
+            </div>
+        </div>
+    }
+</div>

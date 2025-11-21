@@ -1,0 +1,103 @@
+@page
+@model LMS.Pages.Manager.EditClassModel
+@{
+    ViewData["Title"] = "Chỉnh sửa lớp học";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-pencil-square"></i> Chỉnh sửa lớp học
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <input type="hidden" asp-for="Input.ClassId" />
+                        <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Tên lớp học <span class="text-danger">*</span></label>
+                                <input asp-for="Input.ClassName" class="form-control" placeholder="Ví dụ: Lập trình C# Cơ bản K01" required />
+                                <span asp-validation-for="Input.ClassName" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Môn học <span class="text-danger">*</span></label>
+                                <select asp-for="Input.SubjectId" class="form-select" required>
+                                    <option value="">-- Chọn môn học --</option>
+                                    @foreach (var subject in Model.Subjects)
+                                    {
+                                        <option value="@subject.Value" selected="@(subject.Value == Model.Input.SubjectId.ToString())">@subject.Text</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Input.SubjectId" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Giáo viên</label>
+                                <select asp-for="Input.TeacherId" class="form-select">
+                                    <option value="">-- Chưa phân công --</option>
+                                    @foreach (var teacher in Model.Teachers)
+                                    {
+                                        <option value="@teacher.Value" selected="@(teacher.Value == Model.Input.TeacherId?.ToString())">@teacher.Text</option>
+                                    }
+                                </select>
+                                <small class="text-muted">Có thể phân công sau</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Số buổi học</label>
+                                <input asp-for="Input.TotalSessions" type="number" class="form-control" min="1" placeholder="Ví dụ: 30" />
+                                <span asp-validation-for="Input.TotalSessions" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Ngày bắt đầu</label>
+                                <input asp-for="Input.StartDate" type="date" class="form-control" />
+                                <span asp-validation-for="Input.StartDate" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Ngày kết thúc</label>
+                                <input asp-for="Input.EndDate" type="date" class="form-control" />
+                                <span asp-validation-for="Input.EndDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Học phí (VNĐ/buổi)</label>
+                            <input asp-for="Input.UnitPrice" type="number" class="form-control" step="1000" placeholder="Ví dụ: 150000" />
+                            <span asp-validation-for="Input.UnitPrice" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mô tả</label>
+                            <textarea asp-for="Input.Description" class="form-control" rows="4" placeholder="Mô tả về lớp học, yêu cầu, nội dung..."></textarea>
+                        </div>
+
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a asp-page="/Manager/ManageClasses" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Hủy
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-check-circle"></i> Cập nhật
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

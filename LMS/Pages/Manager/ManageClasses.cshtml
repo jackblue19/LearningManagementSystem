@@ -1,0 +1,257 @@
+@page
+@model LMS.Pages.Manager.ManageClassesModel
+@{
+    ViewData["Title"] = "Quản lý lớp học";
+}
+
+<style>
+    .class-card {
+        border-radius: 8px;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: transform 0.2s, box-shadow 0.2s;
+        margin-bottom: 1rem;
+    }
+    .class-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    .status-upcoming { background: #e3f2fd; color: #1976d2; }
+    .status-active { background: #e8f5e9; color: #388e3c; }
+    .status-completed { background: #f5f5f5; color: #757575; }
+    .status-draft { background: #fff3e0; color: #f57c00; }
+    
+    .filter-btn {
+        border-radius: 20px;
+        padding: 0.5rem 1.5rem;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        border: 2px solid #e0e0e0;
+        background: white;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+        border-color: #667eea;
+        background: #667eea;
+        color: white;
+    }
+    .search-box {
+        border-radius: 25px;
+        padding: 0.75rem 1.5rem;
+        border: 2px solid #e0e0e0;
+    }
+    .search-box:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-journal-bookmark-fill text-primary"></i> Quản lý lớp học</h2>
+            <p class="text-muted mb-0">Tổng số: <strong>@(Model.TotalPages * Model.PageSize)</strong> lớp học</p>
+        </div>
+        <a asp-page="/Manager/CreateClass" class="btn btn-primary btn-lg">
+            <i class="bi bi-plus-circle"></i> Tạo lớp mới
+        </a>
+    </div>
+
+    <!-- Success/Error Messages -->
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="bi bi-check-circle-fill"></i> @Model.SuccessMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="bi bi-exclamation-triangle-fill"></i> @Model.ErrorMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control search-box" 
+                               placeholder="Tìm kiếm theo tên lớp, giáo viên..." 
+                               value="@Model.SearchTerm">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-search"></i> Tìm kiếm
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" name="status" value="" 
+                                class="filter-btn @(string.IsNullOrEmpty(Model.StatusFilter) ? "active" : "")">
+                            Tất cả
+                        </button>
+                        <button type="submit" name="status" value="upcoming" 
+                                class="filter-btn @(Model.StatusFilter == "upcoming" ? "active" : "")">
+                            Sắp khai giảng
+                        </button>
+                        <button type="submit" name="status" value="active" 
+                                class="filter-btn @(Model.StatusFilter == "active" ? "active" : "")">
+                            Đang học
+                        </button>
+                        <button type="submit" name="status" value="completed" 
+                                class="filter-btn @(Model.StatusFilter == "completed" ? "active" : "")">
+                            Đã kết thúc
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Classes List -->
+    @if (Model.Classes.Any())
+    {
+        <div class="row">
+            @foreach (var cls in Model.Classes)
+            {
+                <div class="col-lg-6 col-xl-4">
+                    <div class="card class-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h5 class="card-title mb-0">@cls.ClassName</h5>
+                                <span class="status-badge status-@cls.Status">
+                                    @switch (cls.Status)
+                                    {
+                                        case "upcoming":
+                                            <i class="bi bi-calendar-plus"></i>
+                                            <span>Sắp khai giảng</span>
+                                            break;
+                                        case "active":
+                                            <i class="bi bi-broadcast"></i>
+                                            <span>Đang học</span>
+                                            break;
+                                        case "completed":
+                                            <i class="bi bi-check-circle"></i>
+                                            <span>Đã kết thúc</span>
+                                            break;
+                                        case "draft":
+                                            <i class="bi bi-pencil"></i>
+                                            <span>Nháp</span>
+                                            break;
+                                    }
+                                </span>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="small text-muted mb-1">
+                                    <i class="bi bi-book"></i> <strong>Môn học:</strong> @cls.SubjectName
+                                </div>
+                                <div class="small text-muted mb-1">
+                                    <i class="bi bi-person-badge"></i> <strong>Giáo viên:</strong> @cls.TeacherName
+                                </div>
+                                <div class="small text-muted mb-1">
+                                    <i class="bi bi-people-fill"></i> <strong>Học sinh:</strong> @cls.TotalStudents người
+                                </div>
+                                <div class="small text-muted mb-1">
+                                    <i class="bi bi-calendar-range"></i> <strong>Buổi học:</strong> @cls.TotalSessions buổi
+                                </div>
+                                <div class="small text-muted mb-1">
+                                    <i class="bi bi-cash"></i> <strong>Học phí:</strong> @cls.UnitPrice.ToString("N0") đ/buổi
+                                </div>
+                                @if (cls.StartDate.HasValue && cls.EndDate.HasValue)
+                                {
+                                    <div class="small text-muted">
+                                        <i class="bi bi-calendar-check"></i> 
+                                        <strong>Thời gian:</strong> 
+                                        @cls.StartDate.Value.ToString("dd/MM/yyyy") - @cls.EndDate.Value.ToString("dd/MM/yyyy")
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <a asp-page="/Manager/ClassDetails" asp-route-id="@cls.ClassId" 
+                                   class="btn btn-sm btn-outline-primary flex-fill">
+                                    <i class="bi bi-eye"></i> Chi tiết
+                                </a>
+                                <a asp-page="/Manager/ClassSchedule" asp-route-id="@cls.ClassId" 
+                                   class="btn btn-sm btn-outline-info flex-fill">
+                                    <i class="bi bi-calendar-week"></i> Lịch học
+                                </a>
+                                <a asp-page="/Manager/EditClass" asp-route-id="@cls.ClassId" 
+                                   class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form method="post" asp-page-handler="Delete" asp-route-classId="@cls.ClassId" 
+                                      onsubmit="return confirm('Bạn có chắc muốn xóa lớp này?')" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                        <a class="page-link" asp-page="/Manager/ManageClasses" 
+                           asp-route-pageNumber="@(Model.PageNumber - 1)"
+                           asp-route-search="@Model.SearchTerm"
+                           asp-route-status="@Model.StatusFilter">
+                            <i class="bi bi-chevron-left"></i> Trước
+                        </a>
+                    </li>
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                            <a class="page-link" asp-page="/Manager/ManageClasses" 
+                               asp-route-pageNumber="@i"
+                               asp-route-search="@Model.SearchTerm"
+                               asp-route-status="@Model.StatusFilter">
+                                @i
+                            </a>
+                        </li>
+                    }
+                    <li class="page-item @(Model.PageNumber >= Model.TotalPages ? "disabled" : "")">
+                        <a class="page-link" asp-page="/Manager/ManageClasses" 
+                           asp-route-pageNumber="@(Model.PageNumber + 1)"
+                           asp-route-search="@Model.SearchTerm"
+                           asp-route-status="@Model.StatusFilter">
+                            Sau <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-inbox display-1 text-muted"></i>
+                <h4 class="mt-3">Chưa có lớp học nào</h4>
+                <p class="text-muted">Tạo lớp học mới để bắt đầu</p>
+                <a asp-page="/Manager/CreateClass" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Tạo lớp mới
+                </a>
+            </div>
+        </div>
+    }
+</div>

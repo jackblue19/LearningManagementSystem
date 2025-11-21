@@ -1,0 +1,57 @@
+@page
+@model LMS.Pages.Common.TestEmailModel
+@{
+    ViewData["Title"] = "Test Email";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Test Email Configuration</h4>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.Message))
+                    {
+                        <div class="alert @(Model.IsSuccess ? "alert-success" : "alert-danger")">
+                            @Model.Message
+                        </div>
+                    }
+
+                    <form method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Email để test</label>
+                            <input asp-for="TestEmail" type="email" class="form-control" required />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-envelope"></i> Gửi email test
+                        </button>
+                    </form>
+
+                    <hr />
+
+                    <h5>Cấu hình hiện tại:</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <strong>SMTP Host:</strong> @Model.SmtpHost
+                        </li>
+                        <li class="list-group-item">
+                            <strong>SMTP Port:</strong> @Model.SmtpPort
+                        </li>
+                        <li class="list-group-item">
+                            <strong>From Email:</strong> @Model.FromEmail
+                        </li>
+                        <li class="list-group-item">
+                            <strong>From Name:</strong> @Model.FromName
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Password Configured:</strong> @(string.IsNullOrEmpty(Model.FromPassword) ? "❌ NO" : "✅ YES")
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
