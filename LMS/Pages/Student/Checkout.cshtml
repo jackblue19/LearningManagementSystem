@@ -1,0 +1,110 @@
+@page
+@model LMS.Pages.Student.CheckoutModel
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<style>
+    .card {
+        max-width: 720px;
+        margin: 24px auto;
+        padding: 20px;
+        border: 1px solid #e9ecef;
+        border-radius: 16px;
+        box-shadow: 0 6px 20px rgba(0,0,0,.06);
+        background: #fff
+    }
+
+    .row {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap
+    }
+
+    .col {
+        flex: 1 1 220px
+    }
+
+    .label {
+        font-size: .9rem;
+        color: #6c757d
+    }
+
+    .value {
+        font-weight: 600
+    }
+
+    .total {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-top: 6px
+    }
+
+    .btn {
+        appearance: none;
+        border: 0;
+        border-radius: 12px;
+        padding: 12px 16px;
+        background: #0d6efd;
+        color: #fff;
+        cursor: pointer
+    }
+
+        .btn:hover {
+            filter: brightness(1.05)
+        }
+</style>
+
+<div class="card">
+    <h2>Thanh toán học phí</h2>
+
+    <div class="row" style="margin-top:12px">
+        <div class="col">
+            <div class="label">Học viên</div>
+            <div class="value">@Model.StudentName (@Model.StudentId)</div>
+        </div>
+        <div class="col">
+            <div class="label">Môn học</div>
+            <div class="value">@Model.SubjectName</div>
+        </div>
+        <div class="col">
+            <div class="label">Lớp học</div>
+            <div class="value">@Model.ClassName (@Model.ClassId)</div>
+        </div>
+    </div>
+
+    <div class="row" style="margin-top:8px">
+        <div class="col">
+            <div class="label">Đơn giá / buổi</div>
+            <div class="value">@Model.UnitPrice?.ToString("0,0") VND</div>
+        </div>
+        <div class="col">
+            <div class="label">Tổng số buổi</div>
+            <div class="value">@Model.TotalSessions</div>
+        </div>
+        <div class="col">
+            <div class="label">Khoảng thời gian</div>
+            <div class="value">
+                @(Model.StartDate?.ToString("yyyy-MM-dd")) → @(Model.EndDate?.ToString("yyyy-MM-dd"))
+            </div>
+        </div>
+    </div>
+
+    <div style="margin:8px 0">
+        <div class="label">Ghi chú lịch</div>
+        <div>@Model.ScheduleDesc</div>
+    </div>
+
+    <div class="total">Tổng: @Model.Amount.ToString("0,0") VND</div>
+
+    <form method="post" style="margin-top:10px">
+        <input type="hidden" name="StudentId" value="@Model.StudentId" />
+        <input type="hidden" name="ClassId" value="@Model.ClassId" />
+        <input type="text" name="Description" value="Thanh toán học phí @Model.ClassName" style="min-width:260px" />
+        <button class="btn" type="submit">Pay with VNPAY</button>
+    </form>
+
+    <div style="color:#6c757d;margin-top:8px">
+        URL test: <code>/Student/Checkout?studentId={GUID}&classId={GUID}</code>
+    </div>
+</div>

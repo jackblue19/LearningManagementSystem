@@ -1,0 +1,61 @@
+@page "/payments/vnpay-callback"
+@model LMS.Pages.Student.VnpayCallbackModel
+@{
+    ViewData["Title"] = "VNPAY Callback";
+}
+<style>
+    .card {
+        max-width: 720px;
+        margin: 24px auto;
+        padding: 20px;
+        border: 1px solid #e9ecef;
+        border-radius: 16px;
+        box-shadow: 0 6px 20px rgba(0,0,0,.06);
+        background: #fff
+    }
+
+    .label {
+        font-size: .9rem;
+        color: #6c757d
+    }
+
+    .value {
+        font-weight: 600
+    }
+
+    .ok {
+        color: #198754
+    }
+
+    .fail {
+        color: #dc3545
+    }
+
+    code {
+        background: #f8f9fa;
+        padding: 2px 6px;
+        border-radius: 6px
+    }
+</style>
+
+<div class="card">
+    <h2>Kết quả thanh toán</h2>
+
+    <p class="@(Model.Status == "PAID" ? "ok":"fail")">
+        Trạng thái: <b>@Model.Status</b>
+    </p>
+
+    <div style="display:grid;grid-template-columns:160px 1fr;gap:8px">
+        <div class="label">Mã ngân hàng</div><div class="value">@Model.BankCode</div>
+        <div class="label">TxnRef</div><div class="value"><code>@Model.TxnRef</code></div>
+        <div class="label">Số tiền</div><div class="value">@Model.Amount.ToString("0,0") VND</div>
+        <div class="label">Lớp</div><div class="value">@Model.ClassName</div>
+        <div class="label">Môn học</div><div class="value">@Model.SubjectName</div>
+        <div class="label">Thanh toán lúc</div><div class="value">@Model.PaidAt?.ToString("yyyy-MM-dd HH:mm:ss")</div>
+    </div>
+
+    <details style="margin-top:12px">
+        <summary>Query</summary>
+        <pre>@Model.RawQuery</pre>
+    </details>
+</div>

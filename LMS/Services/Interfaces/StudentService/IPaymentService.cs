@@ -1,5 +1,6 @@
 using LMS.Models.ViewModels;
 using LMS.Models.ViewModels.Bank;
+using LMS.Models.ViewModels.StudentService;
 
 namespace LMS.Services.Interfaces.StudentService;
 
@@ -27,4 +28,12 @@ public interface IPaymentService
 
     // Parse + verify chữ ký từ query trả về (Return, IPN)
     bool TryParseAndVerify(IQueryCollection query, out VnPayReturn data);
+
+    // NEW: tạo Payment "PENDING" + gen URL VNPAY
+    Task<(Guid PaymentId, string VnpTxnRef, string Url)> BeginVnpayCheckoutAsync(
+        Guid studentId, Guid classId, string bankCode, string? description, CancellationToken ct = default);
+
+    // NEW: xác nhận kết quả (callback) theo txnRef
+    Task<PaymentReceiptVm> ConfirmVnpayAsync(
+        string vnpTxnRef, string rspCode, decimal amountVnd, string? bankCode, CancellationToken ct = default);
 }
