@@ -16,11 +16,16 @@ public class EditProfileModel : PageModel
 {
     private readonly IAuthService _authService;
     private readonly IUserRepository _userRepo;
+    private readonly LMS.Services.Interfaces.AdminService.IAuditLogService _auditLogService;
 
-    public EditProfileModel(IAuthService authService, IUserRepository userRepo)
+    public EditProfileModel(
+        IAuthService authService, 
+        IUserRepository userRepo,
+        LMS.Services.Interfaces.AdminService.IAuditLogService auditLogService)
     {
         _authService = authService;
         _userRepo = userRepo;
+        _auditLogService = auditLogService;
     }
 
     [BindProperty]
@@ -72,6 +77,11 @@ public class EditProfileModel : PageModel
 
         Input.UserId = userGuid;
 
+        // Get old data for audit log
+        var oldUser = await _userRepo.GetByIdAsync(userGuid);
+        var oldData = oldUser != null ? 
+            $"{{ \"FullName\": \"{oldUser.FullName}\", \"Phone\": \"{oldUser.Phone}\" }}" : null;
+
         var (success, user, errorMessage) = await _authService.UpdateProfileAsync(Input);
 
         if (!success)
@@ -90,6 +100,16 @@ public class EditProfileModel : PageModel
             
             // Refresh authentication claims with updated info
             await RefreshSignInAsync(user);
+
+            // Log Audit
+            await _auditLogService.LogActionAsync(
+                userId: user.UserId,
+                actionType: "Update Profile",
+                entityName: "User",
+                recordId: user.UserId.ToString(),
+                oldData: oldData,
+                newData: $"{{ \"FullName\": \"{user.FullName}\", \"Phone\": \"{user.Phone}\" }}"
+            );
         }
 
         return Page();
