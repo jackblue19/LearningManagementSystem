@@ -4,6 +4,21 @@ public class Refactor
 {
 }
 
+public record ClassScheduleListDto(
+    long ScheduleId,
+    Guid ClassId,
+    DateOnly SessionDate,
+    string? RoomName,
+    TimeOnly? StartTime,
+    TimeOnly? EndTime,
+    int? SlotOrder,
+    string? ScheduleLabel,
+    string? ScheduleNote,
+    byte? SlotId,
+    Guid? RoomId
+);
+
+
 public record ExamListDto(
     Guid ExamId,
     Guid ClassId,
@@ -105,19 +120,7 @@ public record ClassScheduleDetailDto(
 );
 
 
-public record ClassScheduleListDto(
-    long ScheduleId,
-    Guid ClassId,
-    DateOnly SessionDate,
-    string? RoomName,
-    TimeOnly? StartTime,
-    TimeOnly? EndTime,
-    int? SlotOrder,
-    string? ScheduleLabel,
-    string? ScheduleNote,
-    byte? SlotId,
-    Guid? RoomId
-);
+
 
 public record UserListDto(
     Guid UserId,

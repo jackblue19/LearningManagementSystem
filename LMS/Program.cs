@@ -122,6 +122,8 @@ app.MapClassesApi();
 app.MapUsersApi();
 app.MapSubjectsApi();
 app.MapCentersApi();
+app.MapExamsApi();
+app.MapClassSchedulesApi();
 
 
 ///
@@ -374,7 +376,7 @@ app.MapCentersApi();
 
 //    return Results.Ok(shaped);
 //});
-
+///
 app.Run();
 
 
