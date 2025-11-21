@@ -1,166 +1,406 @@
 @page
 @model LMS.Pages.Admin.AdminDashboardModel
 @{
-    ViewData["Title"] = "Admin Dashboard";
+    ViewData["Title"] = "Data Dashboard";
 }
 
-<div class="container-fluid">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --bg-body: #f3f4f6;
+        --bg-card: #ffffff;
+        --text-primary: #111827;
+        --text-secondary: #6b7280;
+        --accent-green: #10b981;
+        --accent-blue: #3b82f6;
+        --accent-red: #ef4444;
+        --accent-purple: #8b5cf6;
+    }
+
+    body {
+        background-color: var(--bg-body);
+        font-family: 'Inter', sans-serif;
+        color: var(--text-primary);
+    }
+
+    /* --- Filter Bar Styles --- */
+    .filter-bar {
+        background: transparent;
+        margin-bottom: 1.5rem;
+    }
+    .custom-select {
+        background-color: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        color: var(--text-primary);
+        font-weight: 500;
+        cursor: pointer;
+        min-width: 140px;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        outline: none;
+    }
+
+    /* --- Card Styles (KPI & Containers) --- */
+    .dashboard-card {
+        background: var(--bg-card);
+        border-radius: 16px; /* Bo góc lớn hiện đại */
+        border: 1px solid rgba(229, 231, 235, 0.5);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        padding: 1.5rem;
+        height: 100%;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .dashboard-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    }
+
+    .kpi-label {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .kpi-value {
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .kpi-trend {
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .trend-up { color: var(--accent-green); }
+    .trend-down { color: var(--accent-red); }
+    .trend-neutral { color: var(--text-secondary); }
+
+    /* --- Chart Placeholder --- */
+    .chart-container {
+        background: #fff;
+        border-radius: 16px;
+        padding: 1.5rem;
+        height: 300px;
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        overflow: hidden;
+    }
+    .wave-bg {
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 70%;
+        background: linear-gradient(180deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0) 100%);
+        clip-path: polygon(0 40%, 15% 55%, 30% 45%, 45% 25%, 60% 35%, 75% 55%, 90% 35%, 100% 20%, 100% 100%, 0 100%);
+        z-index: 0;
+    }
+
+    /* --- Lists Styles --- */
+    .list-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    .list-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f9fafb;
+    }
+    .list-item:last-child { border-bottom: none; }
+    
+    .avatar-placeholder {
+        width: 40px; height: 40px;
+        border-radius: 10px;
+        background-color: #eff6ff;
+        color: var(--accent-blue);
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 600;
+        margin-right: 1rem;
+        font-size: 0.9rem;
+    }
+
+    /* --- Quick Link Cards (New) --- */
+    .quick-link-card {
+        background: var(--bg-card);
+        border: 1px solid rgba(229, 231, 235, 0.8);
+        border-radius: 16px;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: var(--text-primary);
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+    }
+    .quick-link-card:hover {
+        border-color: var(--accent-blue);
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
+        transform: translateY(-3px);
+    }
+    .quick-link-icon {
+        width: 50px; height: 50px;
+        border-radius: 12px;
+        background: #f3f4f6;
+        color: var(--text-secondary);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.25rem;
+        margin-right: 1rem;
+        transition: all 0.2s ease;
+    }
+    .quick-link-card:hover .quick-link-icon {
+        background: var(--accent-blue);
+        color: #ffffff;
+    }
+    .quick-link-info h6 { margin: 0; font-weight: 600; font-size: 1rem; color: var(--text-primary); }
+    .quick-link-info span { font-size: 0.8rem; color: var(--text-secondary); }
+
+    /* --- Badges --- */
+    .badge-custom { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .badge-blue { background-color: #dbeafe; color: #1e40af; }
+
+</style>
+
+<div class="container-fluid py-4 px-4">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
         <div>
-            <h1 class="mb-1">Admin Overview</h1>
-            <p class="text-muted mb-0">Quick insight into users, classes, feedback, and system activities.</p>
+            <h3 class="fw-bold mb-1" style="color: var(--text-primary);">Data Dashboard</h3>
+            <p class="text-muted small mb-0">Overview of system performance and activities.</p>
         </div>
-        <div class="d-flex gap-2 flex-wrap">
-            <a asp-page="/Admin/Users/Index" class="btn btn-primary">Manage Users</a>
-            <a asp-page="/Admin/Feedbacks/Index" class="btn btn-outline-secondary">Feedback Inbox</a>
-            <a asp-page="/Admin/AuditLogs/Index" class="btn btn-outline-secondary">Audit Trail</a>
+        <div class="filter-bar d-flex gap-3 mt-3 mt-md-0">
+            <div class="d-flex flex-column">
+                <label class="small text-muted mb-1" style="font-size: 0.7rem;">Auto date range</label>
+                <select class="custom-select">
+                    <option>This Week</option>
+                    <option>Last Month</option>
+                    <option>This Year</option>
+                </select>
+            </div>
+            <div class="d-flex flex-column">
+                <label class="small text-muted mb-1" style="font-size: 0.7rem;">Services</label>
+                <select class="custom-select">
+                    <option>All</option>
+                    <option>Classes</option>
+                    <option>Users</option>
+                </select>
+            </div>
         </div>
     </div>
 
-    <div class="row g-3">
-        <div class="col-md-3 col-sm-6">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body">
-                    <p class="text-muted text-uppercase fw-semibold mb-2">Users</p>
-                    <h3 class="fw-bold">@Model.Dashboard.TotalUsers</h3>
-                    <div class="d-flex justify-content-between text-muted small">
-                        <span>Active: @Model.Dashboard.ActiveUsers</span>
-                        <span>Pending: @Model.Dashboard.PendingUsers</span>
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="dashboard-card" style="padding: 0; overflow: hidden;">
+                <div class="p-4 border-bottom bg-white" style="position: relative; z-index: 2;">
+                    <h6 class="text-muted text-uppercase small fw-bold mb-1">System Growth & Activity</h6>
+                    <h4 class="fw-bold mb-0">User Engagement Overview</h4>
+                </div>
+                <div class="chart-container w-100 border-0 shadow-none" style="height: 250px; background: #fff;">
+                     <div class="wave-bg"></div>
+                     <div class="d-flex justify-content-between w-100 h-100 px-4 align-items-end pb-3" style="position: relative; z-index: 2;">
+                         @for(int i=0; i<15; i++) {
+                             <div style="width: 4%; background: #eff6ff; height: @(new Random().Next(30, 90))%; border-radius: 4px 4px 0 0;"></div>
+                         }
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="dashboard-card">
+                <div class="kpi-label">Total Users</div>
+                <div class="kpi-value">@Model.Dashboard.TotalUsers.ToString("N0")</div>
+                <div class="d-flex justify-content-between align-items-end">
+                    <div class="kpi-trend trend-up">
+                        <i class="fas fa-arrow-up"></i> <span>12%</span> <span class="text-muted fw-normal ms-1">vs last week</span>
+                    </div>
+                    <div style="height: 30px; width: 60px; background: #d1fae5; border-radius: 4px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="dashboard-card">
+                <div class="kpi-label">Active Classes</div>
+                <div class="kpi-value">@Model.Dashboard.ActiveClasses</div>
+                <div class="d-flex justify-content-between align-items-end">
+                    <div class="kpi-trend trend-up">
+                        <i class="fas fa-arrow-up"></i> <span>5</span> <span class="text-muted fw-normal ms-1">new classes</span>
+                    </div>
+                    <div style="height: 30px; width: 60px; background: #dbeafe; border-radius: 4px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="dashboard-card">
+                <div class="kpi-label">Avg Feedback</div>
+                <div class="kpi-value">4.8<span style="font-size: 1.2rem; color: var(--text-secondary);">/5</span></div>
+                <div class="d-flex justify-content-between align-items-end">
+                    <div class="kpi-trend trend-neutral">
+                        <span>Based on @Model.Dashboard.TotalFeedbacks reviews</span>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body">
-                    <p class="text-muted text-uppercase fw-semibold mb-2">Classes</p>
-                    <h3 class="fw-bold">@Model.Dashboard.TotalClasses</h3>
-                    <div class="text-muted small">Active / upcoming: @Model.Dashboard.ActiveClasses</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body">
-                    <p class="text-muted text-uppercase fw-semibold mb-2">Feedback</p>
-                    <h3 class="fw-bold">@Model.Dashboard.TotalFeedbacks</h3>
-                    <div class="text-muted small">Pending: @Model.Dashboard.PendingFeedbacks | Hidden: @Model.Dashboard.HiddenFeedbacks</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body">
-                    <p class="text-muted text-uppercase fw-semibold mb-2">Audit Logs</p>
-                    <h3 class="fw-bold">@Model.Dashboard.TotalAuditLogs</h3>
-                    <div class="text-muted small">24h: @Model.Dashboard.RecentAuditLogs.Count()</div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="dashboard-card">
+                <div class="kpi-label">Pending Requests</div>
+                <div class="kpi-value">@(Model.Dashboard.PendingUsers + Model.Dashboard.PendingFeedbacks)</div>
+                <div class="d-flex justify-content-between align-items-end">
+                    <div class="kpi-trend trend-down">
+                        <span class="text-muted fw-normal">Requires attention</span>
+                    </div>
+                    <div style="height: 30px; width: 60px; background: #fee2e2; border-radius: 4px;"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row g-4 mt-1">
+    <div class="row g-4">
         <div class="col-lg-7">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-white border-0">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Latest Feedback</h5>
-                        <a asp-page="/Admin/Feedbacks/Index" class="btn btn-sm btn-outline-primary">View all</a>
-                    </div>
+            <div class="dashboard-card">
+                <div class="list-header">
+                    <h5 class="fw-bold mb-0">Latest Feedback</h5>
+                    <a asp-page="/Admin/Feedbacks/Index" class="btn btn-sm btn-light fw-semibold">View All</a>
                 </div>
-                <div class="card-body">
-                    @if (Model.Dashboard.RecentFeedbacks.Any())
-                    {
-                        <div class="list-group list-group-flush">
-                            @foreach (var fb in Model.Dashboard.RecentFeedbacks)
-                            {
-                                <div class="list-group-item px-0">
+                
+                @if (Model.Dashboard.RecentFeedbacks.Any())
+                {
+                    <div class="d-flex flex-column">
+                        @foreach (var fb in Model.Dashboard.RecentFeedbacks)
+                        {
+                            <div class="list-item">
+                                <div class="avatar-placeholder">
+                                    @(string.IsNullOrEmpty(fb.Username) ? "?" : fb.Username.Substring(0, 1).ToUpper())
+                                </div>
+                                <div class="flex-grow-1">
                                     <div class="d-flex justify-content-between">
-                                        <div>
-                                            <div class="fw-semibold">@fb.Username <small class="text-muted">@fb.FullName</small></div>
-                                            <div class="text-muted small">Class: @fb.ClassName · Rated: @(fb.Rating?.ToString() ?? "-")</div>
-                                            <div class="mt-1 text-truncate" style="max-width: 450px;">@(fb.Content ?? "(no content)")</div>
-                                        </div>
-                                        <div class="text-end">
-                                            <span class="badge bg-info">@fb.FbStatus ?? "unknown"</span>
-                                            <div class="text-muted small">@fb.CreatedAt.ToString("MMM dd, yyyy")</div>
-                                            <div>
-                                                @if (fb.IsVisible)
-                                                {
-                                                    <span class="badge bg-success">Visible</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-secondary">Hidden</span>
-                                                }
-                                            </div>
-                                        </div>
+                                        <span class="fw-bold text-dark">@fb.FullName</span>
+                                        <span class="small text-muted">@fb.CreatedAt.ToString("MMM dd")</span>
+                                    </div>
+                                    <div class="small text-muted text-truncate" style="max-width: 350px;">
+                                        @fb.Content
                                     </div>
                                 </div>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <p class="text-muted mb-0">No recent feedback.</p>
-                    }
-                </div>
+                                <div class="ms-3">
+                                    <span class="badge-custom badge-blue">@fb.Rating <i class="fas fa-star small"></i></span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center py-4">No recent feedback data.</p>
+                }
             </div>
         </div>
+
         <div class="col-lg-5">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-white border-0">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Recent Audit Activity</h5>
-                        <a asp-page="/Admin/AuditLogs/Index" class="btn btn-sm btn-outline-primary">View logs</a>
-                    </div>
+            <div class="dashboard-card">
+                <div class="list-header">
+                    <h5 class="fw-bold mb-0">Activity Log</h5>
+                    <i class="fas fa-ellipsis-h text-muted" style="cursor: pointer;"></i>
                 </div>
-                <div class="card-body">
-                    @if (Model.Dashboard.RecentAuditLogs.Any())
-                    {
-                        <div class="list-group list-group-flush">
-                            @foreach (var log in Model.Dashboard.RecentAuditLogs)
-                            {
-                                <div class="list-group-item px-0">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <div class="fw-semibold">@log.Username <small class="text-muted">@log.FullName</small></div>
-                                            <div class="text-muted small">@log.ActionType · @log.EntityName (#@log.RecordId)</div>
-                                        </div>
-                                        <div class="text-muted small">@log.CreatedAt.ToString("MMM dd, HH:mm")</div>
-                                    </div>
+
+                @if (Model.Dashboard.RecentAuditLogs.Any())
+                {
+                    <div class="d-flex flex-column gap-2">
+                        @foreach (var log in Model.Dashboard.RecentAuditLogs)
+                        {
+                            var colorClass = log.ActionType.Contains("Create") ? "text-success" : 
+                                            (log.ActionType.Contains("Delete") ? "text-danger" : "text-primary");
+                            
+                            <div class="d-flex align-items-start py-2 border-bottom border-light">
+                                <div class="mt-1 me-3">
+                                    <i class="fas fa-circle small @colorClass" style="font-size: 0.5rem;"></i>
                                 </div>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <p class="text-muted mb-0">No audit activity captured yet.</p>
-                    }
-                </div>
+                                <div>
+                                    <div class="small fw-bold text-dark">@log.ActionType <span class="fw-normal text-muted">on @log.EntityName</span></div>
+                                    <div class="small text-muted">by @log.Username &bull; @log.CreatedAt.ToString("HH:mm")</div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else 
+                {
+                    <p class="text-muted text-center py-4">No activity recorded.</p>
+                }
             </div>
         </div>
     </div>
 
-    <div class="card shadow-sm border-0 mt-4">
-        <div class="card-header bg-white border-0">
-            <h5 class="mb-0">Quick Links</h5>
+    <div class="row mt-4 mb-4">
+        <div class="col-12 mb-3">
+            <h5 class="fw-bold" style="color: var(--text-primary);">Quick Access</h5>
         </div>
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-3 col-sm-6">
-                    <a asp-page="/Admin/Users/Index" class="btn btn-outline-dark w-100">User Management</a>
+        
+        <div class="col-md-3 col-sm-6 mb-3">
+            <a asp-page="/Admin/Users/Index" class="quick-link-card">
+                <div class="quick-link-icon">
+                    <i class="fas fa-users-cog"></i>
                 </div>
-                <div class="col-md-3 col-sm-6">
-                    <a asp-page="/Admin/Feedbacks/Index" class="btn btn-outline-dark w-100">Feedback Moderation</a>
+                <div class="quick-link-info">
+                    <h6>Manage Users</h6>
+                    <span>Add, edit or ban users</span>
                 </div>
-                <div class="col-md-3 col-sm-6">
-                    <a asp-page="/Admin/AuditLogs/Index" class="btn btn-outline-dark w-100">Audit Logs</a>
+            </a>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-3">
+            <a asp-page="/Admin/Feedbacks/Index" class="quick-link-card">
+                <div class="quick-link-icon">
+                    <i class="fas fa-comments"></i>
                 </div>
-                <div class="col-md-3 col-sm-6">
-                    <a asp-page="/Manager/ManagerDashboard" class="btn btn-outline-dark w-100">Manager View</a>
+                <div class="quick-link-info">
+                    <h6>Feedbacks</h6>
+                    <span>Review student opinions</span>
                 </div>
-            </div>
+            </a>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-3">
+            <a asp-page="/Admin/AuditLogs/Index" class="quick-link-card">
+                <div class="quick-link-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="quick-link-info">
+                    <h6>Audit Logs</h6>
+                    <span>Track system changes</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-3">
+            <a asp-page="/Manager/ManagerDashboard" class="quick-link-card">
+                <div class="quick-link-icon">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <div class="quick-link-info">
+                    <h6>Manager View</h6>
+                    <span>Switch role view</span>
+                </div>
+            </a>
         </div>
     </div>
 </div>

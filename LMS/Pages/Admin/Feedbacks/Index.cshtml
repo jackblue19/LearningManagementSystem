@@ -4,37 +4,218 @@
     ViewData["Title"] = "Feedback Management";
 }
 
-<div class="container-fluid">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --bg-body: #f3f4f6;
+        --bg-card: #ffffff;
+        --text-primary: #111827;
+        --text-secondary: #6b7280;
+        --accent-blue: #3b82f6;
+        --accent-green: #10b981;
+        --accent-warning: #f59e0b;
+        --accent-danger: #ef4444;
+        --border-color: #e5e7eb;
+    }
+
+    body {
+        background-color: var(--bg-body);
+        font-family: 'Inter', sans-serif;
+        color: var(--text-primary);
+    }
+
+    /* --- Card Wrapper --- */
+    .page-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        border: 1px solid rgba(229, 231, 235, 0.5);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    /* --- Filter Section --- */
+    .filter-input {
+        background-color: #f9fafb;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+    .filter-input:focus {
+        background-color: #fff;
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .btn-filter {
+        border-radius: 10px;
+        padding: 0.6rem 1.5rem;
+        font-weight: 500;
+    }
+
+    /* --- Table Styling --- */
+    .table-custom {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    .table-custom th {
+        background-color: #f9fafb;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        color: var(--text-secondary);
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .table-custom th:first-child { border-top-left-radius: 12px; }
+    .table-custom th:last-child { border-top-right-radius: 12px; }
+    
+    .table-custom td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        vertical-align: middle;
+        font-size: 0.9rem;
+    }
+    .table-custom tr:last-child td { border-bottom: none; }
+    .table-custom tr:hover td { background-color: #f9fafb; }
+
+    /* --- User Avatar --- */
+    .user-cell { display: flex; align-items: center; gap: 12px; }
+    .avatar-initials {
+        width: 40px; height: 40px;
+        background: #eff6ff;
+        color: var(--accent-blue);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+    .user-info h6 { margin: 0; font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+    .user-info span { font-size: 0.8rem; color: var(--text-secondary); }
+
+    /* --- Status Badges (Soft Style) --- */
+    .badge-soft {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .badge-soft.pending { background-color: #fffbeb; color: #b45309; }
+    .badge-soft.approved { background-color: #ecfdf5; color: #047857; }
+    .badge-soft.rejected { background-color: #fef2f2; color: #b91c1c; }
+    .badge-soft.unknown { background-color: #f3f4f6; color: #4b5563; }
+
+    /* --- Visibility Toggle --- */
+    .visibility-badge {
+        cursor: pointer;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: inline-flex; align-items: center; gap: 6px;
+        border: 1px solid transparent;
+    }
+    .vis-show { background-color: #ecfdf5; color: #059669; border-color: #d1fae5; }
+    .vis-hide { background-color: #f3f4f6; color: #6b7280; border-color: #e5e7eb; }
+
+    /* --- Ratings --- */
+    .star-rating { color: #e5e7eb; font-size: 0.85rem; }
+    .star-rating .filled { color: #f59e0b; }
+
+    /* --- Action Form --- */
+    .action-select {
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 4px 8px;
+        font-size: 0.8rem;
+        width: auto;
+        cursor: pointer;
+        background-color: #fff;
+    }
+    .btn-action-update {
+        padding: 4px 8px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        background: #eff6ff;
+        color: var(--accent-blue);
+        border: none;
+        font-weight: 500;
+        transition: 0.2s;
+    }
+    .btn-action-update:hover { background: var(--accent-blue); color: #fff; }
+
+    /* --- Pagination --- */
+    .page-link {
+        border: none;
+        color: var(--text-secondary);
+        background: transparent;
+        margin: 0 2px;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+    .page-link:hover { background: #f3f4f6; color: var(--text-primary); }
+    .page-item.active .page-link {
+        background: var(--accent-blue);
+        color: #fff;
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+    }
+</style>
+
+<div class="container-fluid py-4 px-4">
+    
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Feedback Management</h2>
+        <div>
+            <h3 class="fw-bold mb-1 text-dark">Feedback Management</h3>
+            <p class="text-muted small mb-0">Review and moderate student feedbacks.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <span class="badge bg-white text-secondary border shadow-sm p-2">
+                <i class="fas fa-database me-1"></i> Total: @Model.ViewModel.Feedbacks.TotalCount
+            </span>
+        </div>
     </div>
 
     @if (TempData["SuccessMessage"] is string success)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @success
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="alert alert-success border-0 shadow-sm d-flex align-items-center mb-4" style="background: #ecfdf5; color: #065f46;">
+            <i class="fas fa-check-circle me-2"></i> @success
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
         </div>
     }
     @if (TempData["ErrorMessage"] is string error)
     {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @error
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="alert alert-danger border-0 shadow-sm d-flex align-items-center mb-4" style="background: #fef2f2; color: #991b1b;">
+            <i class="fas fa-exclamation-circle me-2"></i> @error
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
         </div>
     }
 
-    <form method="get" class="mb-4">
-        <div class="row g-3">
+    <div class="page-card py-3 mb-4">
+        <form method="get" class="row g-3 align-items-end">
             <div class="col-md-4">
-                <label for="SearchTerm" class="form-label">Search</label>
-                <input type="text" class="form-control" id="SearchTerm" name="SearchTerm"
-                       value="@Model.SearchTerm" placeholder="Content, class, or user">
+                <label class="form-label small text-muted fw-bold text-uppercase mb-1">Search</label>
+                <div class="input-group">
+                    <span class="input-group-text border-end-0 bg-light" style="border-radius: 10px 0 0 10px; border-color: var(--border-color);">
+                        <i class="fas fa-search text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control filter-input border-start-0 ps-0" 
+                           id="SearchTerm" name="SearchTerm" value="@Model.SearchTerm" 
+                           placeholder="Search by content, class, or user..." style="border-radius: 0 10px 10px 0;">
+                </div>
             </div>
             <div class="col-md-3">
-                <label for="StatusFilter" class="form-label">Status</label>
-                <select class="form-select" id="StatusFilter" name="StatusFilter">
-                    <option value="">All</option>
+                <label class="form-label small text-muted fw-bold text-uppercase mb-1">Status</label>
+                <select class="form-select filter-input" id="StatusFilter" name="StatusFilter">
+                    <option value="">All Statuses</option>
                     @foreach (var status in Model.ViewModel.StatusOptions)
                     {
                         <option value="@status" selected="@(Model.StatusFilter == status)">@status</option>
@@ -42,167 +223,216 @@
                 </select>
             </div>
             <div class="col-md-3">
-                <label for="VisibilityFilter" class="form-label">Visibility</label>
-                <select class="form-select" id="VisibilityFilter" name="VisibilityFilter">
-                    <option value="">All</option>
-                    <option value="true" selected="@(Model.VisibilityFilter == true)">Visible</option>
-                    <option value="false" selected="@(Model.VisibilityFilter == false)">Hidden</option>
+                <label class="form-label small text-muted fw-bold text-uppercase mb-1">Visibility</label>
+                <select class="form-select filter-input" id="VisibilityFilter" name="VisibilityFilter">
+                    <option value="">All Visibility</option>
+                    <option value="true" selected="@(Model.VisibilityFilter == true)">Visible Only</option>
+                    <option value="false" selected="@(Model.VisibilityFilter == false)">Hidden Only</option>
                 </select>
             </div>
-            <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-secondary w-100">Filter</button>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-dark btn-filter w-100">
+                    <i class="fas fa-filter me-1"></i> Filter
+                </button>
             </div>
-        </div>
-    </form>
+        </form>
+    </div>
 
-    <div class="table-responsive">
-        <table class="table table-striped table-hover align-middle">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>User</th>
-                    <th>Class</th>
-                    <th>Rating</th>
-                    <th>Status</th>
-                    <th>Visibility</th>
-                    <th>Content</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model.ViewModel.Feedbacks.Items.Any())
-                {
-                    @foreach (var feedback in Model.ViewModel.Feedbacks.Items)
+    <div class="page-card p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>User Info</th>
+                        <th>Class</th>
+                        <th>Rating</th>
+                        <th>Feedback Status</th>
+                        <th>Content</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.ViewModel.Feedbacks.Items.Any())
+                    {
+                        @foreach (var feedback in Model.ViewModel.Feedbacks.Items)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="user-cell">
+                                        <div class="avatar-initials">
+                                            @(string.IsNullOrEmpty(feedback.Username) ? "?" : feedback.Username.Substring(0, 1).ToUpper())
+                                        </div>
+                                        <div class="user-info">
+                                            <h6>@feedback.FullName</h6>
+                                            <span>@feedback.Username &bull; <small>@feedback.CreatedAt.ToString("MMM dd")</small></span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="fw-medium text-dark">@feedback.ClassName</span>
+                                </td>
+
+                                <td>
+                                    @if (feedback.Rating.HasValue)
+                                    {
+                                        <div class="star-rating" title="@feedback.Rating / 5">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="fas fa-star @(i <= feedback.Rating ? "filled" : "")"></i>
+                                            }
+                                            <span class="text-dark fw-bold ms-1 small">@feedback.Rating</span>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">N/A</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @{
+                                        var statusClass = "unknown";
+                                        var iconClass = "fa-question";
+                                        if (feedback.FbStatus?.ToLower() == "pending") { statusClass = "pending"; iconClass = "fa-clock"; }
+                                        else if (feedback.FbStatus?.ToLower() == "approved") { statusClass = "approved"; iconClass = "fa-check"; }
+                                        else if (feedback.FbStatus?.ToLower() == "rejected") { statusClass = "rejected"; iconClass = "fa-times"; }
+                                    }
+                                    <div class="d-flex flex-column gap-1 align-items-start">
+                                        <span class="badge-soft @statusClass">
+                                            <i class="fas @iconClass"></i> @(feedback.FbStatus ?? "Unknown")
+                                        </span>
+                                        @if (!feedback.IsVisible)
+                                        {
+                                            <small class="text-muted" style="font-size: 0.7rem;"><i class="fas fa-eye-slash me-1"></i>Hidden</small>
+                                        }
+                                    </div>
+                                </td>
+
+                                <td style="max-width: 350px;">
+                                    @if (!string.IsNullOrWhiteSpace(feedback.Content))
+                                    {
+                                        <div class="text-truncate text-secondary" title="@feedback.Content" style="font-style: italic;">
+                                            "@feedback.Content"
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small opacity-50">No text content</span>
+                                    }
+                                </td>
+
+                                <td class="text-end">
+                                    <div class="d-flex justify-content-end align-items-center gap-2">
+                                        <form method="post" asp-page-handler="UpdateVisibility">
+                                            <input type="hidden" name="id" value="@feedback.FeedbackId" />
+                                            <input type="hidden" name="isVisible" value="@(feedback.IsVisible ? "false" : "true")" />
+                                            <input type="hidden" name="SearchTerm" value="@Model.SearchTerm" />
+                                            <input type="hidden" name="StatusFilter" value="@Model.StatusFilter" />
+                                            <input type="hidden" name="VisibilityFilter" value="@Model.VisibilityFilter" />
+                                            <input type="hidden" name="PageIndex" value="@Model.PageIndex" />
+
+                                            <button type="submit" class="btn border-0 p-0 bg-transparent" title="@(feedback.IsVisible ? "Hide" : "Show")">
+                                                @if (feedback.IsVisible)
+                                                {
+                                                    <div class="visibility-badge vis-show"><i class="fas fa-eye"></i> Show</div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="visibility-badge vis-hide"><i class="fas fa-eye-slash"></i> Hide</div>
+                                                }
+                                            </button>
+                                        </form>
+
+                                        <div style="border-left: 1px solid #e5e7eb; height: 24px; margin: 0 4px;"></div>
+
+                                        <form method="post" asp-page-handler="UpdateStatus" class="d-flex align-items-center gap-1">
+                                            <input type="hidden" name="id" value="@feedback.FeedbackId" />
+                                            <input type="hidden" name="SearchTerm" value="@Model.SearchTerm" />
+                                            <input type="hidden" name="StatusFilter" value="@Model.StatusFilter" />
+                                            <input type="hidden" name="VisibilityFilter" value="@Model.VisibilityFilter" />
+                                            <input type="hidden" name="PageIndex" value="@Model.PageIndex" />
+
+                                            <select name="status" class="action-select" onchange="this.form.submit()">
+                                                @foreach (var status in Model.ViewModel.StatusOptions)
+                                                {
+                                                    <option value="@status" selected="@(feedback.FbStatus == status)">@status</option>
+                                                }
+                                            </select>
+                                            <noscript>
+                                                <button type="submit" class="btn-action-update"><i class="fas fa-save"></i></button>
+                                            </noscript>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
                     {
                         <tr>
-                            <td>@feedback.CreatedAt.ToString("yyyy-MM-dd")</td>
-                            <td>
-                                <div class="fw-semibold">@feedback.Username</div>
-                                <small class="text-muted">@feedback.FullName</small>
-                            </td>
-                            <td>@feedback.ClassName</td>
-                            <td>
-                                @if (feedback.Rating.HasValue)
-                                {
-                                    <span class="badge bg-warning text-dark">@feedback.Rating / 5</span>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">N/A</span>
-                                }
-                            </td>
-                            <td>
-                                <span class="badge bg-info">@feedback.FbStatus ?? "unknown"</span>
-                            </td>
-                            <td>
-                                @if (feedback.IsVisible)
-                                {
-                                    <span class="badge bg-success">Visible</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-secondary">Hidden</span>
-                                }
-                            </td>
-                            <td style="max-width: 300px;">
-                                @if (!string.IsNullOrWhiteSpace(feedback.Content))
-                                {
-                                    <div class="text-truncate" title="@feedback.Content">
-                                        @feedback.Content
-                                    </div>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">No content</span>
-                                }
-                            </td>
-                            <td>
-                                <div class="d-flex flex-column gap-2">
-                                    <form method="post" asp-page-handler="UpdateStatus" class="d-flex gap-2">
-                                        <input type="hidden" name="id" value="@feedback.FeedbackId" />
-                                        <input type="hidden" name="SearchTerm" value="@Model.SearchTerm" />
-                                        <input type="hidden" name="StatusFilter" value="@Model.StatusFilter" />
-                                        <input type="hidden" name="VisibilityFilter" value="@Model.VisibilityFilter" />
-                                        <input type="hidden" name="PageIndex" value="@Model.PageIndex" />
-
-                                        <select name="status" class="form-select form-select-sm">
-                                            @foreach (var status in Model.ViewModel.StatusOptions)
-                                            {
-                                                <option value="@status" selected="@(feedback.FbStatus == status)">@status</option>
-                                            }
-                                        </select>
-                                        <button type="submit" class="btn btn-sm btn-outline-primary">Update</button>
-                                    </form>
-                                    <form method="post" asp-page-handler="UpdateVisibility" class="d-flex gap-2">
-                                        <input type="hidden" name="id" value="@feedback.FeedbackId" />
-                                        <input type="hidden" name="isVisible" value="@(feedback.IsVisible ? "false" : "true")" />
-                                        <input type="hidden" name="SearchTerm" value="@Model.SearchTerm" />
-                                        <input type="hidden" name="StatusFilter" value="@Model.StatusFilter" />
-                                        <input type="hidden" name="VisibilityFilter" value="@Model.VisibilityFilter" />
-                                        <input type="hidden" name="PageIndex" value="@Model.PageIndex" />
-                                        <button type="submit" class="btn btn-sm @(feedback.IsVisible ? "btn-outline-warning" : "btn-outline-success")">
-                                            @(feedback.IsVisible ? "Hide" : "Show")
-                                        </button>
-                                    </form>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="fas fa-inbox fa-3x mb-3 opacity-25"></i>
+                                    <p>No feedback records found.</p>
                                 </div>
                             </td>
                         </tr>
                     }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="8" class="text-center">No feedback found.</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.ViewModel.Feedbacks.TotalCount > 0)
+        {
+            <div class="p-3 border-top bg-white d-flex justify-content-center">
+                <nav aria-label="Feedback pagination">
+                    <ul class="pagination mb-0">
+                        @if (Model.ViewModel.Feedbacks.PageIndex > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" asp-page="Index"
+                                   asp-route-SearchTerm="@Model.SearchTerm"
+                                   asp-route-StatusFilter="@Model.StatusFilter"
+                                   asp-route-VisibilityFilter="@Model.VisibilityFilter"
+                                   asp-route-PageIndex="@(Model.ViewModel.Feedbacks.PageIndex - 1)">
+                                   <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+
+                        @{
+                            var totalPages = (int)Math.Ceiling((double)Model.ViewModel.Feedbacks.TotalCount / Model.ViewModel.Feedbacks.PageSize);
+                        }
+
+                        @for (int i = Math.Max(1, Model.ViewModel.Feedbacks.PageIndex - 2);
+                             i <= Math.Min(totalPages, Model.ViewModel.Feedbacks.PageIndex + 2);
+                             i++)
+                        {
+                            <li class="page-item @(i == Model.ViewModel.Feedbacks.PageIndex ? "active" : "")">
+                                <a class="page-link" asp-page="Index"
+                                   asp-route-SearchTerm="@Model.SearchTerm"
+                                   asp-route-StatusFilter="@Model.StatusFilter"
+                                   asp-route-VisibilityFilter="@Model.VisibilityFilter"
+                                   asp-route-PageIndex="@i">@i</a>
+                            </li>
+                        }
+
+                        @if (Model.ViewModel.Feedbacks.PageIndex < totalPages)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" asp-page="Index"
+                                   asp-route-SearchTerm="@Model.SearchTerm"
+                                   asp-route-StatusFilter="@Model.StatusFilter"
+                                   asp-route-VisibilityFilter="@Model.VisibilityFilter"
+                                   asp-route-PageIndex="@(Model.ViewModel.Feedbacks.PageIndex + 1)">
+                                   <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        }
     </div>
-
-    @if (Model.ViewModel.Feedbacks.TotalCount > 0)
-    {
-        <nav aria-label="Feedback pagination">
-            <ul class="pagination justify-content-center">
-                @if (Model.ViewModel.Feedbacks.PageIndex > 1)
-                {
-                    <li class="page-item">
-                        <a class="page-link" asp-page="Index"
-                           asp-route-SearchTerm="@Model.SearchTerm"
-                           asp-route-StatusFilter="@Model.StatusFilter"
-                           asp-route-VisibilityFilter="@Model.VisibilityFilter"
-                           asp-route-PageIndex="@(Model.ViewModel.Feedbacks.PageIndex - 1)">Previous</a>
-                    </li>
-                }
-
-                @{
-                    var totalPages = (int)Math.Ceiling((double)Model.ViewModel.Feedbacks.TotalCount / Model.ViewModel.Feedbacks.PageSize);
-                }
-
-                @for (int i = Math.Max(1, Model.ViewModel.Feedbacks.PageIndex - 2);
-                     i <= Math.Min(totalPages, Model.ViewModel.Feedbacks.PageIndex + 2);
-                     i++)
-                {
-                    <li class="page-item @(i == Model.ViewModel.Feedbacks.PageIndex ? "active" : "")">
-                        <a class="page-link" asp-page="Index"
-                           asp-route-SearchTerm="@Model.SearchTerm"
-                           asp-route-StatusFilter="@Model.StatusFilter"
-                           asp-route-VisibilityFilter="@Model.VisibilityFilter"
-                           asp-route-PageIndex="@i">@i</a>
-                    </li>
-                }
-
-                @if (Model.ViewModel.Feedbacks.PageIndex < totalPages)
-                {
-                    <li class="page-item">
-                        <a class="page-link" asp-page="Index"
-                           asp-route-SearchTerm="@Model.SearchTerm"
-                           asp-route-StatusFilter="@Model.StatusFilter"
-                           asp-route-VisibilityFilter="@Model.VisibilityFilter"
-                           asp-route-PageIndex="@(Model.ViewModel.Feedbacks.PageIndex + 1)">Next</a>
-                    </li>
-                }
-            </ul>
-        </nav>
-    }
 </div>
-

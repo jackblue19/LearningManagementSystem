@@ -607,6 +607,69 @@ public static class DataSeeder
         await context.SaveChangesAsync();
         Console.WriteLine("✓ Seeded 4 attendances");
 
+        // 11. Seed Feedbacks
+        var feedbacks = new List<Feedback>
+        {
+            new Feedback
+            {
+                UserId = student1Id,
+                ClassId = class1Id,
+                RegistrationId = registrations[0].RegistrationId,
+                Content = "Khóa học rất bổ ích, thầy giáo nhiệt tình.",
+                Rating = 5,
+                FbStatus = "approved",
+                IsVisible = true,
+                CreatedAt = DateTime.UtcNow.AddDays(-1)
+            },
+            new Feedback
+            {
+                UserId = student2Id,
+                ClassId = class1Id,
+                RegistrationId = registrations[1].RegistrationId,
+                Content = "Bài tập hơi khó, cần thêm thời gian thực hành.",
+                Rating = 4,
+                FbStatus = "pending",
+                IsVisible = true,
+                CreatedAt = DateTime.UtcNow.AddDays(-2)
+            },
+            new Feedback
+            {
+                UserId = student3Id,
+                ClassId = class2Id,
+                RegistrationId = registrations[4].RegistrationId,
+                Content = "Cơ sở vật chất tốt, máy lạnh mát.",
+                Rating = 5,
+                FbStatus = "approved",
+                IsVisible = true,
+                CreatedAt = DateTime.UtcNow.AddDays(-3)
+            },
+            new Feedback
+            {
+                UserId = student5Id,
+                ClassId = class2Id,
+                RegistrationId = registrations[5].RegistrationId,
+                Content = "Giảng viên dạy hơi nhanh.",
+                Rating = 3,
+                FbStatus = "rejected",
+                IsVisible = false,
+                CreatedAt = DateTime.UtcNow.AddDays(-4)
+            },
+            new Feedback
+            {
+                UserId = student4Id,
+                ClassId = class1Id,
+                RegistrationId = registrations[3].RegistrationId,
+                Content = "Tôi xin phép nghỉ ốm nên không đánh giá chi tiết được.",
+                Rating = null,
+                FbStatus = "approved",
+                IsVisible = true,
+                CreatedAt = DateTime.UtcNow.AddDays(-1)
+            }
+        };
+
+        await context.Feedbacks.AddRangeAsync(feedbacks);
+        await context.SaveChangesAsync();
+      
         // 11. Seed Teacher Availabilities (For Manager features testing)
         var teacherAvailabilities = new List<TeacherAvailability>
         {
@@ -691,53 +754,6 @@ public static class DataSeeder
 
         await context.TeacherAvailabilities.AddRangeAsync(teacherAvailabilities);
         await context.SaveChangesAsync();
-        Console.WriteLine("✓ Seeded 9 teacher availabilities");
-
-        Console.WriteLine("");
-        Console.WriteLine("============================================");
-        Console.WriteLine("✅ DATA SEEDING COMPLETED SUCCESSFULLY!");
-        Console.WriteLine("============================================");
-        Console.WriteLine("");
-        Console.WriteLine("📊 Summary:");
-        Console.WriteLine($"  - Users: {await context.Users.CountAsync()}");
-        Console.WriteLine($"  - Centers: {await context.Centers.CountAsync()}");
-        Console.WriteLine($"  - Subjects: {await context.Subjects.CountAsync()}");
-        Console.WriteLine($"  - Rooms: {await context.Rooms.CountAsync()}");
-        Console.WriteLine($"  - TimeSlots: {await context.TimeSlots.CountAsync()}");
-        Console.WriteLine($"  - Classes: {await context.Classes.CountAsync()}");
-        Console.WriteLine($"  - Registrations: {await context.ClassRegistrations.CountAsync()}");
-        Console.WriteLine($"  - Schedules: {await context.ClassSchedules.CountAsync()}");
-        Console.WriteLine($"  - Materials: {await context.ClassMaterials.CountAsync()}");
-        Console.WriteLine($"  - Attendances: {await context.Attendances.CountAsync()}");
-        Console.WriteLine($"  - Teacher Availabilities: {await context.TeacherAvailabilities.CountAsync()}");
-        Console.WriteLine("");
-        Console.WriteLine("🔑 Login Credentials (All passwords: 123456):");
-        Console.WriteLine("  Admin:    admin    / 123456");
-        Console.WriteLine("  Manager:  manager  / 123456");
-        Console.WriteLine("  Teacher:  teacher  / 123456");
-        Console.WriteLine("  Student:  student01 / 123456");
-        Console.WriteLine("");
-        Console.WriteLine("📧 Login với Email:");
-        Console.WriteLine("  admin@lms.com / 123456");
-        Console.WriteLine("  manager@lms.com / 123456");
-        Console.WriteLine("  teacher@lms.com / 123456");
-        Console.WriteLine("  student01@lms.com / 123456");
-        Console.WriteLine("");
-        Console.WriteLine("🎯 Test URLs:");
-        Console.WriteLine("  - Login: /Common/Login");
-        Console.WriteLine("  - Register: /Common/Register");
-        Console.WriteLine("  - Rooms: /Teacher/TeacherRooms");
-        Console.WriteLine("  - Materials: /Teacher/TeacherMaterials");
-        Console.WriteLine($"  - Attendance: /Teacher/TeacherAttendance?scheduleId={schedule1Id}");
-        Console.WriteLine("");
-        Console.WriteLine("🎯 Manager Features (Login: manager / 123456):");
-        Console.WriteLine("  - Teacher Availability List: /Manager/TeacherAvailability");
-        Console.WriteLine("  - Teacher Availability Schedule: /Manager/TeacherAvailabilitySchedule");
-        Console.WriteLine("  - Room Management: /Manager/ManageRooms");
-        Console.WriteLine("  - Room Schedule: /Manager/RoomSchedule?roomId={room1Id}");
-        Console.WriteLine("  - Room Status (Real-time): /Manager/RoomStatus");
-        Console.WriteLine("  - Global Schedule (Click cells for details): /Manager/GlobalSchedule");
-        Console.WriteLine("");
-        Console.WriteLine("============================================");
+       
     }
 }

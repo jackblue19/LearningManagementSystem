@@ -13,10 +13,12 @@ namespace LMS.Pages.Common;
 public class LoginModel : PageModel
 {
     private readonly IAuthService _authService;
+    private readonly LMS.Services.Interfaces.AdminService.IAuditLogService _auditLogService;
 
-    public LoginModel(IAuthService authService)
+    public LoginModel(IAuthService authService, LMS.Services.Interfaces.AdminService.IAuditLogService auditLogService)
     {
         _authService = authService;
+        _auditLogService = auditLogService;
     }
 
     [BindProperty]
@@ -63,6 +65,17 @@ public class LoginModel : PageModel
 
         // Create claims
         await SignInUserAsync(user, Input.RememberMe);
+
+        // Log Audit
+        await _auditLogService.LogActionAsync(
+            userId: user.UserId,
+            actionType: "Login",
+            entityName: "User",
+            recordId: user.UserId.ToString(),
+            newData: $"{{ \"IP\": \"{HttpContext.Connection.RemoteIpAddress}\" }}"
+        );
+
+        // Redirect to appropriate dashboard
 
         // Redirect to appropriate dashboard
         return RedirectToRoleDashboard(user.RoleDesc, returnUrl);

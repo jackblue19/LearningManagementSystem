@@ -88,4 +88,27 @@ public class AuditLogService : IAuditLogService
 
         return new PagedResult<AuditLogListItemViewModel>(mapped, total, pageIndex, pageSize);
     }
+
+    public async Task LogActionAsync(
+        Guid userId,
+        string actionType,
+        string entityName,
+        string recordId,
+        string? oldData = null,
+        string? newData = null,
+        CancellationToken ct = default)
+    {
+        var log = new AuditLog
+        {
+            UserId = userId,
+            ActionType = actionType,
+            EntityName = entityName,
+            RecordId = recordId,
+            OldData = oldData,
+            NewData = newData,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        await _auditLogRepository.AddAsync(log, saveNow: true, ct: ct);
+    }
 }
