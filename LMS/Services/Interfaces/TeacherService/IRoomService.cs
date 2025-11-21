@@ -1,4 +1,4 @@
-﻿using LMS.Models.Entities;
+using LMS.Models.Entities;
 
 namespace LMS.Services.Interfaces.TeacherService;
 

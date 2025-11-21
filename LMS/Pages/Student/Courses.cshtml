@@ -1,89 +1,77 @@
 @page
 @model LMS.Pages.Student.CoursesModel
 @{
-    ViewData["Title"] = "Courses – Available";
+    ViewData["Title"] = "My Courses";
 }
 
-<partial name="_StudentNav" model="Model.StudentId" />
+<section class="container py-4">
+    <h2 class="mb-4">Registered Courses</h2>
 
-<h2>Khoá học khả dụng</h2>
+    <!-- Search Form -->
+    <form method="post" class="card shadow-sm mb-4">
+        <div class="card-body row g-3">
 
-<form method="get" class="mb-3">
-    <input type="hidden" name="studentId" value="@Model.StudentId" />
-    <input name="Search" value="@Model.Search" placeholder="Tìm theo tên lớp..." />
-    <input name="CenterId" value="@(Model.CenterId?.ToString() ?? "")" placeholder="CenterId (GUID)" />
-    <input name="SubjectId" value="@(Model.SubjectId?.ToString() ?? "")" placeholder="SubjectId (BIGINT)" />
-    <input type="number" name="PageIndex" value="@Model.PageIndex" min="1" />
-    <input type="number" name="PageSize" value="@Model.PageSize" min="1" />
-    <button type="submit">Lọc</button>
-</form>
+            <div class="col-md-6">
+                <label asp-for="StudentId" class="form-label"></label>
+                <input asp-for="StudentId" class="form-control" />
+                <span asp-validation-for="StudentId" class="text-danger"></span>
+            </div>
 
-@if ( !string.IsNullOrWhiteSpace(Model.Flash) )
-{
-    <div style="color:green">@Model.Flash</div>
-}
+            <div class="col-md-6 d-flex align-items-end">
+                <div class="form-check">
+                    <input asp-for="IncludeCancelled" class="form-check-input" />
+                    <label asp-for="IncludeCancelled" class="form-check-label"></label>
+                </div>
+            </div>
 
-@if ( Model.Page is { Items.Count: > 0 } )
-{
-    <table>
-        <thead>
-            <tr>
-                <th>Tên lớp</th>
-                <th>Subject</th>
-                <th>Center</th>
-                <th>Giá/Số buổi</th>
-                <th>Lịch</th>
-                <th>Trạng thái</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ( var c in Model.Page.Items )
+        </div>
+
+        <div class="card-footer text-end">
+            <button type="submit" class="btn btn-primary">Load courses</button>
+        </div>
+    </form>
+
+    <!-- Results -->
+    @if (Model.Courses.Any())
+    {
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            @foreach (var course in Model.Courses)
             {
-                <tr>
-                    <td>@c.ClassName</td>
-                    <td>@c.SubjectName (@c.SubjectId)</td>
-                    <td>@c.CenterId</td>
-                    <td>@(c.UnitPrice?.ToString("0.##")) / @c.TotalSessions</td>
-                    <td>@c.ScheduleDesc</td>
-                    <td>@c.ClassStatus</td>
-                    <td>
-                        <form method="post" asp-page-handler="Register">
-                            <input type="hidden" name="studentId" value="@Model.StudentId" />
-                            <input type="hidden" name="classId" value="@c.ClassId" />
-                            <button type="submit">Đăng ký</button>
-                        </form>
-                    </td>
-                </tr>
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">@course.ClassName</h5>
+                            <p class="card-text text-muted">@course.ScheduleDesc</p>
+
+                            <dl class="row small">
+                                <dt class="col-5">Subject</dt>
+                                <dd class="col-7">@course.SubjectId</dd>
+
+                                <dt class="col-5">Teacher</dt>
+                                <dd class="col-7">@course.TeacherId</dd>
+
+                                <dt class="col-5">Start</dt>
+                                <dd class="col-7">@course.StartDate?.ToString("yyyy-MM-dd")</dd>
+
+                                <dt class="col-5">Sessions</dt>
+                                <dd class="col-7">@course.TotalSessions</dd>
+                            </dl>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <span class="badge bg-primary-subtle text-primary">
+                                @course.ClassStatus
+                            </span>
+                        </div>
+                    </div>
+                </div>
             }
-        </tbody>
-    </table>
+        </div>
+    }
+    else if (Model.StudentId != Guid.Empty)
+    {
+        <p class="text-muted">No courses found for this student.</p>
+    }
 
-    <div class="mt-2">
-        @{
-            var prev = Model.PageIndex > 1 ? Model.PageIndex - 1 : 1;
-            var next = (Model.PageIndex * Model.PageSize) < Model.Page.TotalCount ? Model.PageIndex + 1 : Model.PageIndex;
-        }
-        <a asp-page="./Courses"
-           asp-route-studentId="@Model.StudentId"
-           asp-route-Search="@Model.Search"
-           asp-route-CenterId="@Model.CenterId"
-           asp-route-SubjectId="@Model.SubjectId"
-           asp-route-PageIndex="@prev"
-           asp-route-PageSize="@Model.PageSize">« Trước</a>
+</section>
 
-        <span> Trang @Model.PageIndex / @((Model.Page.TotalCount + Model.Page.PageSize - 1) / Model.Page.PageSize) </span>
-
-        <a asp-page="./Courses"
-           asp-route-studentId="@Model.StudentId"
-           asp-route-Search="@Model.Search"
-           asp-route-CenterId="@Model.CenterId"
-           asp-route-SubjectId="@Model.SubjectId"
-           asp-route-PageIndex="@next"
-           asp-route-PageSize="@Model.PageSize">Sau »</a>
-    </div>
-}
-else
-{
-    <p>Không có lớp khả dụng.</p>
-}
+<partial name="_ValidationScriptsPartial" />

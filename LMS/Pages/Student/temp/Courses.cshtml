@@ -1,0 +1,89 @@
+@page
+@model LMS.Pages.Student.temp.CoursesModel
+@{
+    ViewData["Title"] = "Courses – Available";
+}
+
+<partial name="_StudentNav" model="Model.StudentId" />
+
+<h2>Khoá học khả dụng</h2>
+
+<form method="get" class="mb-3">
+    <input type="hidden" name="studentId" value="@Model.StudentId" />
+    <input name="Search" value="@Model.Search" placeholder="Tìm theo tên lớp..." />
+    <input name="CenterId" value="@(Model.CenterId?.ToString() ?? "")" placeholder="CenterId (GUID)" />
+    <input name="SubjectId" value="@(Model.SubjectId?.ToString() ?? "")" placeholder="SubjectId (BIGINT)" />
+    <input type="number" name="PageIndex" value="@Model.PageIndex" min="1" />
+    <input type="number" name="PageSize" value="@Model.PageSize" min="1" />
+    <button type="submit">Lọc</button>
+</form>
+
+@if ( !string.IsNullOrWhiteSpace(Model.Flash) )
+{
+    <div style="color:green">@Model.Flash</div>
+}
+
+@if ( Model.Page is { Items.Count: > 0 } )
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Tên lớp</th>
+                <th>Subject</th>
+                <th>Center</th>
+                <th>Giá/Số buổi</th>
+                <th>Lịch</th>
+                <th>Trạng thái</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ( var c in Model.Page.Items )
+            {
+                <tr>
+                    <td>@c.ClassName</td>
+                    <td>@c.SubjectName (@c.SubjectId)</td>
+                    <td>@c.CenterId</td>
+                    <td>@(c.UnitPrice?.ToString("0.##")) / @c.TotalSessions</td>
+                    <td>@c.ScheduleDesc</td>
+                    <td>@c.ClassStatus</td>
+                    <td>
+                        <form method="post" asp-page-handler="Register">
+                            <input type="hidden" name="studentId" value="@Model.StudentId" />
+                            <input type="hidden" name="classId" value="@c.ClassId" />
+                            <button type="submit">Đăng ký</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="mt-2">
+        @{
+            var prev = Model.PageIndex > 1 ? Model.PageIndex - 1 : 1;
+            var next = (Model.PageIndex * Model.PageSize) < Model.Page.TotalCount ? Model.PageIndex + 1 : Model.PageIndex;
+        }
+        <a asp-page="./Courses"
+           asp-route-studentId="@Model.StudentId"
+           asp-route-Search="@Model.Search"
+           asp-route-CenterId="@Model.CenterId"
+           asp-route-SubjectId="@Model.SubjectId"
+           asp-route-PageIndex="@prev"
+           asp-route-PageSize="@Model.PageSize">« Trước</a>
+
+        <span> Trang @Model.PageIndex / @((Model.Page.TotalCount + Model.Page.PageSize - 1) / Model.Page.PageSize) </span>
+
+        <a asp-page="./Courses"
+           asp-route-studentId="@Model.StudentId"
+           asp-route-Search="@Model.Search"
+           asp-route-CenterId="@Model.CenterId"
+           asp-route-SubjectId="@Model.SubjectId"
+           asp-route-PageIndex="@next"
+           asp-route-PageSize="@Model.PageSize">Sau »</a>
+    </div>
+}
+else
+{
+    <p>Không có lớp khả dụng.</p>
+}

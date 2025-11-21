@@ -1,6 +1,8 @@
 ﻿using LMS.Data;
 using LMS.Models.Entities;
+using LMS.Repositories;
 using LMS.Repositories.Interfaces.Info;
+using Microsoft.EntityFrameworkCore;
 
 namespace LMS.Repositories.Impl.Info;
 

@@ -4,9 +4,9 @@ using VNPAY.Models.Enums;
 using VNPAY;
 using LMS.Data;
 using Microsoft.AspNetCore.WebUtilities;
-using LMS.Models.Entities; // QueryHelpers
+using LMS.Models.Entities;
 
-namespace LMS.Pages.Student;
+namespace LMS.Pages.Student.temp;
 public class CheckoutModel : PageModel
 {
     private readonly IVnpayClient _vnpay;

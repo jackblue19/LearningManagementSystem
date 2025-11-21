@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using VNPAY;
 using VNPAY.Models.Exceptions;
 
-namespace LMS.Pages.Student;
+namespace LMS.Pages.Student.temp;
 
 public class VnpayCallbackModel : PageModel
 {
@@ -31,7 +31,7 @@ public class VnpayCallbackModel : PageModel
         var txnRef = Request.Query["vnp_TxnRef"].ToString();
         var bankCode = Request.Query["vnp_BankCode"].ToString();
         var amountStr = Request.Query["vnp_Amount"].ToString();
-        var amountVnd = string.IsNullOrWhiteSpace(amountStr) ? 0m : (decimal.Parse(amountStr) / 100m);
+        var amountVnd = string.IsNullOrWhiteSpace(amountStr) ? 0m : decimal.Parse(amountStr) / 100m;
 
         var payment = await _db.Payments.FirstOrDefaultAsync(p => p.VnpTxnRef == txnRef);
         if (payment is null)

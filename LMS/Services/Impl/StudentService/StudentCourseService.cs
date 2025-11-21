@@ -4,6 +4,8 @@ using LMS.Models.ViewModels;
 using LMS.Models.ViewModels.StudentService;
 using LMS.Repositories;
 using LMS.Services.Interfaces.StudentService;
+using System.Linq;
+using LMS.Repositories.Interfaces.Academic;
 
 namespace LMS.Services.Impl.StudentService;
 
@@ -88,5 +90,34 @@ public class StudentCourseService : IStudentCourseService
         }).ToList();
 
         return new PagedResult<StudentCourseListItemVm>(items, total, pageIndex, pageSize);
+    }
+
+    private const string StatusCancelled = "Cancelled";
+
+
+    public async Task<IReadOnlyList<Class>> GetRegisteredClassesAsync(
+        Guid studentId,
+        bool includeCancelled = false,
+        CancellationToken ct = default)
+    {
+        Expression<Func<ClassRegistration, bool>> predicate = registration =>
+            registration.StudentId == studentId &&
+            (includeCancelled ||
+             !string.Equals(registration.RegistrationStatus, StatusCancelled, StringComparison.OrdinalIgnoreCase));
+
+        var includes = new Expression<Func<ClassRegistration, object>>[]
+        {
+            registration => registration.Class
+        };
+
+        var registrations = await _regRepo.ListAsync(
+            predicate: predicate,
+            includes: includes,
+            ct: ct);
+
+        return registrations
+            .Where(reg => reg.Class is not null)
+            .Select(reg => reg.Class)
+            .ToList();
     }
 }
