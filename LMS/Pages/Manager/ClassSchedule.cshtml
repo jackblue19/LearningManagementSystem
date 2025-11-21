@@ -1,0 +1,186 @@
+@page
+@model LMS.Pages.Manager.ClassScheduleModel
+@{
+    ViewData["Title"] = "Lịch dạy - " + (Model.ClassInfo?.ClassName ?? "");
+}
+
+<div class="container-fluid mt-4">
+    @if (Model.ClassInfo != null)
+    {
+        <!-- Class Info Header -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h3><i class="bi bi-calendar-week text-primary"></i> @Model.ClassInfo.ClassName</h3>
+                        <div class="text-muted">
+                            <i class="bi bi-book"></i> @Model.ClassInfo.Subject?.SubjectName |
+                            <i class="bi bi-person-badge"></i> GV: @(Model.ClassInfo.Teacher?.FullName ?? "Chưa phân công")
+                        </div>
+                        @if (Model.ClassInfo.StartDate.HasValue && Model.ClassInfo.EndDate.HasValue)
+                        {
+                            <div class="text-muted">
+                                <i class="bi bi-calendar-range"></i> 
+                                @Model.ClassInfo.StartDate.Value.ToString("dd/MM/yyyy") - @Model.ClassInfo.EndDate.Value.ToString("dd/MM/yyyy")
+                            </div>
+                        }
+                    </div>
+                    <div>
+                        <a asp-page="/Manager/ManageClasses" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Quay lại
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success/Error Messages -->
+        @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show">
+                <i class="bi bi-check-circle-fill"></i> @Model.SuccessMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show">
+                <i class="bi bi-exclamation-triangle-fill"></i> @Model.ErrorMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <div class="row">
+            <!-- Add Schedule Form -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Thêm lịch học</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" asp-page-handler="CreateSchedule" asp-route-id="@Model.ClassInfo.ClassId">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Ngày học</label>
+                                <input asp-for="Input.SessionDate" type="date" class="form-control" required />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Phòng học</label>
+                                <select asp-for="Input.RoomId" class="form-select" required>
+                                    <option value="">-- Chọn phòng --</option>
+                                    @foreach (var room in Model.AvailableRooms)
+                                    {
+                                        <option value="@room.RoomId">@room.RoomName (SL: @room.Capacity)</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Khung giờ</label>
+                                <select asp-for="Input.SlotId" class="form-select" required>
+                                    <option value="">-- Chọn khung giờ --</option>
+                                    @foreach (var slot in Model.AvailableSlots)
+                                    {
+                                        <option value="@slot.SlotId">
+                                            Slot @(slot.SlotOrder ?? slot.SlotId) - @slot.StartTime.ToString("HH:mm") đến @slot.EndTime.ToString("HH:mm")
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-plus-circle"></i> Thêm lịch
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule List -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-list-ul"></i> Danh sách lịch học 
+                            <span class="badge bg-primary">@Model.Schedules.Count buổi</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.Schedules.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Ngày học</th>
+                                            <th>Khung giờ</th>
+                                            <th>Phòng</th>
+                                            <th>Trạng thái</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            int count = 1;
+                                            foreach (var schedule in Model.Schedules)
+                                            {
+                                                <tr>
+                                                    <td>@count</td>
+                                                    <td>
+                                                        <strong>@schedule.SessionDate.ToString("dd/MM/yyyy")</strong>
+                                                        <br />
+                                                        <small class="text-muted">@schedule.SessionDate.DayOfWeek</small>
+                                                    </td>
+                                                    <td>@schedule.TimeSlotName</td>
+                                                    <td>@schedule.RoomName</td>
+                                                    <td>
+                                                        @switch (schedule.Status)
+                                                        {
+                                                            case "scheduled":
+                                                                <span class="badge bg-info">Đã lên lịch</span>
+                                                                break;
+                                                            case "completed":
+                                                                <span class="badge bg-success">Đã hoàn thành</span>
+                                                                break;
+                                                            case "cancelled":
+                                                                <span class="badge bg-danger">Đã hủy</span>
+                                                                break;
+                                                            default:
+                                                                <span class="badge bg-secondary">@schedule.Status</span>
+                                                                break;
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        <form method="post" asp-page-handler="DeleteSchedule" 
+                                                              asp-route-scheduleId="@schedule.ScheduleId"
+                                                              asp-route-classId="@Model.ClassInfo.ClassId"
+                                                              onsubmit="return confirm('Xóa lịch này?')" 
+                                                              class="d-inline">
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                                <i class="bi bi-trash"></i> Xóa
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                                count++;
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-5">
+                                <i class="bi bi-calendar-x display-1 text-muted"></i>
+                                <h5 class="mt-3">Chưa có lịch học nào</h5>
+                                <p class="text-muted">Thêm lịch học ở bên trái để bắt đầu</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

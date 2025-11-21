@@ -62,6 +62,10 @@ public class EmailHelper
     /// </summary>
     public async Task<bool> SendPasswordResetEmailAsync(string toEmail, string resetLink)
     {
+        Console.WriteLine($"[EmailHelper] SendPasswordResetEmailAsync called");
+        Console.WriteLine($"[EmailHelper] To: {toEmail}");
+        Console.WriteLine($"[EmailHelper] Reset link: {resetLink}");
+        
         var subject = "Đặt lại mật khẩu - LMS";
         var body = $@"
             <html>
@@ -79,6 +83,8 @@ public class EmailHelper
                         </div>
                         <p style='color: #666;'>Link này sẽ hết hạn sau 30 phút.</p>
                         <p style='color: #666;'>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p>
+                        <p style='color: #999; font-size: 12px;'>Hoặc copy link này vào trình duyệt:</p>
+                        <p style='color: #999; font-size: 11px; word-break: break-all;'>{resetLink}</p>
                         <hr style='border: none; border-top: 1px solid #eee; margin: 20px 0;'>
                         <p style='color: #999; font-size: 12px; text-align: center;'>
                             © 2025 Learning Management System. All rights reserved.
@@ -89,6 +95,8 @@ public class EmailHelper
             </html>
         ";
 
-        return await SendEmailAsync(toEmail, subject, body);
+        var result = await SendEmailAsync(toEmail, subject, body);
+        Console.WriteLine($"[EmailHelper] Email send result: {result}");
+        return result;
     }
 }

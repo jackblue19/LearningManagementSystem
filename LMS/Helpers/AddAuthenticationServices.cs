@@ -22,7 +22,7 @@ public static class AuthenticationExtensions
                 options.SlidingExpiration = true;
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
             })
-            /*.AddGoogle(options =>
+            .AddGoogle(options =>
             {
                 options.ClientId = configuration["Authentication:Google:ClientId"] ?? "";
                 options.ClientSecret = configuration["Authentication:Google:ClientSecret"] ?? "";
@@ -30,7 +30,7 @@ public static class AuthenticationExtensions
                 options.SaveTokens = true;
                 options.Scope.Add("profile");
                 options.Scope.Add("email");
-            })*/;
+            });
 
         return services;
     }

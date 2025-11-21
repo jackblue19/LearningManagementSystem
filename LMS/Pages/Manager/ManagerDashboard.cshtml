@@ -1,4 +1,478 @@
-﻿@page
+@page
 @model LMS.Pages.Manager.ManagerDashboardModel
 @{
+    ViewData["Title"] = "Dashboard Quản lý";
 }
+
+<style>
+    .dashboard-card {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .dashboard-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+    .stat-card {
+        padding: 1.5rem;
+        border-left: 4px solid;
+    }
+    .stat-icon {
+        font-size: 2.5rem;
+        opacity: 0.2;
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .stat-subtitle {
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 12px;
+    }
+    .quick-action-btn {
+        padding: 1rem;
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        background: white;
+        text-align: center;
+        transition: all 0.2s;
+        cursor: pointer;
+        text-decoration: none;
+        display: block;
+    }
+    .quick-action-btn:hover {
+        border-color: #667eea;
+        background: #f8f9fa;
+        transform: translateY(-2px);
+    }
+    .quick-action-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    .activity-item {
+        padding: 1rem;
+        border-left: 3px solid #e9ecef;
+        margin-bottom: 0.75rem;
+        transition: all 0.2s;
+    }
+    .activity-item:hover {
+        background: #f8f9fa;
+        border-left-color: #667eea;
+    }
+    .room-status-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    .room-card {
+        padding: 1rem;
+        border-radius: 8px;
+        border: 2px solid;
+        text-align: center;
+    }
+    .room-available {
+        border-color: #28a745;
+        background: #d4edda;
+    }
+    .room-occupied {
+        border-color: #dc3545;
+        background: #f8d7da;
+    }
+    .chart-container {
+        position: relative;
+        height: 250px;
+    }
+    .badge-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1 class="mb-2">
+                        <i class="bi bi-speedometer2"></i> Dashboard Quản lý
+                    </h1>
+                    <p class="mb-0 opacity-75">
+                        <i class="bi bi-calendar-check"></i> @DateTime.Now.ToString("dddd, dd MMMM yyyy")
+                    </p>
+                </div>
+                <div class="col-lg-4 text-end">
+                    <a asp-page="/Manager/SendNotification" class="btn btn-light btn-lg">
+                        <i class="bi bi-send-fill"></i> Gửi thông báo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Main Statistics Row -->
+        <div class="row g-3 mb-4">
+            <!-- Students -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card dashboard-card stat-card" style="border-left-color: #4e73df;">
+                    <div class="position-relative">
+                        <i class="bi bi-people-fill stat-icon text-primary"></i>
+                        <div class="stat-value text-primary">@Model.Stats.TotalStudents</div>
+                        <div class="stat-label">Học sinh</div>
+                        <div class="stat-subtitle text-success">
+                            <i class="bi bi-check-circle-fill"></i> @Model.Stats.ActiveStudents đang học
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teachers -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card dashboard-card stat-card" style="border-left-color: #1cc88a;">
+                    <div class="position-relative">
+                        <i class="bi bi-person-badge-fill stat-icon text-success"></i>
+                        <div class="stat-value text-success">@Model.Stats.TotalTeachers</div>
+                        <div class="stat-label">Giáo viên</div>
+                        <div class="stat-subtitle text-success">
+                            <i class="bi bi-check-circle-fill"></i> @Model.Stats.ActiveTeachers đang giảng dạy
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Classes -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card dashboard-card stat-card" style="border-left-color: #36b9cc;">
+                    <div class="position-relative">
+                        <i class="bi bi-book-fill stat-icon text-info"></i>
+                        <div class="stat-value text-info">@Model.Stats.TotalClasses</div>
+                        <div class="stat-label">Lớp học</div>
+                        <div class="stat-subtitle text-info">
+                            <i class="bi bi-broadcast"></i> @Model.Stats.ActiveClasses đang hoạt động
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rooms -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card dashboard-card stat-card" style="border-left-color: #f6c23e;">
+                    <div class="position-relative">
+                        <i class="bi bi-door-open-fill stat-icon text-warning"></i>
+                        <div class="stat-value text-warning">@Model.Stats.TotalRooms</div>
+                        <div class="stat-label">Phòng học</div>
+                        <div class="stat-subtitle text-success">
+                            <i class="bi bi-check-circle-fill"></i> @Model.Stats.AvailableRooms phòng khả dụng
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="bi bi-lightning-charge-fill text-warning"></i> Thao tác nhanh
+                        </h5>
+                        <div class="row g-3">
+                            <div class="col-lg-2 col-md-4 col-sm-6">
+								<a href="/Manager/ManageTeachers" class="quick-action-btn">
+                                    <i class="bi bi-person-plus-fill text-primary quick-action-icon"></i>
+                                    <div class="fw-bold">Quản lý giáo viên</div>
+                                </a>
+                            </div>
+                            <div class="col-lg-2 col-md-4 col-sm-6">
+                                <a asp-page="/Manager/SendNotification" class="quick-action-btn">
+                                    <i class="bi bi-bell-fill text-success quick-action-icon"></i>
+                                    <div class="fw-bold">Gửi thông báo</div>
+                                </a>
+                            </div>
+                            <div class="col-lg-2 col-md-4 col-sm-6">
+                                <a asp-page="/Manager/ManageNotifications" class="quick-action-btn">
+                                    <i class="bi bi-envelope-fill text-info quick-action-icon"></i>
+                                    <div class="fw-bold">Quản lý TB</div>
+                                    @if (Model.Stats.UnreadNotifications > 0)
+                                    {
+                                        <span class="badge bg-danger">@Model.Stats.UnreadNotifications</span>
+                                    }
+                                </a>
+                            </div>
+                            <div class="col-lg-2 col-md-4 col-sm-6">
+                                <a asp-page="/Manager/ManageClasses" class="quick-action-btn">
+                                    <i class="bi bi-journal-bookmark-fill text-warning quick-action-icon"></i>
+                                    <div class="fw-bold">Quản lý lớp học</div>
+                                </a>
+                            </div>
+                            <div class="col-lg-2 col-md-4 col-sm-6">
+                                <a asp-page="/Manager/GlobalSchedule" class="quick-action-btn">
+                                    <i class="bi bi-calendar-week-fill text-info quick-action-icon"></i>
+                                    <div class="fw-bold">Lịch toàn cục</div>
+                                </a>
+                            </div>
+                            <div class="col-lg-2 col-md-4 col-sm-6">
+                                <a asp-page="/Manager/TeacherAvailability" class="quick-action-btn">
+                                    <i class="bi bi-calendar2-check text-purple quick-action-icon"></i>
+                                    <div class="fw-bold">Slot GV đăng ký</div>
+                                </a>
+                            </div>
+                            <div class="col-lg-2 col-md-4 col-sm-6">
+                                <a asp-page="/Manager/ManageRooms" class="quick-action-btn">
+                                    <i class="bi bi-door-open text-info quick-action-icon"></i>
+                                    <div class="fw-bold">Quản lý phòng</div>
+                                </a>
+                            </div>
+                            <div class="col-lg-2 col-md-4 col-sm-6">
+                                <a href="#" class="quick-action-btn">
+                                    <i class="bi bi-cash-stack text-success quick-action-icon"></i>
+                                    <div class="fw-bold">Báo cáo doanh thu</div>
+                                </a>
+                            </div>
+                            <div class="col-lg-2 col-md-4 col-sm-6">
+                                <a asp-page="/Manager/RoomStatus" class="quick-action-btn">
+                                    <i class="bi bi-door-closed-fill text-danger quick-action-icon"></i>
+                                    <div class="fw-bold">Trạng thái phòng</div>
+                                    @if (Model.Stats.PendingRegistrations > 0)
+                                    {
+                                        <span class="badge bg-warning">@Model.Stats.PendingRegistrations</span>
+                                    }
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenue & Room Status Row -->
+        <div class="row g-3 mb-4">
+            <!-- Revenue Report -->
+            <div class="col-lg-6">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-graph-up-arrow text-success"></i> Báo cáo doanh thu
+                        </h5>
+                        <div class="row mt-3">
+                            <div class="col-6">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <div class="text-muted small">Tháng này</div>
+                                    <div class="fs-4 fw-bold text-success">@Model.Revenue.ThisMonth.ToString("N0") đ</div>
+                                    <div class="small text-success mt-1">
+                                        <i class="bi bi-check-circle-fill"></i> @Model.Revenue.TotalPaid giao dịch
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <div class="text-muted small">Tháng trước</div>
+                                    <div class="fs-4 fw-bold text-secondary">@Model.Revenue.LastMonth.ToString("N0") đ</div>
+                                    <div class="small mt-1">
+                                        @if (Model.Revenue.GrowthPercentage >= 0)
+                                        {
+                                            <span class="text-success">
+                                                <i class="bi bi-arrow-up"></i> +@Model.Revenue.GrowthPercentage%
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-danger">
+                                                <i class="bi bi-arrow-down"></i> @Model.Revenue.GrowthPercentage%
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                                <span><i class="bi bi-hourglass-split text-warning"></i> Đang chờ thanh toán</span>
+                                <span class="badge bg-warning">@Model.Revenue.TotalPending giao dịch</span>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="#" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-bar-chart-fill"></i> Xem chi tiết báo cáo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Room Status -->
+            <div class="col-lg-6">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-door-open text-primary"></i> Trạng thái phòng học hôm nay
+                        </h5>
+                        <div class="room-status-grid mt-3">
+                            @foreach (var room in Model.RoomStatuses.Take(6))
+                            {
+                                <div class="room-card @(room.IsOccupied ? "room-occupied" : "room-available")">
+                                    <div class="fw-bold">@room.RoomName</div>
+                                    <div class="small text-muted">
+                                        <i class="bi bi-people-fill"></i> @room.Capacity chỗ
+                                    </div>
+                                    <div class="mt-2">
+                                        @if (room.IsOccupied)
+                                        {
+                                            <span class="badge bg-danger">Đang sử dụng</span>
+                                            <div class="small mt-1">@room.CurrentClass</div>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">Trống</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <div class="text-center mt-3">
+                            <a asp-page="/Manager/RoomStatus" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-list-ul"></i> Xem tất cả phòng
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Classes & Recent Activities -->
+        <div class="row g-3 mb-4">
+            <!-- Upcoming Classes -->
+            <div class="col-lg-6">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-calendar-event text-info"></i> Lớp học sắp khai giảng
+                        </h5>
+                        @if (Model.UpcomingClasses.Any())
+                        {
+                            <div class="mt-3">
+                                @foreach (var cls in Model.UpcomingClasses)
+                                {
+                                    <div class="activity-item">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <div class="fw-bold">@cls.ClassName</div>
+                                                <div class="small text-muted">
+                                                    <i class="bi bi-person-badge"></i> @cls.TeacherName
+                                                </div>
+                                                <div class="small text-muted">
+                                                    <i class="bi bi-people-fill"></i> @cls.StudentCount học sinh đăng ký
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="badge bg-info">@cls.StartDate.ToString("dd/MM")</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center text-muted py-4">
+                                <i class="bi bi-calendar-x fs-1"></i>
+                                <p class="mt-2">Chưa có lớp học nào sắp khai giảng</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activities -->
+            <div class="col-lg-6">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-clock-history text-warning"></i> Hoạt động gần đây
+                        </h5>
+                        @if (Model.RecentActivities.Any())
+                        {
+                            <div class="mt-3">
+                                @foreach (var activity in Model.RecentActivities.Take(5))
+                                {
+                                    <div class="activity-item">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="flex-grow-1">
+                                                <div class="small">@activity.Description</div>
+                                                <div class="small text-muted">
+                                                    <i class="bi bi-clock"></i> @activity.Timestamp.ToString("HH:mm dd/MM")
+                                                </div>
+                                            </div>
+                                            <div>
+                                                @if (activity.Status == "approved")
+                                                {
+                                                    <span class="badge bg-success">Đã duyệt</span>
+                                                }
+                                                else if (activity.Status == "pending")
+                                                {
+                                                    <span class="badge bg-warning">Chờ duyệt</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">@activity.Status</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center text-muted py-4">
+                                <i class="bi bi-inbox fs-1"></i>
+                                <p class="mt-2">Chưa có hoạt động nào</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Actions Alert -->
+        @if (Model.Stats.PendingRegistrations > 0)
+        {
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="alert alert-warning d-flex align-items-center" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill fs-3 me-3"></i>
+                        <div class="flex-grow-1">
+                            <strong>Cần xử lý!</strong> Có @Model.Stats.PendingRegistrations đơn đăng ký đang chờ duyệt.
+                        </div>
+                        <a href="#" class="btn btn-warning">Xem ngay</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

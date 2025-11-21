@@ -1,0 +1,363 @@
+@page
+@model LMS.Pages.Manager.TeacherAvailabilityScheduleModel
+@{
+    ViewData["Title"] = "Lịch Slot Đăng ký Giáo viên";
+}
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+    .schedule-grid {
+        display: grid;
+        grid-template-columns: 100px repeat(7, 1fr);
+        gap: 0;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .schedule-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem;
+        text-align: center;
+        font-weight: 600;
+        border-right: 1px solid rgba(255,255,255,0.2);
+    }
+    .schedule-header:last-child {
+        border-right: none;
+    }
+    .time-label {
+        background: #f8f9fa;
+        padding: 1rem 0.5rem;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.875rem;
+        border-right: 1px solid #dee2e6;
+        border-top: 1px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .schedule-cell {
+        min-height: 80px;
+        padding: 0.5rem;
+        border-right: 1px solid #dee2e6;
+        border-top: 1px solid #dee2e6;
+        background: white;
+        position: relative;
+    }
+    .schedule-cell:last-child {
+        border-right: none;
+    }
+    .schedule-cell.available {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    }
+    .schedule-cell.available:hover {
+        background: linear-gradient(135deg, #c3e6cb 0%, #b1dfbb 100%);
+    }
+    .availability-badge {
+        background: white;
+        border: 2px solid #28a745;
+        border-radius: 8px;
+        padding: 0.5rem;
+        font-size: 0.75rem;
+        margin-bottom: 0.25rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .availability-time {
+        display: block;
+        font-weight: 600;
+        color: #28a745;
+        margin-bottom: 0.25rem;
+    }
+    .availability-teacher {
+        display: block;
+        color: #6c757d;
+        font-size: 0.7rem;
+    }
+    .filter-card {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+    .nav-tabs {
+        border-bottom: 2px solid #dee2e6;
+    }
+    .nav-tabs .nav-link {
+        color: #6c757d;
+        border: none;
+        padding: 1rem 1.5rem;
+    }
+    .nav-tabs .nav-link.active {
+        color: #667eea;
+        background: transparent;
+        border-bottom: 3px solid #667eea;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="mb-2">
+                    <i class="bi bi-calendar-week"></i> Lịch Slot Đăng ký Giáo viên
+                </h1>
+                <p class="mb-0 opacity-75">
+                    <i class="bi bi-grid-3x3-gap"></i> Xem lịch slot giáo viên đăng ký theo tuần
+                </p>
+            </div>
+            <div>
+                <a asp-page="/Manager/TeacherAvailability" class="btn btn-light btn-lg me-2">
+                    <i class="bi bi-list-ul"></i> Danh sách
+                </a>
+                <a asp-page="/Manager/ManagerDashboard" class="btn btn-outline-light btn-lg">
+                    <i class="bi bi-house-door-fill"></i> Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Filter Card -->
+    <div class="card filter-card">
+        <div class="card-body">
+            <h5 class="card-title mb-3">
+                <i class="bi bi-funnel-fill text-primary"></i> Chọn giáo viên
+            </h5>
+            <form method="get">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label">Giáo viên</label>
+                        <select name="TeacherId" class="form-select form-select-lg" onchange="this.form.submit()">
+                            <option value="">-- Tất cả giáo viên --</option>
+                            @foreach (var teacher in Model.Teachers)
+                            {
+                                <option value="@teacher.TeacherId" selected="@(Model.TeacherId == teacher.TeacherId)">
+                                    @teacher.FullName
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        @if (!string.IsNullOrEmpty(Model.SelectedTeacherName))
+                        {
+                            <div class="alert alert-info mb-0">
+                                <i class="bi bi-person-badge"></i> <strong>@Model.SelectedTeacherName</strong>
+                            </div>
+                        }
+                    </div>
+                    <div class="col-md-3">
+                        <a asp-page="/Manager/TeacherAvailabilitySchedule" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-arrow-clockwise"></i> Xóa bộ lọc
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Tabs -->
+    <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+            <a class="nav-link active" href="#week-view" data-bs-toggle="tab">
+                <i class="bi bi-calendar-week"></i> Lịch tuần
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#summary-view" data-bs-toggle="tab">
+                <i class="bi bi-list-check"></i> Tổng hợp theo ngày
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <!-- Week View -->
+        <div class="tab-pane fade show active" id="week-view">
+            @if (Model.TimeSlots.Any())
+            {
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div class="schedule-grid">
+                            <!-- Header Row -->
+                            <div class="schedule-header">Slot</div>
+                            @for (byte day = 1; day <= 7; day++)
+                            {
+                                byte actualDay = day == 7 ? (byte)0 : day;
+                                <div class="schedule-header">@LMS.Pages.Manager.TeacherAvailabilityScheduleModel.GetDayOfWeekName(actualDay)</div>
+                            }
+
+                            <!-- Time Slots -->
+                            @foreach (var slot in Model.TimeSlots)
+                            {
+                                <div class="time-label">
+                                    <div>
+                                        <div>Slot @slot.SlotOrder</div>
+                                        <small class="text-muted">@slot.StartTime.ToString("HH:mm")</small>
+                                        <small class="text-muted">-@slot.EndTime.ToString("HH:mm")</small>
+                                    </div>
+                                </div>
+
+                                @for (byte day = 1; day <= 7; day++)
+                                {
+                                    byte actualDay = day == 7 ? (byte)0 : day;
+                                    bool isAvailable = Model.IsAvailable(actualDay, slot.StartTime, slot.EndTime);
+                                    
+                                    <div class="schedule-cell @(isAvailable ? "available" : "")">
+                                        @if (isAvailable)
+                                        {
+                                            var availabilities = Model.AllAvailabilities
+                                                .Where(a => a.DayOfWeek == actualDay &&
+                                                           a.StartTime <= slot.StartTime &&
+                                                           a.EndTime >= slot.EndTime)
+                                                .ToList();
+
+                                            @foreach (var avail in availabilities)
+                                            {
+                                                <div class="availability-badge">
+                                                    <span class="availability-time">
+                                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                                        @avail.StartTime.ToString("HH:mm") - @avail.EndTime.ToString("HH:mm")
+                                                    </span>
+                                                    @if (!Model.TeacherId.HasValue || Model.TeacherId.Value == Guid.Empty)
+                                                    {
+                                                        <span class="availability-teacher">@avail.TeacherName</span>
+                                                    }
+                                                    @if (!string.IsNullOrEmpty(avail.Note))
+                                                    {
+                                                        <small class="text-muted d-block mt-1">
+                                                            <i class="bi bi-journal-text"></i> @avail.Note
+                                                        </small>
+                                                    }
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <div class="text-center text-muted" style="padding: 1.5rem 0;">
+                                                <i class="bi bi-dash-lg"></i>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="mb-3"><i class="bi bi-info-circle"></i> Chú thích</h6>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="d-flex align-items-center">
+                                            <div style="width: 30px; height: 30px; background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border-radius: 4px; margin-right: 10px;"></div>
+                                            <span>Giáo viên sẵn sàng dạy trong slot này</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="d-flex align-items-center">
+                                            <div style="width: 30px; height: 30px; background: white; border: 1px solid #dee2e6; border-radius: 4px; margin-right: 10px;"></div>
+                                            <span>Chưa có giáo viên đăng ký</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <small class="text-muted">
+                                            <i class="bi bi-lightbulb"></i> Tổng số slot đăng ký: <strong>@Model.AllAvailabilities.Count</strong>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-calendar-x text-muted" style="font-size: 4rem;"></i>
+                        <h4 class="mt-3 text-muted">Chưa có slot thời gian nào trong hệ thống</h4>
+                        <p class="text-muted">Vui lòng tạo các slot thời gian trước.</p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Summary View -->
+        <div class="tab-pane fade" id="summary-view">
+            <div class="row g-3">
+                @for (byte day = 1; day <= 7; day++)
+                {
+                    byte actualDay = day == 7 ? (byte)0 : day;
+                    var dayAvailabilities = Model.GetAvailabilitiesForDay(actualDay);
+
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card">
+                            <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-calendar-day"></i> @LMS.Pages.Manager.TeacherAvailabilityScheduleModel.GetDayOfWeekName(actualDay)
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                @if (dayAvailabilities.Any())
+                                {
+                                    @foreach (var avail in dayAvailabilities)
+                                    {
+                                        <div class="availability-badge mb-2">
+                                            <span class="availability-time">
+                                                <i class="bi bi-clock"></i>
+                                                @avail.StartTime.ToString("HH:mm") - @avail.EndTime.ToString("HH:mm")
+                                            </span>
+                                            @if (!Model.TeacherId.HasValue || Model.TeacherId.Value == Guid.Empty)
+                                            {
+                                                <span class="availability-teacher">
+                                                    <i class="bi bi-person-badge"></i> @avail.TeacherName
+                                                </span>
+                                            }
+                                            @if (!string.IsNullOrEmpty(avail.Note))
+                                            {
+                                                <small class="text-muted d-block mt-1">
+                                                    <i class="bi bi-journal-text"></i> @avail.Note
+                                                </small>
+                                            }
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <p class="text-muted text-center mb-0">
+                                        <i class="bi bi-dash-circle"></i> Chưa có slot đăng ký
+                                    </p>
+                                }
+                            </div>
+                            <div class="card-footer bg-light">
+                                <small class="text-muted">
+                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                    <strong>@dayAvailabilities.Count</strong> slot
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
