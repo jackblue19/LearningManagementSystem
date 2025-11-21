@@ -1,0 +1,98 @@
+@page
+@model LMS.Pages.Manager.CreateRoomModel
+@{
+    ViewData["Title"] = "Thêm Phòng học";
+}
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+    .form-card {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+</style>
+
+<div class="container mt-4">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="mb-2">
+                    <i class="bi bi-plus-circle"></i> Thêm Phòng học
+                </h1>
+                <p class="mb-0 opacity-75">
+                    <i class="bi bi-door-open"></i> Tạo phòng học mới trong hệ thống
+                </p>
+            </div>
+            <a asp-page="/Manager/ManageRooms" class="btn btn-outline-light btn-lg">
+                <i class="bi bi-arrow-left"></i> Quay lại
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card form-card">
+                <div class="card-body p-4">
+                    <form method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="mb-4">
+                            <label asp-for="Input.RoomName" class="form-label fw-bold">
+                                <i class="bi bi-door-closed text-primary"></i> Tên phòng <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Input.RoomName" class="form-control form-control-lg" 
+                                   placeholder="Ví dụ: Phòng A101, Lab 1, ..." />
+                            <span asp-validation-for="Input.RoomName" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                <i class="bi bi-info-circle"></i> Tên phòng phải duy nhất trong trung tâm
+                            </small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Input.Capacity" class="form-label fw-bold">
+                                <i class="bi bi-people text-success"></i> Sức chứa <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Input.Capacity" type="number" class="form-control form-control-lg" 
+                                   min="1" max="1000" placeholder="Số lượng học sinh tối đa" />
+                            <span asp-validation-for="Input.Capacity" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                <i class="bi bi-info-circle"></i> Số lượng học sinh tối đa có thể học trong phòng
+                            </small>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-lightbulb"></i> <strong>Lưu ý:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>Phòng mới sẽ tự động ở trạng thái "Đang hoạt động"</li>
+                                <li>Bạn có thể chỉnh sửa hoặc vô hiệu hóa phòng sau khi tạo</li>
+                                <li>Tên phòng không được trùng với phòng đã có</li>
+                            </ul>
+                        </div>
+
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a asp-page="/Manager/ManageRooms" class="btn btn-lg btn-secondary">
+                                <i class="bi bi-x-circle"></i> Hủy
+                            </a>
+                            <button type="submit" class="btn btn-lg btn-primary">
+                                <i class="bi bi-check-circle"></i> Tạo phòng
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
