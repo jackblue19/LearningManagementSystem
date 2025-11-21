@@ -109,6 +109,6 @@ public class AuditLogService : IAuditLogService
             CreatedAt = DateTime.UtcNow
         };
 
-        await _auditLogRepository.AddAsync(log, ct);
+        await _auditLogRepository.AddAsync(log, saveNow: true, ct: ct);
     }
 }
