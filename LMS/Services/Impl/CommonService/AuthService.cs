@@ -40,7 +40,7 @@ public class AuthService : IAuthService
         {
             // Find user by username or email
             var user = await _db.Users
-                .FirstOrDefaultAsync(u => 
+                   .FirstOrDefaultAsync(u => 
                     (u.Username == usernameOrEmail || u.Email == usernameOrEmail) 
                     && u.IsActive, ct);
 
