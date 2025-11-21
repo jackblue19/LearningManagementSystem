@@ -1,0 +1,176 @@
+@page
+@model LMS.Pages.Common.NotificationsModel
+@{
+    ViewData["Title"] = "Thông báo";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="bi bi-bell-fill text-primary"></i> Thông báo
+                    @if (Model.UnreadCount > 0)
+                    {
+                        <span class="badge bg-danger">@Model.UnreadCount</span>
+                    }
+                </h2>
+                @if (Model.UnreadCount > 0)
+                {
+                    <form method="post" asp-page-handler="MarkAllAsRead" class="d-inline">
+                        <button type="submit" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-check-all"></i> Đánh dấu tất cả đã đọc
+                        </button>
+                    </form>
+                }
+            </div>
+
+            @if (!Model.Notifications.Any())
+            {
+                <div class="alert alert-info text-center py-5">
+                    <i class="bi bi-info-circle fs-1 d-block mb-3"></i>
+                    <h5>Chưa có thông báo nào</h5>
+                    <p class="mb-0">Bạn sẽ nhận được thông báo ở đây khi có cập nhật mới</p>
+                </div>
+            }
+            else
+            {
+                <div class="list-group">
+                    @foreach (var notification in Model.Notifications)
+                    {
+                        var badgeClass = notification.NotiType switch
+                        {
+                            "success" => "bg-success",
+                            "warning" => "bg-warning text-dark",
+                            "danger" => "bg-danger",
+                            _ => "bg-info"
+                        };
+
+                        var iconClass = notification.NotiType switch
+                        {
+                            "success" => "bi-check-circle-fill",
+                            "warning" => "bi-exclamation-triangle-fill",
+                            "danger" => "bi-x-circle-fill",
+                            _ => "bi-info-circle-fill"
+                        };
+
+                        var contentLines = notification.Content?.Split('\n', 2) ?? new[] { "", "" };
+                        var title = contentLines.Length > 0 ? contentLines[0] : "";
+                        var message = contentLines.Length > 1 ? contentLines[1] : "";
+
+                        <div class="list-group-item @(!notification.IsRead ? "list-group-item-action bg-light border-start border-primary border-3" : "")">
+                            <div class="d-flex w-100 justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge @badgeClass me-2">
+                                            <i class="bi @iconClass"></i>
+                                        </span>
+                                        <h6 class="mb-0 fw-bold">
+                                            @title
+                                            @if (!notification.IsRead)
+                                            {
+                                                <span class="badge bg-danger ms-2">Mới</span>
+                                            }
+                                        </h6>
+                                    </div>
+                                    <p class="mb-2">@message</p>
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock"></i> @notification.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                    </small>
+                                </div>
+                                <div class="ms-3 d-flex gap-1">
+                                    @if (!notification.IsRead)
+                                    {
+                                        <form method="post" asp-page-handler="MarkAsRead" asp-route-notificationId="@notification.NotificationId" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Đánh dấu đã đọc">
+                                                <i class="bi bi-check"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    <form method="post" asp-page-handler="Delete" asp-route-notificationId="@notification.NotificationId" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                onclick="return confirm('Bạn có chắc muốn xóa thông báo này?')"
+                                                title="Xóa">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Pagination -->
+                @if (Model.PageNumber > 1 || Model.HasMore)
+                {
+                    <div class="d-flex justify-content-center mt-4">
+                        <nav>
+                            <ul class="pagination">
+                                <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                                    <a class="page-link" asp-page="/Common/Notifications" asp-route-pageNumber="@(Model.PageNumber - 1)">
+                                        <i class="bi bi-chevron-left"></i> Trước
+                                    </a>
+                                </li>
+                                <li class="page-item active">
+                                    <span class="page-link">@Model.PageNumber</span>
+                                </li>
+                                <li class="page-item @(!Model.HasMore ? "disabled" : "")">
+                                    <a class="page-link" asp-page="/Common/Notifications" asp-route-pageNumber="@(Model.PageNumber + 1)">
+                                        Sau <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@7.0.0/dist/browser/signalr.min.js"></script>
+    <script>
+        // Auto-mark notifications as read when page loads (user is viewing them)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all unread notification IDs
+            const unreadNotifications = document.querySelectorAll('.list-group-item.bg-light');
+            
+            if (unreadNotifications.length > 0) {
+                // Mark each as read after a short delay (simulating viewing)
+                setTimeout(() => {
+                    unreadNotifications.forEach((notifElement, index) => {
+                        const form = notifElement.querySelector('form[asp-page-handler="MarkAsRead"]');
+                        if (form) {
+                            // Auto-submit mark as read form after user has been on page
+                            setTimeout(() => {
+                                const notificationId = new URL(form.action).searchParams.get('notificationId');
+                                if (notificationId) {
+                                    fetch('/api/notifications/mark-read', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({ notificationId: parseInt(notificationId) })
+                                    })
+                                    .then(response => {
+                                        if (response.ok) {
+                                            // Update UI
+                                            notifElement.classList.remove('bg-light', 'border-primary', 'border-3', 'list-group-item-action');
+                                            const newBadge = notifElement.querySelector('.badge.bg-danger.ms-2');
+                                            if (newBadge) newBadge.remove();
+                                            const markReadBtn = notifElement.querySelector('.btn-outline-success');
+                                            if (markReadBtn) markReadBtn.closest('form').remove();
+                                        }
+                                    })
+                                    .catch(err => console.error('Error marking as read:', err));
+                                }
+                            }, index * 500); // Stagger the marking
+                        }
+                    });
+                }, 2000); // Wait 2 seconds before starting to mark as read
+            }
+        });
+    </script>
+}

@@ -1,0 +1,129 @@
+@page
+@model LMS.Pages.Manager.SendNotificationModel
+@{
+    ViewData["Title"] = "Gửi thông báo";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-bell-fill text-primary"></i> Gửi thông báo</h2>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show">
+                    <i class="bi bi-check-circle-fill"></i> @Model.SuccessMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="bi bi-exclamation-triangle-fill"></i> @Model.ErrorMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <!-- Form -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="post" id="notificationForm">
+                        <div class="mb-3">
+                            <label asp-for="Input.RecipientType" class="form-label">
+                                <i class="bi bi-people-fill"></i> Đối tượng nhận
+                            </label>
+                            <select asp-for="Input.RecipientType" class="form-select" id="recipientType">
+                                <option value="class">Học sinh trong lớp</option>
+                                <option value="all-students">Tất cả học sinh</option>
+                                <option value="all-teachers">Tất cả giáo viên</option>
+                            </select>
+                            <span asp-validation-for="Input.RecipientType" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3" id="classSelection">
+                            <label asp-for="Input.ClassId" class="form-label">Chọn lớp</label>
+                            <select asp-for="Input.ClassId" class="form-select" asp-items="Model.Classes">
+                                <option value="">-- Chọn lớp --</option>
+                            </select>
+                            <span asp-validation-for="Input.ClassId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Type" class="form-label">
+                                <i class="bi bi-tag-fill"></i> Loại thông báo
+                            </label>
+                            <select asp-for="Input.Type" class="form-select">
+                                <option value="info">Thông tin (Xanh dương)</option>
+                                <option value="success">Thành công (Xanh lá)</option>
+                                <option value="warning">Cảnh báo (Vàng)</option>
+                                <option value="danger">Quan trọng (Đỏ)</option>
+                            </select>
+                            <span asp-validation-for="Input.Type" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Title" class="form-label">
+                                <i class="bi bi-text-left"></i> Tiêu đề
+                            </label>
+                            <input asp-for="Input.Title" class="form-control" placeholder="Nhập tiêu đề thông báo" />
+                            <span asp-validation-for="Input.Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Input.Message" class="form-label">
+                                <i class="bi bi-chat-square-text-fill"></i> Nội dung
+                            </label>
+                            <textarea asp-for="Input.Message" class="form-control" rows="6" 
+                                      placeholder="Nhập nội dung thông báo..."></textarea>
+                            <span asp-validation-for="Input.Message" class="text-danger"></span>
+                            <div class="form-text">Tối đa 2000 ký tự</div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                <i class="bi bi-send-fill"></i> Gửi thông báo
+                            </button>
+                            <a asp-page="/Manager/ManagerDashboard" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Quay lại
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            function toggleClassSelection() {
+                var recipientType = $('#recipientType').val();
+                if (recipientType === 'class') {
+                    $('#classSelection').show();
+                } else {
+                    $('#classSelection').hide();
+                }
+            }
+
+            toggleClassSelection();
+            $('#recipientType').on('change', toggleClassSelection);
+
+            // Prevent double submission
+            let isSubmitting = false;
+            $('#notificationForm').on('submit', function(e) {
+                if (isSubmitting) {
+                    e.preventDefault();
+                    return false;
+                }
+                isSubmitting = true;
+                $('#submitBtn').prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Đang gửi...');
+            });
+        });
+    </script>
+}
