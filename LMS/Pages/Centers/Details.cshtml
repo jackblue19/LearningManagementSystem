@@ -1,0 +1,82 @@
+@page
+@model LMS.Pages.Centers.DetailsModel
+@{
+    ViewData["Title"] = Model.Center?.CenterName ?? "Center";
+}
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+        <h3 class="mb-0">@Model.Center?.CenterName</h3>
+        <small class="text-muted">@Model.Center?.CenterAddress</small>
+    </div>
+    <a class="btn btn-outline-secondary" asp-page="Index">Quay lại</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <div class="col-md-4">
+        <select name="SubjectId" class="form-select" onchange="this.form.submit()">
+            <option value="">-- Môn học --</option>
+            @foreach ( var s in Model.Subjects )
+            {
+                <option value="@s.SubjectId" selected="@(Model.SubjectId==s.SubjectId)">
+                    @s.SubjectName
+                </option>
+            }
+        </select>
+    </div>
+    <div class="col-md-4">
+        <select name="TeacherId" class="form-select" onchange="this.form.submit()">
+            <option value="">-- Giáo viên --</option>
+            @foreach ( var t in Model.Teachers )
+            {
+                <option value="@t.UserId" selected="@(Model.TeacherId==t.UserId)">
+                    @(string.IsNullOrWhiteSpace(t.FullName) ? t.Username : t.FullName)
+                </option>
+            }
+        </select>
+    </div>
+    <div class="col-md-4 text-end">
+        <input type="hidden" name="size" value="@Model.Size" />
+        <button class="btn btn-primary">Lọc</button>
+    </div>
+</form>
+
+<div class="row g-3">
+    @foreach ( var c in Model.Classes.Items )
+    {
+        <div class="col-md-4">
+            <div class="card card-hover h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">@c.ClassName</h5>
+                    <div class="mt-auto">
+                        <a class="btn btn-sm btn-outline-primary"
+                           asp-page="/Registrations/Create"
+                           asp-route-classId="@c.ClassId">Đăng ký</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if ( Model.Classes.TotalCount > Model.Classes.PageSize )
+{
+    <nav class="mt-3">
+        <ul class="pagination">
+            @{
+                var totalPages = (int) Math.Ceiling((double) Model.Classes.TotalCount / Model.Classes.PageSize);
+                for ( int i = 1; i <= totalPages; i++ )
+                {
+                    <li class="page-item @(i==Model.Classes.PageIndex ? "active" : "")">
+                        <a class="page-link"
+                           asp-route-id="@Model.Id"
+                           asp-route-SubjectId="@Model.SubjectId"
+                           asp-route-TeacherId="@Model.TeacherId"
+                           asp-route-page="@i"
+                           asp-route-size="@Model.Classes.PageSize">@i</a>
+                    </li>
+                }
+            }
+        </ul>
+    </nav>
+}

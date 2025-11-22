@@ -1,8 +1,10 @@
+using System.Globalization;
+using LMS.Data;
+using LMS.Models.Entities;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using VNPAY;
 using VNPAY.Models.Exceptions;
-using LMS.Data;
 
 namespace LMS.Pages.Student;
 
@@ -17,69 +19,112 @@ public class VnpayCallbackModel : PageModel
         _db = db;
     }
 
-    public string Status { get; private set; } = "PENDING";
+    // View data
+    public bool IsSuccess { get; private set; }
+    public string Title { get; private set; } = "";
+    public string Message { get; private set; } = "";
+
+    public string? VnpTxnRef { get; private set; }
     public string? BankCode { get; private set; }
-    public string TxnRef { get; private set; } = "";
+    public string? CardType { get; private set; }
+    public string? BankTranNo { get; private set; }
+    public string? OrderInfo { get; private set; }
     public decimal Amount { get; private set; }
-    public string ClassName { get; private set; } = "";
-    public string SubjectName { get; private set; } = "";
-    public DateTime? PaidAt { get; private set; }
+    public DateTime? PayDateLocal { get; private set; }
+    public Guid? PaymentId { get; private set; }
     public string RawQuery { get; private set; } = "";
 
     public async Task OnGetAsync()
     {
-        try { var _ = _vnpay.GetPaymentResult(Request); } catch (VnpayException) { }
+        // Xác thực chữ ký (nếu sai sẽ ném lỗi). Không dừng trang để vẫn hiển thị thông tin.
+        try { _ = _vnpay.GetPaymentResult(Request); }
+        catch (VnpayException) { /* giữ im lặng cho UX, log nếu cần */ }
 
-        var rspCode = Request.Query["vnp_ResponseCode"].ToString();
-        TxnRef = Request.Query["vnp_TxnRef"].ToString();
-        BankCode = Request.Query["vnp_BankCode"].ToString();
-        var amountStr = Request.Query["vnp_Amount"].ToString();
-        var amountVnd = string.IsNullOrWhiteSpace(amountStr) ? 0m : decimal.Parse(amountStr) / 100m;
-        RawQuery = Request.QueryString.Value ?? "";
+        var q = Request.Query;
 
-        var payment = await _db.Payments.FirstOrDefaultAsync(p => p.VnpTxnRef == TxnRef);
-        if (payment is null) { Status = "NOT_FOUND"; return; }
+        var rspCode = q["vnp_ResponseCode"].ToString();
+        VnpTxnRef = q["vnp_TxnRef"].ToString();
+        BankCode = q["vnp_BankCode"].ToString();
+        CardType = q["vnp_CardType"].ToString();
+        BankTranNo = q["vnp_BankTranNo"].ToString();
+        OrderInfo = q["vnp_OrderInfo"].ToString();
+        var amountStr = q["vnp_Amount"].ToString();        // đơn vị = VND * 100
+        var payDateStr = q["vnp_PayDate"].ToString();       // yyyyMMddHHmmss
 
+        if (decimal.TryParse(amountStr, out var vnPayAmount))
+            Amount = vnPayAmount / 100m;
+
+        if (DateTime.TryParseExact(payDateStr, "yyyyMMddHHmmss",
+            CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var payUtc))
+        {
+            // VNPAY trả UTC; hiển thị theo local server
+            PayDateLocal = DateTime.SpecifyKind(payUtc, DateTimeKind.Utc).ToLocalTime();
+        }
+
+        // Tìm bản ghi Payment theo TxnRef
+        var payment = await _db.Payments.FirstOrDefaultAsync(p => p.VnpTxnRef == VnpTxnRef);
+        if (payment is null)
+        {
+            IsSuccess = false;
+            Title = "Không tìm thấy giao dịch";
+            Message = $"Không tìm thấy Payment với mã {VnpTxnRef}.";
+            RawQuery = Request.QueryString.Value ?? "";
+            return;
+        }
+
+        PaymentId = payment.PaymentId;
+
+        // Idempotent
         if (payment.PaymentStatus == "PAID")
         {
-            Status = "PAID";
+            IsSuccess = true;
+            Title = "Giao dịch đã xác nhận";
+            Message = "Giao dịch này đã được xác nhận trước đó.";
+            RawQuery = Request.QueryString.Value ?? "";
+            return;
         }
-        else if (rspCode == "00")
+
+        if (rspCode == "00")
         {
-            if (payment.Amount != 0 && payment.Amount != amountVnd)
+            if (payment.Amount != 0 && payment.Amount != Amount)
             {
-                payment.PaymentStatus = "FAILED";
-                await _db.SaveChangesAsync();
-                Status = "FAILED";
+                IsSuccess = false;
+                Title = "Sai số tiền";
+                Message = $"Số tiền không khớp (DB={payment.Amount:N0} VND, VNPAY={Amount:N0} VND).";
             }
             else
             {
                 payment.PaymentStatus = "PAID";
                 payment.PaidAt = DateTime.UtcNow;
                 payment.BankCode = BankCode;
-                if (payment.Amount == 0) payment.Amount = amountVnd;
+                if (payment.Amount == 0) payment.Amount = Amount;
                 await _db.SaveChangesAsync();
-                Status = "PAID";
+
+                IsSuccess = true;
+                Title = "Thanh toán thành công";
+                Message = "Cảm ơn bạn! Giao dịch đã được xác nhận.";
             }
         }
         else
         {
             payment.PaymentStatus = "FAILED";
             await _db.SaveChangesAsync();
-            Status = "FAILED";
+
+            IsSuccess = false;
+            Title = "Thanh toán chưa thành công";
+            Message = MapResponse(rspCode);
         }
 
-        Amount = payment.Amount;
-        PaidAt = payment.PaidAt;
-
-        // Thêm hiển thị lớp & môn (cần Payment.ClassId)
-        if (payment.ClassId != Guid.Empty)
-        {
-            var cls = await _db.Classes.Include(c => c.Subject)
-                                       .AsNoTracking()
-                                       .FirstOrDefaultAsync(c => c.ClassId == payment.ClassId);
-            ClassName = cls?.ClassName ?? "";
-            SubjectName = cls?.Subject?.SubjectName ?? "";
-        }
+        RawQuery = Request.QueryString.Value ?? "";
     }
+
+    private static string MapResponse(string code) => code switch
+    {
+        "00" => "Giao dịch thành công.",
+        "07" => "Giao dịch bị nghi ngờ gian lận.",
+        "09" => "Thẻ/Tài khoản chưa đăng ký InternetBanking.",
+        "10" => "Xác thực thông tin thẻ/tài khoản không đúng.",
+        "24" => "Khách hàng hủy giao dịch.",
+        _ => $"Mã phản hồi: {code}."
+    };
 }

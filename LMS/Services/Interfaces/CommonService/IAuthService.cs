@@ -71,4 +71,5 @@ public interface IAuthService
     /// Reset password with email
     /// </summary>
     Task<bool> ResetPasswordAsync(string email, string newPassword, CancellationToken ct = default);
+    Guid GetUserId();
 }

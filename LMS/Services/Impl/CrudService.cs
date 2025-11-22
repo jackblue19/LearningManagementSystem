@@ -15,13 +15,11 @@ public class CrudService<T, TKey> : ICrudService<T, TKey> where T : class
     }
 
     public Task<T?> GetByIdAsync(
-                        TKey id,
-                        bool asNoTracking = true,
-                        IEnumerable<Expression<Func<T, object>>>? includes = null,
-                        CancellationToken ct = default)
-        => includes is null || !includes.Any()
-            ? _repo.GetByIdAsync(id, asNoTracking, ct)
-            : _repo.FirstOrDefaultAsync(x => Equals(id, id), asNoTracking, includes, ct);
+            TKey id,
+            bool asNoTracking = true,
+            IEnumerable<Expression<Func<T, object>>>? includes = null,
+            CancellationToken ct = default)
+            => _repo.GetByIdAsync(id, asNoTracking, ct);
 
     public async Task<PagedResult<T>> ListAsync(
             Expression<Func<T, bool>>? predicate = null,
