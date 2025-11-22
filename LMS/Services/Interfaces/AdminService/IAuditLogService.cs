@@ -13,4 +13,13 @@ public interface IAuditLogService
         int pageIndex = 1,
         int pageSize = 20,
         CancellationToken ct = default);
+
+    Task LogActionAsync(
+        Guid userId,
+        string actionType,
+        string entityName,
+        string recordId,
+        string? oldData = null,
+        string? newData = null,
+        CancellationToken ct = default);
 }

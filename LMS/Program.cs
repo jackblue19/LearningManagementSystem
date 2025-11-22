@@ -63,19 +63,11 @@ builder.Services.AddVnPayConfig(builder.Configuration);
 builder.Services.AddStudentServices();
 
 // User Repository & Services
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IAdminUserService, AdminUserService>();
-builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
-builder.Services.AddScoped<IFeedbackService, FeedbackService>();
-builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
-builder.Services.AddScoped<IAuditLogService, AuditLogService>();
-builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
 // AuthZN
 builder.Services.AddAuthenticationServices(builder.Configuration);
 builder.Services.AddAuthorizationPolicies();
-
+builder.Services.AddScoped<EmailHelper>();
 // Session
 builder.Services.AddSessionServices();
 

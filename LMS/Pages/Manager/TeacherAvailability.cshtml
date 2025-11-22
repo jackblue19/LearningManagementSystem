@@ -1,0 +1,294 @@
+@page
+@model LMS.Pages.Manager.TeacherAvailabilityModel
+@{
+    ViewData["Title"] = "Quản lý Slot Đăng ký của Giáo viên";
+}
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+    .filter-card {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+    .availability-card {
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        transition: all 0.2s;
+        margin-bottom: 1rem;
+    }
+    .availability-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    .time-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+    .day-badge {
+        background: #e9ecef;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    .conflict-alert {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 0.75rem;
+        border-radius: 4px;
+    }
+    .no-conflict {
+        background: #d4edda;
+        border-left: 4px solid #28a745;
+        padding: 0.75rem;
+        border-radius: 4px;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="mb-2">
+                    <i class="bi bi-calendar-check"></i> Quản lý Slot Đăng ký Giáo viên
+                </h1>
+                <p class="mb-0 opacity-75">
+                    <i class="bi bi-clock-history"></i> Xem và quản lý các slot thời gian giáo viên đăng ký sẵn sàng dạy
+                </p>
+            </div>
+            <div>
+                <a asp-page="/Manager/TeacherAvailabilitySchedule" class="btn btn-light btn-lg me-2">
+                    <i class="bi bi-calendar-week"></i> Xem lịch tuần
+                </a>
+                <a asp-page="/Manager/ManagerDashboard" class="btn btn-outline-light btn-lg">
+                    <i class="bi bi-house-door-fill"></i> Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Filter Card -->
+    <div class="card filter-card">
+        <div class="card-body">
+            <h5 class="card-title mb-3">
+                <i class="bi bi-funnel-fill text-primary"></i> Bộ lọc
+            </h5>
+            <form method="get">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Giáo viên</label>
+                        <select name="TeacherId" class="form-select">
+                            <option value="">-- Tất cả giáo viên --</option>
+                            @foreach (var teacher in Model.Teachers)
+                            {
+                                <option value="@teacher.TeacherId" selected="@(Model.TeacherId == teacher.TeacherId)">
+                                    @teacher.FullName
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Thứ trong tuần</label>
+                        <select name="DayOfWeek" class="form-select">
+                            <option value="">-- Tất cả các ngày --</option>
+                            <option value="1" selected="@(Model.DayOfWeek == 1)">Thứ 2</option>
+                            <option value="2" selected="@(Model.DayOfWeek == 2)">Thứ 3</option>
+                            <option value="3" selected="@(Model.DayOfWeek == 3)">Thứ 4</option>
+                            <option value="4" selected="@(Model.DayOfWeek == 4)">Thứ 5</option>
+                            <option value="5" selected="@(Model.DayOfWeek == 5)">Thứ 6</option>
+                            <option value="6" selected="@(Model.DayOfWeek == 6)">Thứ 7</option>
+                            <option value="0" selected="@(Model.DayOfWeek == 0)">Chủ nhật</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-search"></i> Lọc
+                            </button>
+                            <a asp-page="/Manager/TeacherAvailability" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-calendar2-check text-primary" style="font-size: 2rem;"></i>
+                    <h3 class="mt-2 mb-0">@Model.TotalRecords</h3>
+                    <p class="text-muted mb-0">Tổng số slot đăng ký</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-people text-success" style="font-size: 2rem;"></i>
+                    <h3 class="mt-2 mb-0">@Model.Teachers.Count</h3>
+                    <p class="text-muted mb-0">Giáo viên đã đăng ký</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-exclamation-triangle text-warning" style="font-size: 2rem;"></i>
+                    <h3 class="mt-2 mb-0">@Model.Availabilities.Count(a => a.HasConflict)</h3>
+                    <p class="text-muted mb-0">Slot có xung đột</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Availability List -->
+    @if (Model.Availabilities.Any())
+    {
+        <div class="row">
+            @foreach (var availability in Model.Availabilities)
+            {
+                <div class="col-lg-6 col-xl-4">
+                    <div class="availability-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h5 class="mb-1">
+                                        <i class="bi bi-person-badge text-primary"></i>
+                                        @availability.TeacherName
+                                    </h5>
+                                    <span class="day-badge">@availability.DayOfWeekName</span>
+                                </div>
+                                <form method="post" asp-page-handler="Delete" 
+                                      onsubmit="return confirm('Bạn có chắc muốn xóa slot này?')">
+                                    <input type="hidden" name="availabilityId" value="@availability.AvailabilityId" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="time-badge">
+                                    <i class="bi bi-clock"></i>
+                                    @availability.StartTime.ToString("HH:mm") - @availability.EndTime.ToString("HH:mm")
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(availability.Note))
+                            {
+                                <div class="mb-3">
+                                    <small class="text-muted">
+                                        <i class="bi bi-journal-text"></i> Ghi chú:
+                                    </small>
+                                    <p class="mb-0">@availability.Note</p>
+                                </div>
+                            }
+
+                            @if (availability.HasConflict)
+                            {
+                                <div class="conflict-alert">
+                                    <i class="bi bi-exclamation-triangle text-warning"></i>
+                                    <small><strong>Cảnh báo:</strong> Giáo viên đã có lịch dạy trong slot này!</small>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="no-conflict">
+                                    <i class="bi bi-check-circle text-success"></i>
+                                    <small>Slot khả dụng, chưa có xung đột</small>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        @if (Model.TotalPages > 1)
+        {
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                        <a class="page-link" 
+                           asp-page="/Manager/TeacherAvailability"
+                           asp-route-pageNumber="@(Model.PageNumber - 1)"
+                           asp-route-teacherId="@Model.TeacherId"
+                           asp-route-dayOfWeek="@Model.DayOfWeek">
+                            Trước
+                        </a>
+                    </li>
+
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(Model.PageNumber == i ? "active" : "")">
+                            <a class="page-link" 
+                               asp-page="/Manager/TeacherAvailability"
+                               asp-route-pageNumber="@i"
+                               asp-route-teacherId="@Model.TeacherId"
+                               asp-route-dayOfWeek="@Model.DayOfWeek">
+                                @i
+                            </a>
+                        </li>
+                    }
+
+                    <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+                        <a class="page-link" 
+                           asp-page="/Manager/TeacherAvailability"
+                           asp-route-pageNumber="@(Model.PageNumber + 1)"
+                           asp-route-teacherId="@Model.TeacherId"
+                           asp-route-dayOfWeek="@Model.DayOfWeek">
+                            Sau
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-calendar-x text-muted" style="font-size: 4rem;"></i>
+                <h4 class="mt-3 text-muted">Không tìm thấy slot đăng ký nào</h4>
+                <p class="text-muted">
+                    Thử thay đổi bộ lọc hoặc giáo viên chưa đăng ký slot nào.
+                </p>
+            </div>
+        </div>
+    }
+</div>

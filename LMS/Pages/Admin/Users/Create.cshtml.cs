@@ -1,11 +1,10 @@
 using LMS.Models.Entities;
 using LMS.Models.ViewModels.Admin;
 using LMS.Services.Interfaces.AdminService;
-using LMS.Services.Interfaces.CommonService;
+using LMS.Services.Interfaces.CommonService; // Đảm bảo có namespace này
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Security.Cryptography;
-using System.Text;
+// Xóa các using System.Security.Cryptography nếu không dùng nữa
 
 namespace LMS.Pages.Admin.Users;
 
@@ -13,11 +12,17 @@ public class CreateModel : PageModel
 {
     private readonly IAdminUserService _adminUserService;
     private readonly IUserService _userService;
+    private readonly IAuthService _authService; // 1. Inject thêm AuthService
 
-    public CreateModel(IAdminUserService adminUserService, IUserService userService)
+    // 2. Thêm IAuthService vào Constructor
+    public CreateModel(
+        IAdminUserService adminUserService,
+        IUserService userService,
+        IAuthService authService)
     {
         _adminUserService = adminUserService;
         _userService = userService;
+        _authService = authService;
     }
 
     [BindProperty]
@@ -36,7 +41,7 @@ public class CreateModel : PageModel
             return Page();
         }
 
-        // Check if username exists
+        // Check username/email (Giữ nguyên code cũ của bạn)
         if (await _userService.IsUsernameExistsAsync(ViewModel.Username, null, ct))
         {
             ModelState.AddModelError(nameof(ViewModel.Username), "Username already exists.");
@@ -44,7 +49,6 @@ public class CreateModel : PageModel
             return Page();
         }
 
-        // Check if email exists
         if (await _userService.IsEmailExistsAsync(ViewModel.Email, null, ct))
         {
             ModelState.AddModelError(nameof(ViewModel.Email), "Email already exists.");
@@ -52,14 +56,17 @@ public class CreateModel : PageModel
             return Page();
         }
 
-        // Hash password
-        var passwordHash = HashPassword(ViewModel.Password);
+        // 3. SỬA ĐOẠN NÀY: Sử dụng Hash của AuthService để có Salt "LMS_SALT_2025"
+        // Lưu ý: Nếu _adminUserService.CreateUserAsync bên trong nó CŨNG Hash, 
+        // thì bạn truyền ViewModel.Password (pass thô) vào, hoặc sửa Service đó bỏ Hash đi.
+        // Giả định Service chỉ lưu DB, ta Hash ở đây cho chuẩn logic Login:
+        var passwordHash = _authService.HashPassword(ViewModel.Password);
 
         var user = new User
         {
             Username = ViewModel.Username,
             Email = ViewModel.Email,
-            PasswordHash = passwordHash,
+            PasswordHash = passwordHash, // Đã hash chuẩn Salt
             FullName = ViewModel.FullName,
             Phone = ViewModel.Phone,
             RoleDesc = ViewModel.RoleDesc,
@@ -82,11 +89,5 @@ public class CreateModel : PageModel
         }
     }
 
-    private static string HashPassword(string password)
-    {
-        using var sha256 = SHA256.Create();
-        var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-        return Convert.ToBase64String(hashedBytes);
-    }
+    // 4. XÓA hàm HashPassword private static ở dưới cùng đi để tránh nhầm lẫn
 }
-

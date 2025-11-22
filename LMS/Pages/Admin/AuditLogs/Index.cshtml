@@ -1,25 +1,146 @@
 @page
 @model LMS.Pages.Admin.AuditLogs.IndexModel
 @{
-    ViewData["Title"] = "Audit Logs";
+    ViewData["Title"] = "System Audit Logs";
 }
 
-<div class="container-fluid">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --bg-body: #f3f4f6;
+        --bg-card: #ffffff;
+        --text-primary: #111827;
+        --text-secondary: #6b7280;
+        --border-color: #e5e7eb;
+        --accent-create: #059669; /* Green */
+        --accent-update: #2563eb; /* Blue */
+        --accent-delete: #dc2626; /* Red */
+        --accent-login: #7c3aed;  /* Purple */
+    }
+
+    body {
+        background-color: var(--bg-body);
+        font-family: 'Inter', sans-serif;
+        color: var(--text-primary);
+    }
+
+    /* --- Cards --- */
+    .page-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        border: 1px solid rgba(229, 231, 235, 0.5);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* --- Filters --- */
+    .filter-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 0.5rem; }
+    .filter-input {
+        background-color: #f9fafb; border: 1px solid var(--border-color); border-radius: 10px;
+        padding: 0.6rem 1rem; font-size: 0.9rem; transition: all 0.2s;
+    }
+    .filter-input:focus { background: #fff; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+    
+    /* --- Table --- */
+    .table-custom { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .table-custom th {
+        background-color: #f9fafb; font-weight: 600; text-transform: uppercase; font-size: 0.75rem;
+        color: var(--text-secondary); padding: 1rem; border-bottom: 1px solid var(--border-color);
+    }
+    .table-custom td { padding: 1rem; border-bottom: 1px solid var(--border-color); vertical-align: top; font-size: 0.9rem; }
+    .table-custom tr:hover td { background-color: #f9fafb; }
+
+    /* --- User Avatar --- */
+    .user-cell { display: flex; align-items: center; gap: 12px; }
+    .avatar-initials {
+        width: 36px; height: 36px; background: #eff6ff; color: #3b82f6; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem; flex-shrink: 0;
+    }
+
+    /* --- Action Badges --- */
+    .badge-action {
+        padding: 6px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;
+        width: 100px; /* Cố định chiều rộng để thẳng hàng */
+    }
+    .badge-create { background: #ecfdf5; color: var(--accent-create); border: 1px solid #d1fae5; }
+    .badge-update { background: #eff6ff; color: var(--accent-update); border: 1px solid #dbeafe; }
+    .badge-delete { background: #fef2f2; color: var(--accent-delete); border: 1px solid #fee2e2; }
+    .badge-login  { background: #f5f3ff; color: var(--accent-login); border: 1px solid #ede9fe; }
+    .badge-other  { background: #f3f4f6; color: var(--text-secondary); border: 1px solid #e5e7eb; }
+
+    /* --- Entity & Record Info --- */
+    .entity-info { font-weight: 600; color: var(--text-primary); }
+    .record-id { font-family: 'Fira Code', monospace; font-size: 0.75rem; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; color: var(--text-secondary); }
+
+    /* --- Data Diff Viewer (The Cool Part) --- */
+    details > summary { list-style: none; cursor: pointer; outline: none; }
+    details > summary::-webkit-details-marker { display: none; }
+    
+    .btn-view-data {
+        font-size: 0.8rem; font-weight: 500; color: var(--text-secondary);
+        padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); background: #fff;
+        display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
+    }
+    .btn-view-data:hover { background: #f9fafb; color: var(--text-primary); border-color: #d1d5db; }
+    
+    details[open] .btn-view-data { background: #eff6ff; color: #3b82f6; border-color: #bfdbfe; }
+
+    .code-box {
+        margin-top: 10px; background: #1e293b; border-radius: 8px; padding: 12px; color: #e2e8f0;
+        font-family: 'Fira Code', monospace; font-size: 0.75rem; position: relative;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+    .code-header {
+        display: flex; justify-content: space-between; border-bottom: 1px solid #334155;
+        padding-bottom: 8px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.7rem; color: #94a3b8;
+    }
+    .code-content { white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow-y: auto; line-height: 1.5; }
+    
+    /* Custom Scrollbar for code */
+    .code-content::-webkit-scrollbar { width: 6px; }
+    .code-content::-webkit-scrollbar-track { background: #0f172a; }
+    .code-content::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+
+    /* --- Pagination --- */
+    .page-link { border: none; color: var(--text-secondary); border-radius: 8px; margin: 0 2px; font-weight: 500; }
+    .page-link:hover { background: #f3f4f6; color: var(--text-primary); }
+    .page-item.active .page-link { background: var(--text-primary); color: #fff; }
+
+</style>
+
+<div class="container-fluid py-4 px-4">
+    
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Audit Logs</h2>
+        <div>
+            <h3 class="fw-bold mb-1 text-dark">Audit Logs</h3>
+            <p class="text-muted small mb-0">Tracking system changes and user activities.</p>
+        </div>
+        <div>
+            <span class="badge bg-white text-secondary border shadow-sm p-2">
+                <i class="fas fa-list-ul me-1"></i> Total: @Model.ViewModel.Logs.TotalCount
+            </span>
+        </div>
     </div>
 
-    <form method="get" class="mb-4">
-        <div class="row g-3">
+    <div class="page-card py-4">
+        <form method="get" class="row g-3 align-items-end">
             <div class="col-md-4">
-                <label class="form-label" for="SearchTerm">Search</label>
-                <input class="form-control" id="SearchTerm" name="SearchTerm"
-                       value="@Model.SearchTerm" placeholder="User, entity, record, action" />
+                <label class="filter-label" for="SearchTerm">Keyword Search</label>
+                <div class="input-group">
+                    <span class="input-group-text border-end-0 bg-white" style="border-radius: 10px 0 0 10px; border-color: var(--border-color);">
+                        <i class="fas fa-search text-muted"></i>
+                    </span>
+                    <input class="form-control filter-input border-start-0 ps-0" id="SearchTerm" name="SearchTerm"
+                           value="@Model.SearchTerm" placeholder="User, entity, or record ID..." style="border-radius: 0 10px 10px 0;">
+                </div>
             </div>
-            <div class="col-md-3">
-                <label class="form-label" for="ActionFilter">Action</label>
-                <select class="form-select" id="ActionFilter" name="ActionFilter">
-                    <option value="">All</option>
+            <div class="col-md-2">
+                <label class="filter-label" for="ActionFilter">Action Type</label>
+                <select class="form-select filter-input" id="ActionFilter" name="ActionFilter">
+                    <option value="">All Actions</option>
                     @foreach (var action in Model.ViewModel.ActionOptions)
                     {
                         <option value="@action" selected="@(string.Equals(Model.ActionFilter, action, StringComparison.OrdinalIgnoreCase))">
@@ -29,121 +150,192 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <label class="form-label" for="DateFrom">From</label>
-                <input class="form-control" type="date" id="DateFrom" name="DateFrom"
+                <label class="filter-label" for="DateFrom">From Date</label>
+                <input class="form-control filter-input" type="date" id="DateFrom" name="DateFrom"
                        value="@(Model.DateFrom?.ToString("yyyy-MM-dd"))" />
             </div>
             <div class="col-md-2">
-                <label class="form-label" for="DateTo">To</label>
-                <input class="form-control" type="date" id="DateTo" name="DateTo"
+                <label class="filter-label" for="DateTo">To Date</label>
+                <input class="form-control filter-input" type="date" id="DateTo" name="DateTo"
                        value="@(Model.DateTo?.ToString("yyyy-MM-dd"))" />
             </div>
-            <div class="col-md-1 d-flex align-items-end">
-                <button type="submit" class="btn btn-secondary w-100">Filter</button>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-dark w-100" style="border-radius: 10px; padding: 0.6rem;">
+                    Apply Filters
+                </button>
             </div>
-        </div>
-    </form>
+        </form>
+    </div>
 
-    <div class="table-responsive">
-        <table class="table table-striped table-hover align-middle">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>User</th>
-                    <th>Action</th>
-                    <th>Entity</th>
-                    <th>Record</th>
-                    <th>Details</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model.ViewModel.Logs.Items.Any())
-                {
-                    @foreach (var log in Model.ViewModel.Logs.Items)
+    <div class="page-card p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th style="width: 150px;">Timestamp</th>
+                        <th style="width: 200px;">User</th>
+                        <th style="width: 140px;">Action</th>
+                        <th style="width: 180px;">Target (Entity)</th>
+                        <th>Change Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.ViewModel.Logs.Items.Any())
                     {
-                        <tr>
-                            <td>@log.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
-                            <td>
-                                <div class="fw-semibold">@log.Username</div>
-                                <small class="text-muted">@log.FullName</small>
-                            </td>
-                            <td>
-                                <span class="badge bg-primary">@log.ActionType ?? "N/A"</span>
-                            </td>
-                            <td>@(log.EntityName ?? "-")</td>
-                            <td>@(log.RecordId ?? "-")</td>
-                            <td style="min-width: 260px;">
-                                <details>
-                                    <summary class="text-primary">View Data</summary>
-                                    <div class="mt-2">
-                                        <div class="mb-2">
-                                            <strong>New Data</strong>
-                                            <pre class="bg-light p-2 rounded" style="white-space: pre-wrap;">@(!string.IsNullOrWhiteSpace(log.NewData) ? log.NewData : "(empty)")</pre>
+                        @foreach (var log in Model.ViewModel.Logs.Items)
+                        {
+                            // Determine Styles based on Action
+                            var action = log.ActionType?.ToLower() ?? "";
+                            var badgeClass = "badge-other";
+                            var iconClass = "fa-circle-info";
+
+                            if (action.Contains("create")) { badgeClass = "badge-create"; iconClass = "fa-plus"; }
+                            else if (action.Contains("update")) { badgeClass = "badge-update"; iconClass = "fa-pen"; }
+                            else if (action.Contains("delete")) { badgeClass = "badge-delete"; iconClass = "fa-trash"; }
+                            else if (action.Contains("login")) { badgeClass = "badge-login"; iconClass = "fa-right-to-bracket"; }
+
+                            <tr>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-bold text-dark">@log.CreatedAt.ToString("HH:mm")</span>
+                                        <span class="text-muted small">@log.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="user-cell">
+                                        <div class="avatar-initials">
+                                            @(string.IsNullOrEmpty(log.Username) ? "?" : log.Username.Substring(0, 1).ToUpper())
                                         </div>
-                                        <div>
-                                            <strong>Old Data</strong>
-                                            <pre class="bg-light p-2 rounded" style="white-space: pre-wrap;">@(!string.IsNullOrWhiteSpace(log.OldData) ? log.OldData : "(empty)")</pre>
+                                        <div class="d-flex flex-column" style="line-height: 1.2;">
+                                            <span class="fw-semibold text-dark" style="font-size: 0.85rem;">@log.Username</span>
+                                            <span class="text-muted small" style="font-size: 0.75rem;">@log.FullName</span>
                                         </div>
                                     </div>
-                                </details>
+                                </td>
+
+                                <td>
+                                    <span class="badge-action @badgeClass">
+                                        <i class="fas @iconClass"></i> @log.ActionType
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="d-flex flex-column gap-1">
+                                        <span class="entity-info">
+                                            <i class="fas fa-database text-muted me-1 small"></i> @(log.EntityName ?? "-")
+                                        </span>
+                                        @if(!string.IsNullOrEmpty(log.RecordId))
+                                        {
+                                            <div><span class="record-id">ID: @log.RecordId</span></div>
+                                        }
+                                    </div>
+                                </td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(log.NewData) || !string.IsNullOrWhiteSpace(log.OldData))
+                                    {
+                                        <details>
+                                            <summary>
+                                                <div class="btn-view-data">
+                                                    <i class="fas fa-code"></i> View Data Diff
+                                                    <i class="fas fa-chevron-down ms-1 small"></i>
+                                                </div>
+                                            </summary>
+                                            
+                                            <div class="d-flex gap-3 mt-2">
+                                                @if (!string.IsNullOrWhiteSpace(log.OldData))
+                                                {
+                                                    <div class="code-box flex-fill">
+                                                        <div class="code-header text-danger">
+                                                            <span><i class="fas fa-minus-circle me-1"></i> Old Data</span>
+                                                        </div>
+                                                        <div class="code-content">@log.OldData</div>
+                                                    </div>
+                                                }
+                                                
+                                                @if (!string.IsNullOrWhiteSpace(log.NewData))
+                                                {
+                                                    <div class="code-box flex-fill">
+                                                        <div class="code-header text-success">
+                                                            <span><i class="fas fa-plus-circle me-1"></i> New Data</span>
+                                                        </div>
+                                                        <div class="code-content">@log.NewData</div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </details>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small opacity-50">No data payload captured.</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="fas fa-history fa-3x mb-3 opacity-25"></i>
+                                    <p class="mb-0">No audit logs found matching criteria.</p>
+                                </div>
                             </td>
                         </tr>
                     }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="6" class="text-center">No audit logs found.</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.ViewModel.Logs.TotalCount > 0)
+        {
+            <div class="p-3 border-top bg-white d-flex justify-content-center">
+                <nav>
+                    <ul class="pagination mb-0">
+                        @{
+                            var totalPages = (int)Math.Ceiling((double)Model.ViewModel.Logs.TotalCount / Model.ViewModel.Logs.PageSize);
+                        }
+
+                        <li class="page-item @(Model.ViewModel.Logs.PageIndex <= 1 ? "disabled" : "")">
+                            <a class="page-link" asp-page="Index"
+                               asp-route-SearchTerm="@Model.SearchTerm"
+                               asp-route-ActionFilter="@Model.ActionFilter"
+                               asp-route-DateFrom="@(Model.DateFrom?.ToString("yyyy-MM-dd"))"
+                               asp-route-DateTo="@(Model.DateTo?.ToString("yyyy-MM-dd"))"
+                               asp-route-PageIndex="@(Model.ViewModel.Logs.PageIndex - 1)">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+
+                        @for (int i = Math.Max(1, Model.ViewModel.Logs.PageIndex - 2);
+                             i <= Math.Min(totalPages, Model.ViewModel.Logs.PageIndex + 2);
+                             i++)
+                        {
+                            <li class="page-item @(i == Model.ViewModel.Logs.PageIndex ? "active" : "")">
+                                <a class="page-link" asp-page="Index"
+                                   asp-route-SearchTerm="@Model.SearchTerm"
+                                   asp-route-ActionFilter="@Model.ActionFilter"
+                                   asp-route-DateFrom="@(Model.DateFrom?.ToString("yyyy-MM-dd"))"
+                                   asp-route-DateTo="@(Model.DateTo?.ToString("yyyy-MM-dd"))"
+                                   asp-route-PageIndex="@i">@i</a>
+                            </li>
+                        }
+
+                        <li class="page-item @(Model.ViewModel.Logs.PageIndex >= totalPages ? "disabled" : "")">
+                            <a class="page-link" asp-page="Index"
+                               asp-route-SearchTerm="@Model.SearchTerm"
+                               asp-route-ActionFilter="@Model.ActionFilter"
+                               asp-route-DateFrom="@(Model.DateFrom?.ToString("yyyy-MM-dd"))"
+                               asp-route-DateTo="@(Model.DateTo?.ToString("yyyy-MM-dd"))"
+                               asp-route-PageIndex="@(Model.ViewModel.Logs.PageIndex + 1)">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
     </div>
-
-    @if (Model.ViewModel.Logs.TotalCount > 0)
-    {
-        var totalPages = (int)Math.Ceiling((double)Model.ViewModel.Logs.TotalCount / Model.ViewModel.Logs.PageSize);
-        <nav aria-label="Audit log pagination">
-            <ul class="pagination justify-content-center">
-                @if (Model.ViewModel.Logs.PageIndex > 1)
-                {
-                    <li class="page-item">
-                        <a class="page-link" asp-page="Index"
-                           asp-route-SearchTerm="@Model.SearchTerm"
-                           asp-route-ActionFilter="@Model.ActionFilter"
-                           asp-route-DateFrom="@(Model.DateFrom?.ToString("yyyy-MM-dd"))"
-                           asp-route-DateTo="@(Model.DateTo?.ToString("yyyy-MM-dd"))"
-                           asp-route-PageIndex="@(Model.ViewModel.Logs.PageIndex - 1)">Previous</a>
-                    </li>
-                }
-
-                @for (int i = Math.Max(1, Model.ViewModel.Logs.PageIndex - 2);
-                     i <= Math.Min(totalPages, Model.ViewModel.Logs.PageIndex + 2);
-                     i++)
-                {
-                    <li class="page-item @(i == Model.ViewModel.Logs.PageIndex ? "active" : "")">
-                        <a class="page-link" asp-page="Index"
-                           asp-route-SearchTerm="@Model.SearchTerm"
-                           asp-route-ActionFilter="@Model.ActionFilter"
-                           asp-route-DateFrom="@(Model.DateFrom?.ToString("yyyy-MM-dd"))"
-                           asp-route-DateTo="@(Model.DateTo?.ToString("yyyy-MM-dd"))"
-                           asp-route-PageIndex="@i">@i</a>
-                    </li>
-                }
-
-                @if (Model.ViewModel.Logs.PageIndex < totalPages)
-                {
-                    <li class="page-item">
-                        <a class="page-link" asp-page="Index"
-                           asp-route-SearchTerm="@Model.SearchTerm"
-                           asp-route-ActionFilter="@Model.ActionFilter"
-                           asp-route-DateFrom="@(Model.DateFrom?.ToString("yyyy-MM-dd"))"
-                           asp-route-DateTo="@(Model.DateTo?.ToString("yyyy-MM-dd"))"
-                           asp-route-PageIndex="@(Model.ViewModel.Logs.PageIndex + 1)">Next</a>
-                    </li>
-                }
-            </ul>
-        </nav>
-    }
 </div>
-
