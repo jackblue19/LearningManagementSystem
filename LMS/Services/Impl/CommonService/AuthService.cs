@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using LMS.Data;
 using LMS.Helpers;
 using LMS.Models.Entities;
@@ -6,6 +7,7 @@ using LMS.Repositories.Interfaces.Info;
 using LMS.Services.Interfaces.CommonService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using static System.Net.WebRequestMethods;
 
 namespace LMS.Services.Impl.CommonService;
 
@@ -16,12 +18,14 @@ public class AuthService : IAuthService
     private readonly EmailHelper _emailHelper;
     private readonly IMemoryCache _cache;
     private readonly IConfiguration _configuration;
+    private readonly IHttpContextAccessor _http;
 
     public AuthService(
-        IUserRepository userRepo, 
-        CenterDbContext db, 
-        EmailHelper emailHelper, 
+        IUserRepository userRepo,
+        CenterDbContext db,
+        EmailHelper emailHelper,
         IMemoryCache cache,
+        IHttpContextAccessor httpContextAccessor,
         IConfiguration configuration)
     {
         _userRepo = userRepo;
@@ -29,19 +33,24 @@ public class AuthService : IAuthService
         _emailHelper = emailHelper;
         _cache = cache;
         _configuration = configuration;
+        _http = httpContextAccessor;
     }
-
+    public Guid GetUserId()
+    {
+        var id = _http.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return id is null ? Guid.Empty : Guid.Parse(id);
+    }
     public async Task<(bool Success, User? User, string? ErrorMessage)> LoginAsync(
-        string usernameOrEmail, 
-        string password, 
+        string usernameOrEmail,
+        string password,
         CancellationToken ct = default)
     {
         try
         {
             // Find user by username or email
             var user = await _db.Users
-                .FirstOrDefaultAsync(u => 
-                    (u.Username == usernameOrEmail || u.Email == usernameOrEmail) 
+                   .FirstOrDefaultAsync(u =>
+                    (u.Username == usernameOrEmail || u.Email == usernameOrEmail)
                     && u.IsActive, ct);
 
             if (user == null)
@@ -64,7 +73,7 @@ public class AuthService : IAuthService
     }
 
     public async Task<(bool Success, User? User, string? ErrorMessage)> RegisterAsync(
-        RegisterViewModel model, 
+        RegisterViewModel model,
         CancellationToken ct = default)
     {
         try
@@ -112,9 +121,9 @@ public class AuthService : IAuthService
     }
 
     public async Task<(bool Success, string? ErrorMessage)> ChangePasswordAsync(
-        Guid userId, 
-        string currentPassword, 
-        string newPassword, 
+        Guid userId,
+        string currentPassword,
+        string newPassword,
         CancellationToken ct = default)
     {
         try
@@ -147,7 +156,7 @@ public class AuthService : IAuthService
     }
 
     public async Task<(bool Success, string? ErrorMessage)> ForgotPasswordAsync(
-        string email, 
+        string email,
         CancellationToken ct = default)
     {
         try
@@ -169,7 +178,7 @@ public class AuthService : IAuthService
             var cacheKey = $"reset_token_{email}";
             var cacheOptions = new MemoryCacheEntryOptions()
                 .SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
-            
+
             _cache.Set(cacheKey, resetToken, cacheOptions);
             Console.WriteLine($"[AuthService] Token stored in cache with key: {cacheKey}");
 
@@ -222,7 +231,7 @@ public class AuthService : IAuthService
     }
 
     public async Task<(bool Success, User? User, string? ErrorMessage)> UpdateProfileAsync(
-        EditProfileViewModel model, 
+        EditProfileViewModel model,
         CancellationToken ct = default)
     {
         try
@@ -297,15 +306,15 @@ public class AuthService : IAuthService
     }
 
     public async Task<(bool Success, User? User, string? ErrorMessage, bool IsNewUser)> GoogleLoginAsync(
-        string email, 
-        string name, 
-        string? picture, 
+        string email,
+        string name,
+        string? picture,
         CancellationToken ct = default)
     {
         try
         {
             Console.WriteLine($"[AuthService] GoogleLoginAsync called - Email: {email}");
-            
+
             // Check if user exists with this email
             var user = await _db.Users
                 .FirstOrDefaultAsync(u => u.Email == email, ct);
@@ -313,7 +322,7 @@ public class AuthService : IAuthService
             if (user != null)
             {
                 Console.WriteLine($"[AuthService] Existing user found - Username: {user.Username}, Role: {user.RoleDesc}");
-                
+
                 // User exists, update last login and avatar if needed
                 if (!string.IsNullOrEmpty(picture) && string.IsNullOrEmpty(user.Avatar))
                 {
@@ -324,14 +333,14 @@ public class AuthService : IAuthService
 
                 return (true, user, null, false);
             }
-            
+
             Console.WriteLine($"[AuthService] New user, creating account...");
 
             // Generate unique username from email
             var baseUsername = email.Split('@')[0];
             var username = baseUsername;
             var counter = 1;
-            
+
             // Check if username exists and append number if needed
             while (await _db.Users.AnyAsync(u => u.Username == username, ct))
             {
@@ -354,7 +363,7 @@ public class AuthService : IAuthService
             };
 
             Console.WriteLine($"[AuthService] Creating user - Username: {username}, Role: student");
-            
+
             await _userRepo.AddAsync(user, saveNow: true, ct);
 
             // Verify user was saved

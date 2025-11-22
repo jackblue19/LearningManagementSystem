@@ -1,0 +1,81 @@
+@page
+@model LMS.Pages.Classes.IndexModel
+@{
+    ViewData["Title"] = "Danh sách lớp học";
+}
+
+<h1 class="mb-4">Danh sách lớp học</h1>
+
+<a class="btn btn-primary mb-3" asp-page="Create">+ Tạo lớp mới</a>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Tên lớp</th>
+            <th>Môn học</th>
+            <th>Giáo viên</th>
+            <th>Địa điểm</th>
+            <th>Học phí</th>
+            <th>Số buổi</th>
+            <th>Trạng thái</th>
+            <th>Ngày bắt đầu</th>
+            <th>Ngày kết thúc</th>
+            <th style="width: 180px;">Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+    @if (Model.Classes.Any())
+    {
+        foreach (var c in Model.Classes)
+        {
+            <tr>
+                <td>@c.ClassName</td>
+
+                <td>@c.Subject?.SubjectName</td>
+                <td>@c.Teacher?.FullName</td>
+
+                <td>@c.ClassAddress</td>
+
+                <td>@String.Format("{0:N0}đ", c.UnitPrice ?? 0)</td>
+
+                <td>@c.TotalSessions</td>
+
+                <td>
+                    @if (c.ClassStatus == "on progress")
+                    {
+                        <span class="badge bg-info">Đang học</span>
+                    }
+                    else if (c.ClassStatus == "not start")
+                    {
+                        <span class="badge bg-secondary">Chưa bắt đầu</span>
+                    }
+                    else if (c.ClassStatus == "finished")
+                    {
+                        <span class="badge bg-success">Hoàn thành</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-dark">@c.ClassStatus</span>
+                    }
+                </td>
+
+                <td>@(c.StartDate?.ToString("dd/MM/yyyy"))</td>
+                <td>@(c.EndDate?.ToString("dd/MM/yyyy"))</td>
+
+                <td>
+                    <a asp-page="Details" asp-route-id="@c.ClassId" class="btn btn-sm btn-info text-white">Chi tiết</a>
+                    <a asp-page="Edit" asp-route-id="@c.ClassId" class="btn btn-sm btn-warning">Sửa</a>
+                    <a asp-page="Delete" asp-route-id="@c.ClassId" class="btn btn-sm btn-danger">Xoá</a>
+                </td>
+            </tr>
+        }
+    }
+    else
+    {
+        <tr>
+            <td colspan="10" class="text-center">Không có lớp nào.</td>
+        </tr>
+    }
+    </tbody>
+</table>
+

@@ -1,0 +1,129 @@
+@page
+@using System.Text.Json
+@model LMS.Pages.Student.Exams.IndexModel
+@{
+    ViewData["Title"] = "Bài kiểm tra & Điểm";
+    var scoreMap = Model.Scores.ToDictionary(x => x.ExamId , x => x);
+    var scores = Model.Exams.Select(e => scoreMap.TryGetValue(e.ExamId , out var s) ? (double?) s.Score : null).ToList();
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2">
+            <div class="col-md-6">
+                <label class="form-label">Lọc theo lớp</label>
+                <select name="ClassId" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Tất cả lớp --</option>
+                    @foreach ( var c in Model.MyClasses )
+                    {
+                        <option value="@c.ClassId" selected="@(Model.ClassId==c.ClassId)">@c.ClassName</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6 d-flex align-items-end justify-content-end">
+                <button class="btn btn-primary">Lọc</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if ( Model.Exams.Count == 0 )
+{
+    <div class="alert alert-info">Chưa có bài kiểm tra.</div>
+}
+else
+{
+    <div class="row g-3">
+        <div class="col-lg-7">
+            <div class="card h-100">
+                <div class="card-header"><strong>Điểm theo bài kiểm tra</strong></div>
+                <div class="card-body">
+                    <canvas id="examChart" height="140"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card h-100">
+                <div class="card-header"><strong>Danh sách bài kiểm tra</strong></div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Ngày</th>
+                                    <th>Tiêu đề</th>
+                                    <th class="text-end">Điểm</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ( var e in Model.Exams )
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="fw-semibold">@e.Title</div>
+                                            <div class="small text-muted">
+                                                @if ( !string.IsNullOrWhiteSpace(e.ExamType) )
+                                                {
+                                                    <span>@e.ExamType</span>
+                                                }
+                                                @if ( !string.IsNullOrWhiteSpace(e.ExamStatus) )
+                                                {
+                                                    <span class="ms-2 badge text-bg-secondary">@e.ExamStatus</span>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td class="text-end">
+                                            @{
+                                                if ( scoreMap.TryGetValue(e.ExamId , out var s) )
+                                                {
+                                                    <span class="fw-semibold">@s.Score</span>
+
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Chưa có</span>
+
+                                                }
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dataScore = @Html.Raw(JsonSerializer.Serialize(scores));
+
+        const ctx = document.getElementById('examChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [
+              { label: 'Điểm', data: dataScore },
+              { label: 'Thang điểm', data: dataMax }
+            ]
+          },
+          options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true } },
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function(ctx) {
+                    const v = ctx.parsed.y;
+                    return (v == null) ? 'Chưa có điểm' : v;
+                  }
+                }
+              },
+              legend: { position: 'bottom' }
+            }
+          }
+        });
+    </script>
+}

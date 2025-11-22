@@ -1,0 +1,83 @@
+@page
+@model LMS.Pages.Student.Schedule.IndexModel
+@{
+    ViewData["Title"] = "Lịch học của tôi";
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Từ ngày</label>
+                <input type="date" name="From" value="@(Model.From?.ToString("yyyy-MM-dd") ?? Model.FromDate.ToString("yyyy-MM-dd"))" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Khoảng</label>
+                <select name="Range" class="form-select">
+                    <option value="week" selected="@(Model.Range?.ToLower() == "week")">Tuần</option>
+                    <option value="month" selected="@(Model.Range?.ToLower() == "month")">Tháng</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Lớp</label>
+                <select name="ClassId" class="form-select">
+                    <option value="">-- Tất cả lớp --</option>
+                    @foreach ( var c in Model.MyClasses )
+                    {
+                        <option value="@c.ClassId" selected="@(Model.ClassId==c.ClassId)">@c.ClassName</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3 text-end">
+                <button class="btn btn-primary w-100">Lọc</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if ( Model.Items.Count == 0 )
+{
+    <div class="alert alert-info">Không có lịch học trong khoảng đã chọn.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Ngày</th>
+                    <th>Giờ</th>
+                    <th>Lớp</th>
+                    <th>Phòng</th>
+                    <th>Slot</th>
+                    <th>Ghi chú</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ( var s in Model.Items )
+                {
+                    <tr>
+                        <td>
+                            <strong>@s.SessionDate.ToString("dd/MM/yyyy")</strong><br />
+                            <small class="text-muted">@s.SessionDate.DayOfWeek</small>
+                        </td>
+                        <td>@(s.StartTime ?? "—") – @(s.EndTime ?? "—")</td>
+                        <td>@s.ClassName</td>
+                        <td>@(string.IsNullOrWhiteSpace(s.RoomName) ? "N/A" : s.RoomName)</td>
+                        <td>@(s.SlotOrder?.ToString() ?? "—")</td>
+                        <td>
+                            @if ( !string.IsNullOrWhiteSpace(s.Label) )
+                            {
+                                <span class="badge text-bg-secondary me-1">@s.Label</span>
+                            }
+                            @if ( !string.IsNullOrWhiteSpace(s.Note) )
+                            {
+                                <span class="text-muted">@s.Note</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

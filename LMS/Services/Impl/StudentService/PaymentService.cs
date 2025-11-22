@@ -2,6 +2,7 @@ using LMS.Helpers;
 using LMS.Models.Entities;
 using LMS.Models.ViewModels;
 using LMS.Models.ViewModels.Bank;
+using LMS.Models.ViewModels.StudentService;
 using LMS.Repositories;
 using LMS.Services.Interfaces.StudentService;
 using Microsoft.Extensions.Options;
@@ -182,5 +183,95 @@ public class PaymentService : IPaymentService
 
         data = new VnPayReturn(pid, amount, rsp, bank, txnNo);
         return ok;
+    }
+
+
+    public async Task<(Guid PaymentId, string VnpTxnRef, string Url)> BeginVnpayCheckoutAsync(
+       Guid studentId, Guid classId, string bankCode, string? description, CancellationToken ct = default)
+    {
+        // 1) Đảm bảo đã có registration "approved"
+        var reg = await _regRepo.FirstOrDefaultAsync(
+            r => r.StudentId == studentId && r.ClassId == classId && r.RegistrationStatus == "approved",
+            asNoTracking: false,
+            includes: new System.Linq.Expressions.Expression<Func<ClassRegistration, object>>[] { r => r.Class! },
+            ct: ct);
+        if (reg is null || reg.Class is null)
+            throw new InvalidOperationException("Registration not found or not approved.");
+
+        // 2) Tính amount (UnitPrice * TotalSessions)
+        var cls = reg.Class;
+        var amount = (cls.UnitPrice ?? 0m) * (cls.TotalSessions ?? 0);
+
+        // 3) Tạo txnRef (key giao dịch ở cổng; lưu vào DB để đối chiếu)
+        var vnpTxnRef = Guid.NewGuid().ToString("N");
+
+        // 4) Tạo Payment "PENDING"
+        var p = new Payment
+        {
+            StudentId = studentId,
+            ClassId = classId,
+            RegistrationId = reg.RegistrationId,
+            Amount = amount,
+            PaymentMethod = "VNPAY",
+            PaymentStatus = "PENDING",
+            CreatedAt = DateTime.UtcNow,
+            PaidAt = null,
+            VnpTxnRef = vnpTxnRef,      // ⚠️ cần cột này trong DB/Entity
+            BankCode = null,           // sẽ cập nhật lúc callback
+        };
+        await _payRepo.AddAsync(p, saveNow: false, ct);
+        await _payRepo.SaveChangesAsync(ct);
+
+        // 5) Tạo URL thanh toán (giao cho Page gọi VNPAY client cụ thể)
+        // Ở Application layer tránh phụ thuộc IVnpayClient. Trả về "placeholder",
+        // Razor Page sẽ tạo URL thật dựa vào vnpTxnRef + amount.
+        var url = $"__VNPAY_URL_PLACEHOLDER__?vnp_TxnRef={vnpTxnRef}&amount={(int)(amount * 100)}&bank={bankCode}";
+        return (p.PaymentId, vnpTxnRef, url);
+    }
+
+    // CALLBACK XÁC NHẬN
+    public async Task<PaymentReceiptVm> ConfirmVnpayAsync(
+        string vnpTxnRef, string rspCode, decimal amountVnd, string? bankCode, CancellationToken ct = default)
+    {
+        var p = await _payRepo.FirstOrDefaultAsync(x => x.VnpTxnRef == vnpTxnRef,
+            asNoTracking: false,
+            includes: new System.Linq.Expressions.Expression<Func<Payment, object>>[] { x => x.Class! }, ct: ct);
+
+        if (p is null)
+            throw new InvalidOperationException($"Payment not found for vnp_TxnRef={vnpTxnRef}");
+
+        if (p.PaymentStatus == "PAID")
+        {
+            return new PaymentReceiptVm(p.PaymentId, p.PaymentStatus, p.Amount, p.CreatedAt, p.PaidAt, p.BankCode, p.Class?.ClassName ?? "");
+        }
+
+        if (rspCode == "00")
+        {
+            // Nếu DB đã có Amount, đối chiếu; nếu 0 thì nhận theo gateway
+            var finalAmount = p.Amount == 0 ? amountVnd : p.Amount;
+            if (p.Amount != 0 && p.Amount != amountVnd)
+            {
+                p.PaymentStatus = "FAILED";
+                await _payRepo.UpdateAsync(p, saveNow: false, ct);
+                await _payRepo.SaveChangesAsync(ct);
+                return new PaymentReceiptVm(p.PaymentId, p.PaymentStatus, p.Amount, p.CreatedAt, p.PaidAt, p.BankCode, p.Class?.ClassName ?? "");
+            }
+
+            p.PaymentStatus = "PAID";
+            p.PaidAt = DateTime.UtcNow;
+            p.BankCode = bankCode;
+            p.Amount = finalAmount;
+
+            await _payRepo.UpdateAsync(p, saveNow: false, ct);
+            await _payRepo.SaveChangesAsync(ct);
+        }
+        else
+        {
+            p.PaymentStatus = "FAILED";
+            await _payRepo.UpdateAsync(p, saveNow: false, ct);
+            await _payRepo.SaveChangesAsync(ct);
+        }
+
+        return new PaymentReceiptVm(p.PaymentId, p.PaymentStatus, p.Amount, p.CreatedAt, p.PaidAt, p.BankCode, p.Class?.ClassName ?? "");
     }
 }

@@ -1,0 +1,72 @@
+@page "/payments/vnpay-callback"
+@model LMS.Pages.Student.VnpayCallbackModel
+@{
+    ViewData["Title"] = Model.IsSuccess ? "Thanh toán thành công" : "Thanh toán chưa thành công";
+    var statusClass = Model.IsSuccess ? "success" : "danger";
+    var icon = Model.IsSuccess ? "bi bi-check-circle-fill" : "bi bi-x-circle-fill";
+}
+
+<div class="container py-4" style="max-width: 880px;">
+    <div class="card shadow-sm border-@statusClass">
+        <div class="card-body">
+            <div class="d-flex align-items-center mb-3">
+                <i class="@icon text-@statusClass me-2" style="font-size: 1.8rem;"></i>
+                <h4 class="mb-0">@Model.Title</h4>
+            </div>
+            <p class="text-muted mb-4">@Model.Message</p>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item px-0 d-flex justify-content-between">
+                            <span class="text-muted">Số tiền</span>
+                            <strong>@Model.Amount.ToString("N0") VND</strong>
+                        </div>
+                        <div class="list-group-item px-0 d-flex justify-content-between">
+                            <span class="text-muted">Ngân hàng</span>
+                            <span>@(string.IsNullOrWhiteSpace(Model.BankCode) ? "—" : Model.BankCode)</span>
+                        </div>
+                        <div class="list-group-item px-0 d-flex justify-content-between">
+                            <span class="text-muted">Thời điểm</span>
+                            <span>@(Model.PayDateLocal?.ToString("dd/MM/yyyy HH:mm") ?? "—")</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item px-0 d-flex justify-content-between">
+                            <span class="text-muted">Mã tham chiếu</span>
+                            <span>@(Model.VnpTxnRef ?? "—")</span>
+                        </div>
+                        <div class="list-group-item px-0 d-flex justify-content-between">
+                            <span class="text-muted">Mã ngân hàng</span>
+                            <span>@(Model.BankTranNo ?? "—")</span>
+                        </div>
+                        <div class="list-group-item px-0 d-flex justify-content-between">
+                            <span class="text-muted">Mã hệ thống</span>
+                            <span>@(Model.PaymentId?.ToString() ?? "—")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if ( !string.IsNullOrWhiteSpace(Model.OrderInfo) )
+            {
+                <div class="mt-3">
+                    <div class="small text-muted">Nội dung đơn hàng</div>
+                    <div class="fw-semibold">@Model.OrderInfo</div>
+                </div>
+            }
+
+            <div class="mt-4 d-flex gap-2">
+                <a class="btn btn-primary" asp-page="/Student/Payments/Index">Về lịch sử thanh toán</a>
+                <a class="btn btn-outline-secondary" asp-page="/Student/Checkout">Thanh toán khác</a>
+            </div>
+
+            <details class="mt-4">
+                <summary class="text-muted">Chi tiết kỹ thuật (ẩn/hiện)</summary>
+                <pre class="small mt-2">@Model.RawQuery</pre>
+            </details>
+        </div>
+    </div>
+</div>

@@ -1,10 +1,18 @@
 using System.Linq.Expressions;
+using LMS.Models.Entities;
 
 namespace LMS.Repositories.Abstraction;
 public sealed record PagedResult<T>(IReadOnlyList<T> Items,
                                     int TotalCount,
                                     int PageIndex,
-                                    int PageSize);
+                                    int PageSize)
+{
+    public static implicit operator PagedResult<T>(Models.ViewModels.PagedResult<Class> v)
+    {
+        throw new NotImplementedException();
+    }
+}
+
 public interface IRepository<T, TKey>
 where T : class
 where TKey : notnull

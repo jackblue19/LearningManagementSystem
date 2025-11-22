@@ -1,24 +1,12 @@
-using System;
+
+
 using LMS.Data;
 using LMS.Helpers;
 using LMS.Repositories;
-using LMS.Repositories.Impl.Communication;
-using LMS.Repositories.Impl.Info;
-using LMS.Repositories.Interfaces.Communication;
-using LMS.Repositories.Interfaces.Info;
-using LMS.Repositories.Impl.Academic;
 using LMS.Repositories.Impl.Assessment;
-using LMS.Repositories.Interfaces.Academic;
 using LMS.Repositories.Interfaces.Assessment;
 using LMS.Services.Impl;
-using LMS.Services.Impl.AdminService;
-using LMS.Services.Impl.CommonService;
-using LMS.Services.Impl.TeacherService;
 using LMS.Services.Interfaces;
-using LMS.Services.Interfaces.AdminService;
-using LMS.Services.Interfaces.CommonService;
-using LMS.Services.Interfaces.TeacherService;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,6 +29,12 @@ builder.Services.AddScoped<IExamRepository, ExamRepository>();
 builder.Services.AddScoped<IExamResultRepository, ExamResultRepository>();
 
 builder.Services.AddScoped(typeof(ICrudService<,>), typeof(CrudService<,>));
+
+builder.Services.ConfigureHttpJsonOptions(o =>
+{
+    o.SerializerOptions.PropertyNameCaseInsensitive = true;
+});
+
 
 // Register Repositories
 builder.Services.AddRepositories();
@@ -106,3 +100,4 @@ app.MapControllers();
 app.MapHub<LMS.Hubs.NotificationHub>("/notificationHub");
 
 app.Run();
+

@@ -1,0 +1,22 @@
+@page
+@model LMS.Pages.Registrations.CreateModel
+@{
+    ViewData["Title"] = "Đăng ký lớp";
+}
+@if ( Model.Class is null )
+{
+    <div class="alert alert-warning">Lớp không tồn tại.</div>
+}
+else
+{
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title mb-1">@Model.Class.ClassName</h4>
+            <form method="post">
+                @Html.AntiForgeryToken()
+                <button class="btn btn-primary">Xác nhận đăng ký</button>
+                <a class="btn btn-outline-secondary" asp-page="/Centers/Details" asp-route-id="@Model.Class.CenterId">Hủy</a>
+            </form>
+        </div>
+    </div>
+}

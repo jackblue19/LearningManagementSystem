@@ -1,4 +1,9 @@
 <!DOCTYPE html>
+@using LMS.Helpers;
+@{
+    var isAuth = User?.Identity?.IsAuthenticated ?? false;
+}
+
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -89,11 +94,12 @@
                                     </a>
                                 </li>
                             }
-                            else if (role == "student")
+                            else if ( isAuth && role == "student" )
                             {
-								<a class="navbar-brand" asp-area="" asp-page="/Index">
-									<i class="bi bi-mortarboard-fill"></i> LMS
-								</a>
+                                <a class="nav-link" asp-page="/Centers/Index">Trung tâm</a>
+                                <a class="nav-link" asp-page="/Student/Schedule/Index">Lịch học</a>
+                                <a class="nav-link" asp-page="/Student/Exams/Index">Bài kiểm tra</a>
+                                <a class="nav-link" asp-page="/Student/Payments/Index">Thanh toán</a>
                             }
                         }
                     </ul>

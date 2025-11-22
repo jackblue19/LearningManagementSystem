@@ -1,0 +1,50 @@
+@page
+@model LMS.Pages.Student.Payments.IndexModel
+@{
+    ViewData["Title"] = "Lịch sử & Cần thanh toán";
+    string badge(string s) => s?.ToUpperInvariant() switch { "PAID" => "success", "FAILED" => "danger", "PENDING" => "warning", _ => "secondary" };
+}
+
+@if ( Model.Payables.Count > 0 )
+{
+    <div class="card mb-3">
+        <div class="card-header"><strong>Các đăng ký cần thanh toán</strong></div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Lớp học</th>
+                            <th>Trung tâm</th>
+                            <th class="text-end">Đơn giá</th>
+                            <th class="text-end">Số buổi</th>
+                            <th class="text-end">Số tiền</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ( var x in Model.Payables )
+                        {
+                            <tr>
+                                <td class="fw-semibold">@x.ClassName</td>
+                                <td>@(x.CenterName ?? "—")</td>
+                                <td class="text-end">@x.UnitPrice.ToString("N0")</td>
+                                <td class="text-end">@x.TotalSessions</td>
+                                <td class="text-end">@x.AmountDue.ToString("N0")</td>
+                                <td class="text-end">
+                                    <a class="btn btn-sm btn-primary"
+                                       asp-page="/Student/Checkout"
+                                       asp-route-registrationId="@x.RegistrationId"
+                                       asp-route-amount="@x.AmountDue"
+                                       asp-route-desc="@($"Học phí lớp {x.ClassName}")">
+                                        Thanh toán
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}

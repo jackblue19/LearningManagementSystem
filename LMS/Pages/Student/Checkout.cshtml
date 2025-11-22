@@ -1,0 +1,34 @@
+@page
+@model LMS.Pages.Student.CheckoutModel
+@{
+    ViewData["Title"] = "Thanh toán học phí";
+    var disabled = Model.RegistrationId.HasValue ? "readonly" : null;
+}
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="registrationId" value="@Model.RegistrationId" />
+
+            <div class="mb-3">
+                <label class="form-label">Số tiền (VND)</label>
+                <input name="amount" type="number" min="0" class="form-control"
+                       value="@(Model.Amount?.ToString() ?? "")" @disabled />
+                @if ( Model.RegistrationId.HasValue && !string.IsNullOrEmpty(Model.ClassName) )
+                {
+                    <div class="form-text">Khoá: <strong>@Model.ClassName</strong></div>
+                }
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Mô tả</label>
+                <input name="description" class="form-control" value="@(Model.Desc ?? "")" @disabled />
+            </div>
+
+            <div class="text-end">
+                <button class="btn btn-primary">Pay with VNPAY</button>
+            </div>
+        </form>
+    </div>
+</div>

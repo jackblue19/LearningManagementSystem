@@ -1,0 +1,18 @@
+@page "{id:guid}"
+@model LMS.Pages.Classes.DetailsModel
+@{
+    ViewData["Title"] = "Thông tin lớp học";
+}
+
+<h1>@Model.Class.ClassName</h1>
+
+<div class="card p-4 shadow-sm">
+    <p><strong>Môn:</strong> @Model.Class.Subject?.SubjectName</p>
+    <p><strong>Giáo viên:</strong> @Model.Class.Teacher?.FullName</p>
+    <p><strong>Địa chỉ:</strong> @Model.Class.ClassAddress</p>
+    <p><strong>Giá:</strong> @String.Format("{0:N0}đ", Model.Class.UnitPrice)</p>
+
+    <form method="post" asp-page-handler="Register">
+        <button class="btn btn-success">Đăng ký học</button>
+    </form>
+</div>

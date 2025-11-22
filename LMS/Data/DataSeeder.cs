@@ -29,6 +29,12 @@ public static class DataSeeder
         var defaultPasswordHash = HashPassword("123456");
         Console.WriteLine(defaultPasswordHash);
 
+        // ===== FIXED IDs FOR TESTING =====
+        var studentZId = Guid.Parse("b2f8d2f8-27d8-46fb-9b8a-3b49a5b3d9aa"); // user: studentz
+        var payPaidId = Guid.Parse("11111111-1111-1111-1111-111111111111");   // payment PAID
+        var payFailId = Guid.Parse("22222222-2222-2222-2222-222222222222");   // payment FAILED
+        var payPendId = Guid.Parse("33333333-3333-3333-3333-333333333333");   // payment PENDING
+
         // 1. Seed Users (Admin, Manager, Teacher, Students)
         var adminId = Guid.NewGuid();
         var managerId = Guid.NewGuid();
@@ -139,6 +145,19 @@ public static class DataSeeder
                 RoleDesc = "student",
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
+            },
+            new User
+            {
+                UserId = studentZId,
+                Username = "studentz",
+                Email = "studentz@lms.com",
+                PasswordHash = "123456",
+                FullName = "Student Z",
+                Phone = "0909999999",
+                RoleDesc = "student",
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow,
+                Avatar = "/images/avatars/studentz.jpg"
             }
         };
 
@@ -293,42 +312,42 @@ public static class DataSeeder
             {
                 ClassId = class1Id,
                 StudentId = student1Id,
-                RegistrationStatus = "approved",
+                RegistrationStatus = "Approved",
                 RegisteredAt = DateTime.UtcNow.AddDays(-7)
             },
             new ClassRegistration
             {
                 ClassId = class1Id,
                 StudentId = student2Id,
-                RegistrationStatus = "approved",
+                RegistrationStatus = "Approved",
                 RegisteredAt = DateTime.UtcNow.AddDays(-6)
             },
             new ClassRegistration
             {
                 ClassId = class1Id,
                 StudentId = student3Id,
-                RegistrationStatus = "approved",
+                RegistrationStatus = "Approved",
                 RegisteredAt = DateTime.UtcNow.AddDays(-5)
             },
             new ClassRegistration
             {
                 ClassId = class1Id,
                 StudentId = student4Id,
-                RegistrationStatus = "approved",
+                RegistrationStatus = "Approved",
                 RegisteredAt = DateTime.UtcNow.AddDays(-4)
             },
             new ClassRegistration
             {
                 ClassId = class2Id,
                 StudentId = student3Id,
-                RegistrationStatus = "approved",
+                RegistrationStatus = "Approved",
                 RegisteredAt = DateTime.UtcNow.AddDays(-3)
             },
             new ClassRegistration
             {
                 ClassId = class2Id,
                 StudentId = student5Id,
-                RegistrationStatus = "approved",
+                RegistrationStatus = "Approved",
                 RegisteredAt = DateTime.UtcNow.AddDays(-2)
             }
         };
@@ -340,7 +359,7 @@ public static class DataSeeder
         // 8. Seed Class Schedules (More data for GlobalSchedule testing)
         var today = DateOnly.FromDateTime(DateTime.Now);
         var monday = today.AddDays(-(int)today.DayOfWeek + (int)DayOfWeek.Monday);
-        
+
         var schedules = new List<ClassSchedule>
         {
             // Monday (Thứ 2) - Multiple rooms in same slot
@@ -669,7 +688,7 @@ public static class DataSeeder
 
         await context.Feedbacks.AddRangeAsync(feedbacks);
         await context.SaveChangesAsync();
-      
+
         // 11. Seed Teacher Availabilities (For Manager features testing)
         var teacherAvailabilities = new List<TeacherAvailability>
         {
@@ -754,6 +773,42 @@ public static class DataSeeder
 
         await context.TeacherAvailabilities.AddRangeAsync(teacherAvailabilities);
         await context.SaveChangesAsync();
-       
+
+        // ===== PAYMENTS for studentz =====
+        var payments = new List<Payment>
+        {
+            new Payment
+            {
+                PaymentId     = payPaidId,
+                VnpTxnRef     = "VNP-PAID-Z-0001",
+                Amount        = 1_000_000m,
+                PaymentStatus = "PAID",
+                PaidAt        = DateTime.UtcNow.AddMinutes(-45),
+                StudentId     = student2Id,
+                BankCode      = "NCB"
+            },
+            new Payment
+            {
+                PaymentId     = payFailId,
+                VnpTxnRef     = "VNP-FAIL-Z-0001",
+                Amount        = 1_500_000m,
+                PaymentStatus = "FAILED",
+                PaidAt        = DateTime.UtcNow.AddMinutes(-20),
+                StudentId     = student2Id,
+                BankCode      = "NCB"
+            },
+            new Payment
+            {
+                PaymentId     = payPendId,
+                VnpTxnRef     = "VNP-PEND-Z-0001",
+                Amount        = 2_000_000m,
+                PaymentStatus = "PENDING",
+                PaidAt        = null,
+                StudentId     = student2Id
+            }
+        };
+        await context.Payments.AddRangeAsync(payments);
+        await context.SaveChangesAsync();
+
     }
 }
